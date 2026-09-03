@@ -47,11 +47,32 @@ def cyl(x,y,w,h,title,sub=None,style="plain"):
         s+='<text x="%g" y="%g" text-anchor="middle" font-size="11.5" font-weight="600" fill="%s">%s</text>'%(x+w/2.0,y+h/2.0+7,tc,e(title))
     return s
 
-def frame(x,y,w,h,label,color=MUTED,dash=True,fill="none"):
+# Zone wash — a grouping frame is a tinted region, not just an outline, so nesting and
+# ownership read at a glance. Light enough that white boxes still sit clearly on top.
+TINT = {ACC:"#EFF5FA", FLAG:"#FBF3F1", GRN:"#EFF6F2", AMB:"#FAF6EC", VIO:"#F4F2F9",
+        MUTED:"#F5F7F8", LINE:"#F7F8F9", INK:"#F5F6F7"}
+
+def frame(x,y,w,h,label,color=MUTED,dash=True,fill=None):
     d=' stroke-dasharray="6 5"' if dash else ''
+    if fill is None: fill = TINT.get(color,"none")
     s='<rect x="%g" y="%g" width="%g" height="%g" rx="5" fill="%s" stroke="%s" stroke-width="1.2"%s/>'%(x,y,w,h,fill,color,d)
-    s+='<text x="%g" y="%g" font-size="9.5" font-weight="600" letter-spacing="0.06em" fill="%s" paint-order="stroke" stroke="%s" stroke-width="4">%s</text>'%(x+11,y+0.5,color,PAPER,e(label.upper()))
+    s+='<text x="%g" y="%g" font-size="9.5" font-weight="600" letter-spacing="0.06em" fill="%s" paint-order="stroke" stroke="%s" stroke-width="4">%s</text>'%(x+11,y+0.5,color,fill if fill!="none" else PAPER,e(label.upper()))
     return s
+
+def band(x,y,w,h,title,color=ACC,fs=10.5,rx=4.0):
+    """A layered-architecture band: solid title bar over a tinted body."""
+    hh=23.0
+    s='<rect x="%g" y="%g" width="%g" height="%g" rx="%g" fill="%s" stroke="%s" stroke-width="1.2"/>'%(
+        x,y,w,h,rx,TINT[color],color)
+    s+='<rect x="%g" y="%g" width="%g" height="%g" rx="%g" fill="%s"/>'%(x,y,w,hh,rx,color)
+    s+='<rect x="%g" y="%g" width="%g" height="%g" fill="%s"/>'%(x,y+hh-rx,w,rx,color)
+    s+='<text x="%g" y="%g" text-anchor="middle" font-size="%g" font-weight="600" letter-spacing="0.04em" fill="#FFFFFF">%s</text>'%(
+        x+w/2.0,y+15.5,fs,e(title))
+    return s
+
+def col(x,y,w,h,title,color=ACC,fs=10):
+    """A labelled column — the same idea as band(), sized for vertical stacks."""
+    return band(x,y,w,h,title,color,fs)
 
 def arr(x1,y1,x2,y2,label=None,color=MUTED,dash=False,lp=0.5,dy=-6,fs=9.5,head=True):
     d=' stroke-dasharray="5 4"' if dash else ''

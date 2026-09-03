@@ -13,6 +13,7 @@ from entries import *
 import os, re, json
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+SUB  = "pages"          # every page except index.html lives here
 
 LEVELS   = {1:("Foundation","level-foundation","t1"),
             2:("Core practice","level-core-practice","t2"),
@@ -31,9 +32,15 @@ def slug(s):
 def anchor(name):
     return "d-"+slug(name)
 
-def url(en):
+def P(target, root):
+    """Link to a logical page from index.html (root=True) or from inside SUB."""
+    if target == "index":
+        return "index.html" if root else "../index.html"
+    return ("%s/%s.html" % (SUB, target)) if root else ("%s.html" % target)
+
+def url(en, root=False):
     """An entry's canonical home is its category page."""
-    return "%s.html#%s" % (CATSLUG[en["cat"]], anchor(en["name"]))
+    return P(CATSLUG[en["cat"]], root) + "#" + anchor(en["name"])
 
 # ------------------------------------------------------------------ validation
 PAINT_OK = re.compile(r'^(#[0-9A-Fa-f]{3,8}|none|url\(#\w+\)|currentColor)$')
@@ -299,10 +306,11 @@ footer a{color:var(--muted)}
 """
 
 # ------------------------------------------------------------------ fragments
-def render_entry(en, idx):
+def render_entry(en, idx, root=False):
     lname, lslug, lcls = LEVELS[en["tier"]]
     step = PATH_BY_NAME.get(en["name"])
-    badge = ('<a class="onpath" href="learning-path.html">learning path · step %d</a>' % step[1]) if step else ""
+    badge = ('<a class="onpath" href="%s">learning path · step %d</a>'
+             % (P("learning-path", root), step[1])) if step else ""
     alias = ""
     if en["alias"]:
         alias = ('<ul class="alias"><li class="lab">also called</li>'
@@ -310,8 +318,8 @@ def render_entry(en, idx):
     return (
     '<article class="entry" id="%s">'
     '<div class="ehead"><span class="plateno">%02d.%d</span><h2 class="name">%s</h2>'
-    '<span class="badges">%s<a class="tier %s" href="%s.html">%s</a></span></div>'
-    '<p class="catline"><a href="%s.html">%s</a></p>'
+    '<span class="badges">%s<a class="tier %s" href="%s">%s</a></span></div>'
+    '<p class="catline"><a href="%s">%s</a></p>'
     '<p class="defn">%s</p>%s'
     '<figure class="fig"><div class="sheet">%s</div><figcaption>%s</figcaption></figure>'
     '<dl class="facts">'
@@ -320,8 +328,8 @@ def render_entry(en, idx):
     '<div><dt>It must show</dt><dd>%s</dd></div>'
     '<div class="fail"><dt>Common failure</dt><dd>%s</dd></div>'
     '</dl></article>'
-    % (anchor(en["name"]), en["cat"], idx, e(en["name"]), badge, lcls, lslug, e(lname),
-       CATSLUG[en["cat"]], e(CATNAME[en["cat"]]), e(en["defn"]), alias,
+    % (anchor(en["name"]), en["cat"], idx, e(en["name"]), badge, lcls, P(lslug, root), e(lname),
+       P(CATSLUG[en["cat"]], root), e(CATNAME[en["cat"]]), e(en["defn"]), alias,
        en["svg"], e(en["cap"]), e(en["answers"]), e(en["when"]), e(en["must"]), e(en["fail"])))
 
 # Plate number NN.n — position within the entry's own category, in declaration order.
@@ -330,42 +338,44 @@ for _en in E:
     _seen[_en["cat"]] = _seen.get(_en["cat"], 0) + 1
     CAT_INDEX[_en["name"]] = _seen[_en["cat"]]
 
-def nav(active):
-    n = ('<a class="cat" href="index.html"%s><span class="n">⌂</span><span>Overview</span></a>'
-         % (' aria-current="page"' if active == "index" else ""))
+def nav(active, root):
+    n = ('<a class="cat" href="%s"%s><span class="n">⌂</span><span>Overview</span></a>'
+         % (P("index", root), ' aria-current="page"' if active == "index" else ""))
     n += '<p class="navlabel second">By level</p>'
-    n += ('<a class="cat star" href="learning-path.html"%s><span class="n">★</span>'
+    n += ('<a class="cat star" href="%s"%s><span class="n">★</span>'
           '<span>Learning path</span><span class="k">%d</span></a>'
-          % (' aria-current="page"' if active == "learning-path" else "", len(PATH)))
+          % (P("learning-path", root),
+             ' aria-current="page"' if active == "learning-path" else "", len(PATH)))
     for l in (1, 2, 3):
         name, lslug, _ = LEVELS[l]
         cnt = sum(1 for x in E if x["tier"] == l)
-        n += ('<a class="cat" href="%s.html"%s><span class="n">L%d</span>'
+        n += ('<a class="cat" href="%s"%s><span class="n">L%d</span>'
               '<span>%s</span><span class="k">%d</span></a>'
-              % (lslug, ' aria-current="page"' if active == lslug else "", l, e(name), cnt))
+              % (P(lslug, root), ' aria-current="page"' if active == lslug else "", l, e(name), cnt))
     n += '<p class="navlabel second">Categories</p>'
     for i, name, cslug, _ in CATS:
         cnt = sum(1 for x in E if x["cat"] == i)
-        n += ('<a class="cat" href="%s.html"%s><span class="n">%02d</span>'
+        n += ('<a class="cat" href="%s"%s><span class="n">%02d</span>'
               '<span>%s</span><span class="k">%d</span></a>'
-              % (cslug, ' aria-current="page"' if active == cslug else "", i, e(name), cnt))
+              % (P(cslug, root), ' aria-current="page"' if active == cslug else "", i, e(name), cnt))
     return n
 
-def pager(prev, nxt):
+def pager(prev, nxt, root=False):
     if not prev and not nxt: return ""
     out = '<div class="pager">'
-    out += (('<a href="%s.html"><span>Previous</span><b>%s</b></a>' % (prev[0], e(prev[1])))
+    out += (('<a href="%s"><span>Previous</span><b>%s</b></a>' % (P(prev[0], root), e(prev[1])))
             if prev else '<span class="sp"></span>')
-    out += (('<a class="nx" href="%s.html"><span>Next</span><b>%s</b></a>' % (nxt[0], e(nxt[1])))
+    out += (('<a class="nx" href="%s"><span>Next</span><b>%s</b></a>' % (P(nxt[0], root), e(nxt[1])))
             if nxt else '<span class="sp"></span>')
     return out + '</div>'
 
-SEARCH_INDEX = json.dumps(
-    [[en["name"], url(en), CATNAME[en["cat"]], LEVELS[en["tier"]][0], en["answers"],
+def search_index(root):
+  return json.dumps(
+    [[en["name"], url(en, root), CATNAME[en["cat"]], LEVELS[en["tier"]][0], en["answers"],
       " ".join([en["name"], CATNAME[en["cat"]], en["answers"], en["when"]] + en["alias"]).lower()]
      for en in E], ensure_ascii=False, separators=(",", ":"))
 
-JS = """
+JS_TPL = """
 <script>window.IDX=%s;</script>
 <script>
 (function(){
@@ -400,30 +410,32 @@ JS = """
   window.addEventListener('hashchange', flash); flash();
 })();
 </script>
-""" % SEARCH_INDEX
+"""
 
-def page(fname, title, desc, active, body):
+def page(fname, title, desc, active, body, root=False):
     html = ('<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
             '<meta name="description" content="%s">\n'
             '<title>%s</title>\n' % (e(desc), e(title))
         + CSS
         + ('<header class="top"><div class="topin">'
-           '<h1 class="brand"><a href="index.html">Architecture <em>Diagram Dictionary</em></a></h1>'
+           '<h1 class="brand"><a href="%s">Architecture <em>Diagram Dictionary</em></a></h1>'
            '<p class="tagline">%d types · %d categories · 3 levels</p>'
            '<div class="search"><input id="q" type="search" placeholder="Search all %d types…" '
            'aria-label="Search diagram types" autocomplete="off"><span id="count"></span></div>'
-           '</div></header>' % (len(E), len(CATS), len(E)))
+           '</div></header>' % (P("index", root), len(E), len(CATS), len(E)))
         + DEFS
-        + '<div class="shell"><nav class="cats" aria-label="Sections">' + nav(active) + '</nav>'
+        + '<div class="shell"><nav class="cats" aria-label="Sections">' + nav(active, root) + '</nav>'
           '<main><div id="results"></div><div id="pagebody">' + body + '</div></main></div>'
         + ('<footer>Levels &nbsp;—&nbsp; L1 foundation: describe any system. L2 core practice: '
            'design and operate a distributed one. L3 specialist: depth where the domain requires it. '
-           '<a href="learning-path.html">The learning path</a> sequences %d of the %d types across '
+           '<a href="%s">The learning path</a> sequences %d of the %d types across '
            'those levels. Sample plates are drawn to one house style; they show the notation, not a '
-           'real system.</footer>' % (len(PATH), len(E)))
-        + JS)
-    with open(os.path.join(ROOT, fname), "w", encoding="utf-8") as f:
+           'real system.</footer>' % (P("learning-path", root), len(PATH), len(E)))
+        + (JS_TPL % search_index(root)))
+    path = os.path.join(ROOT, fname) if root else os.path.join(ROOT, SUB, fname)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
         f.write(html)
     return len(html)
 
@@ -437,17 +449,17 @@ def build():
         name, lslug, _ = LEVELS[l]
         _, outcome, _blurb = STAGE[l]
         cnt = sum(1 for x in E if x["tier"] == l)
-        lcards += ('<a class="card lcard l%d" href="%s.html"><span class="cn">Level %d</span>'
+        lcards += ('<a class="card lcard l%d" href="%s"><span class="cn">Level %d</span>'
                    '<h3>%s</h3><p>%s</p><span class="k">%d diagram types →</span></a>'
-                   % (l, lslug, l, e(name), e(outcome), cnt))
+                   % (l, P(lslug, True), l, e(name), e(outcome), cnt))
     ccards = ""
     for i, name, cslug, blurb in CATS:
         cnt = sum(1 for x in E if x["cat"] == i)
-        ccards += ('<a class="card" href="%s.html"><span class="cn">%02d</span><h3>%s</h3>'
+        ccards += ('<a class="card" href="%s"><span class="cn">%02d</span><h3>%s</h3>'
                    '<p>%s</p><span class="k">%d types →</span></a>'
-                   % (cslug, i, e(name), e(blurb), cnt))
+                   % (P(cslug, True), i, e(name), e(blurb), cnt))
     qrows = "".join('<a href="%s"><span class="q">%s</span><span class="d">%s</span></a>'
-                    % (url(BY_NAME[n]), e(q), e(n)) for q, n in QUESTIONS)
+                    % (url(BY_NAME[n], True), e(q), e(n)) for q, n in QUESTIONS)
     body = ('<div class="phead"><h1 class="ptitle">An architecture diagram dictionary</h1>'
             '<p class="pblurb">%d diagram types across %d categories — each with a sample plate, the '
             'question it answers, when to reach for it, what it must show, and the mistake that shows '
@@ -462,7 +474,7 @@ def build():
         "index.html", "Architecture Diagram Dictionary",
         "%d software architecture diagram types across %d categories — each with a sample plate, "
         "the question it answers, and the mistake that shows up in review." % (len(E), len(CATS)),
-        "index", body)))
+        "index", body, root=True)))
 
     # learning path --------------------------------------------------------
     stages = ""
@@ -473,16 +485,16 @@ def build():
         stages += ('<li class="stage s%d"><div class="stage-head">'
                    '<span class="sn">Level %d · %d diagrams</span><h2>%s</h2>'
                    '<p class="outcome">%s</p><p>%s</p>'
-                   '<a class="more" href="%s.html">All %d at this level →</a></div>'
+                   '<a class="more" href="%s">All %d at this level →</a></div>'
                    '<ol class="steps">%s</ol></li>'
                    % (l, l, sum(1 for lv, _, _, _ in PATH if lv == l), e(name), e(outcome), e(blurb),
-                      lslug, sum(1 for x in E if x["tier"] == l), chips))
+                      P(lslug, False), sum(1 for x in E if x["tier"] == l), chips))
     listing = "".join(
         '<li><a href="%s"><span class="st">%d</span><span class="nm">%s</span>'
         '<span class="an">%s</span></a></li>'
         % (url(BY_NAME[n]), PATH_ORDER[n], e(BY_NAME[n]["name"]), e(BY_NAME[n]["answers"]))
         for lv, st, label, n in sorted(PATH, key=lambda r: (r[0], r[1])))
-    body = ('<div class="phead"><p class="crumb"><a href="index.html">Overview</a> · Learning path</p>'
+    body = ('<div class="phead"><p class="crumb"><a href="../index.html">Overview</a> · Learning path</p>'
             '<h1 class="ptitle">Learning path</h1>'
             '<p class="pblurb">%d types is a reference, not a syllabus. These %d carry most of the '
             'work, arranged in three levels that build on one another — each assumes the one above '
@@ -504,12 +516,12 @@ def build():
         prev = ((LEVELS[l-1][1], "Level %d · %s" % (l-1, LEVELS[l-1][0])) if l > 1
                 else ("learning-path", "Learning path"))
         nxt = (LEVELS[l+1][1], "Level %d · %s" % (l+1, LEVELS[l+1][0])) if l < 3 else None
-        body = ('<div class="phead"><p class="crumb"><a href="index.html">Overview</a> · '
+        body = ('<div class="phead"><p class="crumb"><a href="../index.html">Overview</a> · '
                 '<a href="learning-path.html">Learning path</a> · Level %d</p>'
                 '<h1 class="ptitle">%s</h1><p class="pblurb"><b>%s.</b> %s</p>'
                 '<p class="pmeta">%d types at this level · %d of them on the learning path</p></div>'
                 % (l, e(name), e(outcome), e(blurb), len(ents), onpath))
-        body += "".join(render_entry(en, CAT_INDEX[en["name"]]) for en in ents)
+        body += "".join(render_entry(en, CAT_INDEX[en["name"]], root=False) for en in ents)
         body += pager(prev, nxt)
         written.append((lslug + ".html", page(
             lslug + ".html", "%s · Architecture Diagram Dictionary" % name,
@@ -526,11 +538,11 @@ def build():
         lv = {}
         for x in ents: lv[x["tier"]] = lv.get(x["tier"], 0) + 1
         mix = " · ".join("%d %s" % (lv[k], LEVELS[k][0].lower()) for k in sorted(lv))
-        body = ('<div class="phead"><p class="crumb"><a href="index.html">Overview</a> · '
+        body = ('<div class="phead"><p class="crumb"><a href="../index.html">Overview</a> · '
                 'Category %02d</p><h1 class="ptitle">%s</h1><p class="pblurb">%s</p>'
                 '<p class="pmeta">%d types · %s</p></div>'
                 % (i, e(name), e(blurb), len(ents), e(mix)))
-        body += "".join(render_entry(en, n + 1) for n, en in enumerate(ents))
+        body += "".join(render_entry(en, n + 1, root=False) for n, en in enumerate(ents))
         body += pager(prev, nxt)
         written.append((cslug + ".html", page(
             cslug + ".html", "%s · Architecture Diagram Dictionary" % name,

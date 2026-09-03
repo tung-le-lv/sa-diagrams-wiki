@@ -5,55 +5,70 @@ from svg_kit import *
 # ---------- diagrams ----------
 def d_context():
     b=""
-    b+=node(240,100,170,58,"Order Platform","the system in scope","acc",fs=13)
-    b+=node(40,26,150,46,"Customer","person")
-    b+=node(40,182,150,46,"Support agent","person")
-    b+=node(460,26,150,46,"Payment provider","external","soft")
-    b+=node(460,106,150,46,"Email / SMS","external","soft")
-    b+=node(460,186,150,46,"Carrier API","external","soft")
-    b+=arr(190,52,238,112,"places orders",lp=0.55,dy=-5)
-    b+=arr(190,208,238,148,"handles returns",lp=0.55,dy=12)
-    b+=arr(412,116,458,58,"authorises",lp=0.5,dy=-5)
-    b+=arr(412,129,458,129,"notifies",dy=-6)
-    b+=arr(412,142,458,200,"books shipment",lp=0.5,dy=12)
-    return svg(250,b)
+    b+=frame(232,86,186,92,"in scope",ACC,dash=False)
+    b+=inode(248,106,154,54,"Order Platform","the system in scope","acc","container",fs=12.5)
+    b+=inode(24,26,166,46,"Customer","person","soft","user",fs=11)
+    b+=inode(24,192,166,46,"Support agent","person","soft","user",fs=11)
+    b+=inode(452,20,164,46,"Payment provider","external","vio","lock",fs=11)
+    b+=inode(452,108,164,46,"Email / SMS","external","vio","bell",fs=11)
+    b+=inode(452,196,164,46,"Carrier API","external","vio","globe",fs=11)
+    b+=arr(190,58,244,120,"places orders",lp=0.28,dy=-6)
+    b+=arr(190,210,246,152,"handles returns",lp=0.55,dy=12)
+    b+=arr(404,120,450,50,"authorises",lp=0.55,dy=-5)
+    b+=arr(404,132,450,132,"notifies",dy=-6)
+    b+=arr(404,144,450,212,"books shipment",lp=0.55,dy=12)
+    b+=txt(24,272,"One box for the system, everyone and everything around it, and a verb on every arrow.",10,MUTED)
+    b+=txt(24,287,"The moment a second box of yours appears, this has become a container diagram.",10,MUTED)
+    return svg(298,b)
 
 def d_container():
     b=""
-    b+=node(40,20,140,42,"Web SPA","React")
-    b+=node(200,20,140,42,"Mobile app","iOS / Android")
-    b+=node(120,92,200,46,"API Gateway",".NET 8","acc")
-    b+=node(30,170,150,48,"Order Service",".NET")
-    b+=node(200,170,150,48,"Payment Service",".NET")
-    b+=node(420,170,180,48,"Stripe","external system","soft")
-    b+=cyl(30,250,150,46,"Orders DB","PostgreSQL")
-    b+=node(200,252,150,44,"Kafka","event bus","amb")
-    b+=node(420,252,180,44,"Notification Service",".NET")
-    b+=arr(110,62,180,90)
-    b+=arr(270,62,240,90)
-    b+=arr(180,138,110,168,"HTTPS / JSON",lp=0.5,dy=-4,fs=9)
-    b+=arr(260,138,272,168)
-    b+=arr(105,218,105,248)
-    b+=arr(275,218,275,250)
-    b+=arr(350,194,418,194,"sync, 3s timeout",fs=9)
-    b+=arr(180,200,200,200)
-    b+=arr(350,274,418,274,"OrderConfirmed",color=AMB,fs=9,dash=True)
-    return svg(310,b)
+    b+=frame(24,20,592,58,"clients",MUTED)
+    b+=inode(40,34,168,34,"Web SPA","React","soft","globe",fs=10.5,isize=14,pad=8)
+    b+=inode(224,34,168,34,"Mobile app","iOS / Android","soft","container",fs=10.5,isize=14,pad=8)
+    b+=inode(408,34,192,34,"Partner system","server-to-server","soft","network",fs=10.5,isize=14,pad=8)
+    b+=inode(150,96,240,44,"API Gateway",".NET 8 · authn, rate limit","acc","shield",fs=11.5)
+    b+=inode(424,96,192,44,"Identity provider","OIDC","vio","key",fs=10.5)
+    b+=arr(124,68,214,94); b+=arr(308,68,286,94)
+    b+=arr(504,68,504,94)
+    b+=arr(422,118,392,118,"validates",dy=-5,fs=9,color=VIO,dash=True)
+    b+=frame(24,158,382,142,"our services",ACC,dash=False)
+    b+=inode(40,182,170,42,"Order Service",".NET 8","acc","server",fs=10.5)
+    b+=inode(222,182,170,42,"Payment Service",".NET 8","acc","server",fs=10.5)
+    b+=cyl(40,240,170,48,"Orders DB","PostgreSQL","grn")
+    b+=cyl(222,240,170,48,"Payments DB","PostgreSQL","grn")
+    b+=arr(125,224,125,238); b+=arr(307,224,307,238)
+    b+=arr(210,203,220,203)
+    b+=arr(230,140,200,180,"HTTPS / JSON",lp=0.5,dy=-4,fs=9)
+    b+=inode(424,182,192,42,"Kafka","event bus · 3 brokers","amb","queue",fs=10.5)
+    b+=inode(424,240,192,42,"Notification Svc",".NET 8","acc","bell",fs=10.5)
+    b+=inode(424,296,192,40,"Stripe","external system","soft","lock",fs=10.5)
+    b+=arr(392,196,422,196,"events",dy=-5,fs=9,color=AMB,dash=True)
+    b+=arr(520,224,520,238,None,AMB,dash=True)
+    b+=arr(392,258,422,290,"sync, 3 s",lp=0.62,dy=-4,fs=9)
+    b+=txt(24,362,"Technology in brackets on every box, protocol on every arrow, solid for synchronous calls and",10,MUTED)
+    b+=txt(24,377,"dashed for events. Boxes with no technology on them are a picture of nouns, not an architecture.",10,MUTED)
+    return svg(388,b)
 
 def d_component():
-    b=frame(24,22,592,206,"Order Service  ·  container")
-    b+=node(52,54,152,46,"OrdersController","REST endpoint")
-    b+=node(244,54,168,46,"PlaceOrderHandler","application layer")
-    b+=node(452,54,140,46,"OrderRepository","EF Core")
-    b+=node(244,140,168,46,"Order","aggregate root","acc")
-    b+=node(452,140,140,46,"OutboxPublisher","infrastructure")
-    b+=node(52,140,152,46,"OrderValidator","policy")
-    b+=arr(204,77,242,77)
-    b+=arr(412,77,450,77)
-    b+=arr(328,100,328,138,"mutates",lp=0.5,dy=-4,fs=9)
-    b+=arr(412,163,450,163)
-    b+=arr(204,163,242,163,"rules",dy=-5,fs=9)
-    return svg(240,b)
+    b=frame(24,20,592,232,"Order Service  ·  one container",ACC,dash=False)
+    b+=band(44,44,168,60,"API layer",ACC)
+    b+=inode(52,72,152,26,"OrdersController",None,"plain","network",fs=9.5,isize=12,pad=5)
+    b+=band(236,44,168,60,"Application",ACC)
+    b+=inode(244,72,152,26,"PlaceOrderHandler",None,"plain","gear",fs=9.5,isize=12,pad=5)
+    b+=band(428,44,168,60,"Infrastructure",ACC)
+    b+=inode(436,72,152,26,"OrderRepository",None,"plain","db",fs=9.5,isize=12,pad=5)
+    b+=frame(44,124,552,110,"domain  ·  no outward dependencies",GRN,dash=False)
+    b+=inode(62,150,182,44,"Order","aggregate root","grn","container",fs=11)
+    b+=inode(262,150,164,44,"OrderValidator","policy","grn","check",fs=10.5)
+    b+=inode(444,150,134,44,"OutboxPublisher","events","grn","queue",fs=10.5)
+    b+=txt(62,214,"Dependencies point inward. The domain box knows nothing about EF Core, HTTP or Kafka.",9.5,MUTED)
+    b+=arr(212,84,234,84); b+=arr(404,84,426,84)
+    b+=arr(320,104,320,148,"mutates",lp=0.5,dy=-4,fs=9)
+    b+=arr(244,172,258,172); b+=arr(426,172,442,172)
+    b+=txt(24,282,"Worth drawing only for a service whose internals are genuinely non-obvious. Draw the container",10,MUTED)
+    b+=txt(24,297,"boundary explicitly, or the level of zoom is ambiguous and the diagram starts an argument.",10,MUTED)
+    return svg(308,b)
 
 def d_class():
     b=""
@@ -71,73 +86,83 @@ def d_class():
 
 def d_state():
     b=""
-    b+=pill(30,104,88,34,"Draft")
-    b+=pill(146,104,96,34,"Pending","acc")
-    b+=pill(270,104,88,34,"Paid")
-    b+=pill(386,104,96,34,"Shipped")
-    b+=pill(510,104,102,34,"Delivered","grn")
-    b+=pill(146,190,96,32,"Cancelled","soft")
-    b+=pill(270,26,88,32,"Failed","flag")
-    b+=arr(118,121,144,121,"place()",dy=-5)
-    b+=arr(242,121,268,121,"authorised",dy=-5,fs=9)
-    b+=arr(358,121,384,121,"dispatch()",dy=-5,fs=9)
-    b+=arr(482,121,508,121,"delivered",dy=-5,fs=9)
-    b+=poly([(200,138),(200,188)],label="cancel()",lx=200,ly=168,color=MUTED)
-    b+=poly([(300,104),(300,60)],label="declined",lx=300,ly=88,color=FLAG)
-    b+=poly([(270,42),(214,42),(214,102)],color=MUTED,label="retry",lx=238,ly=36)
-    b+='<circle cx="20" cy="121" r="5.5" fill="%s"/>'%INK
-    b+=arr(26,121,28,121,head=False)
-    b+='<circle cx="622" cy="121" r="7" fill="none" stroke="%s" stroke-width="1.4"/><circle cx="622" cy="121" r="4" fill="%s"/>'%(INK,INK)
-    b+=arr(612,121,614,121,head=False)
-    return svg(238,b)
+    b+='<circle cx="34" cy="126" r="6.5" fill="%s"/>'%INK
+    b+=pill(56,108,96,36,"Draft","soft",fs=12)
+    b+=pill(180,108,104,36,"Pending","acc",fs=12)
+    b+=pill(312,108,96,36,"Paid","acc",fs=12)
+    b+=pill(436,108,104,36,"Shipped","acc",fs=12)
+    b+=pill(180,200,104,34,"Cancelled","soft",fs=11.5)
+    b+=pill(312,32,96,34,"Failed","flag",fs=11.5)
+    b+=pill(436,200,104,34,"Delivered","grn",fs=11.5)
+    b+=arr(40,126,54,126)
+    b+=arr(152,126,178,126,"place()",dy=-5)
+    b+=arr(284,126,310,126,"authorised",dy=-5,fs=9,color=GRN)
+    b+=arr(408,126,434,126,"dispatch()",dy=-5,fs=9)
+    b+=poly([(232,144),(232,198)],color=MUTED,label="cancel()",lx=232,ly=176,fs=9)
+    b+=poly([(360,108),(360,68)],color=FLAG,label="declined",lx=360,ly=94,fs=9)
+    b+=poly([(312,49),(256,49),(256,106)],color=MUTED,label="retry",lx=280,ly=43,fs=9)
+    b+=poly([(488,144),(488,198)],color=GRN,label="delivered",lx=488,ly=176,fs=9)
+    b+='<circle cx="568" cy="217" r="8" fill="none" stroke="%s" stroke-width="1.5"/><circle cx="568" cy="217" r="4.5" fill="%s"/>'%(INK,INK)
+    b+=arr(540,217,558,217)
+    b+=note(24,268,592,["Can a shipped order be cancelled? The diagram forces the question, and the answer is a business","rule someone has to own. A state with no exit is an entity stuck forever and a ticket nobody closes."],AMB)
+    return svg(318,b)
 
 def d_sequence():
-    items=[(24,104,"Client"),(150,104,"Gateway"),(276,116,"Order Svc"),(414,116,"Payment"),(552,76,"Kafka")]
-    s,x=lifelines(items,16,276,["plain","plain","acc","plain","amb"])
+    items=[(24,108,"Client","globe","soft"),(150,108,"Gateway","shield","acc"),
+           (272,116,"Order Svc","server","acc"),(410,116,"Payment","lock","vio"),
+           (550,66,"Kafka","queue","amb")]
+    s,x=ilifelines(items,16,318,hh=46)
     b=s
-    b+=msg(x[0],x[1],76,"POST /orders")
-    b+=msg(x[1],x[2],100,"CreateOrder + idempotency-key")
-    b+=selfmsg(x[2],114,"persist, status = Pending")
-    b+=msg(x[2],x[3],158,"Authorise  (3s timeout)")
-    b+='<rect x="240" y="172" width="330" height="66" rx="3" fill="none" stroke="%s" stroke-width="1.1" stroke-dasharray="5 4"/>'%LINE
-    b+=txt(248,185,"alt",9.5,MUTED,"600")
-    b+=msg(x[3],x[2],200,"Approved",GRN,dash=True)
-    b+=msg(x[2],x[4],200,"OrderConfirmed",AMB)
-    b+=msg(x[3],x[2],228,"Declined / no response",FLAG,dash=True)
-    b+=msg(x[2],x[0],266,"201 Created  ·  or 202 if uncertain",MUTED,dash=True)
-    return svg(288,b)
+    b+=msg(x[0],x[1],92,"POST /orders")
+    b+=msg(x[1],x[2],118,"CreateOrder + idempotency-key")
+    b+=selfmsg(x[2],132,"persist, status = Pending")
+    b+=msg(x[2],x[3],178,"Authorise  (3 s timeout)",VIO)
+    b+='<rect x="236" y="194" width="342" height="96" rx="4" fill="%s" stroke="%s" stroke-width="1.1" stroke-dasharray="5 4"/>'%(TINT[MUTED],LINE)
+    b+='<rect x="236" y="194" width="42" height="15" rx="3" fill="%s"/>'%MUTED
+    b+=txt(257,205,"alt",9,"#FFFFFF","600","middle")
+    b+=msg(x[3],x[2],224,"Approved",GRN,dash=True)
+    b+=msg(x[2],x[4],250,"OrderConfirmed",AMB)
+    b+=msg(x[3],x[2],278,"Declined / no response",FLAG,dash=True)
+    b+=msg(x[2],x[0],310,"201 Created  ·  or 202 if uncertain",MUTED,dash=True)
+    b+=txt(24,344,"Timeouts and retries on every network hop, an idempotency key, and at least the declined and",10,MUTED)
+    b+=txt(24,359,"timed-out branches. A timeout is not a decline — on a timeout you do not know whether it happened.",10,MUTED)
+    return svg(370,b)
 
 def d_dfd():
-    b=frame(196,20,436,196,"trust boundary")
-    b+=node(24,96,150,50,"Customer","external entity","soft")
-    b+=node(220,54,150,50,"Validate order","process 1.0","acc")
-    b+=node(220,152,150,50,"Charge payment","process 2.0","acc")
-    b+='<path d="M 430 60 h 176 M 430 100 h 176" stroke="%s" stroke-width="1.4"/>'%LINE
-    b+='<rect x="430" y="60" width="176" height="40" fill="#FFFFFF" opacity="0"/>'
-    b+=txt(518,84,"D1  Orders store",11,INK,"600","middle")
-    b+='<path d="M 430 158 h 176 M 430 198 h 176" stroke="%s" stroke-width="1.4"/>'%LINE
-    b+=txt(518,182,"D2  Payment tokens",11,INK,"600","middle")
-    b+=arr(174,116,218,84,"order data",lp=0.5,dy=-6,fs=9)
-    b+=arr(370,79,428,79,"write",dy=-5,fs=9)
-    b+=arr(295,104,295,150,"valid",lp=0.5,dy=-3,fs=9)
-    b+=arr(370,177,428,177,"token",dy=-5,fs=9)
-    return svg(228,b)
+    b=""
+    b+=frame(200,22,416,208,"trust boundary  ·  our infrastructure",FLAG)
+    b+=inode(24,104,152,52,"Customer","external entity","soft","user",fs=10.5)
+    b+=inode(222,54,168,52,"Validate order","process 1.0","acc","check",fs=10.5)
+    b+=inode(222,152,168,52,"Charge payment","process 2.0","acc","lock",fs=10.5)
+    b+=band(422,50,176,60,"D1  Orders store",GRN,fs=9.8)
+    b+=txt(510,96,"PII · encrypted at rest",8.8,MUTED,anchor="middle")
+    b+=band(422,148,176,60,"D2  Payment tokens",GRN,fs=9.8)
+    b+=txt(510,194,"tokenised · PCI scope",8.8,MUTED,anchor="middle")
+    b+=arr(176,124,220,86,"order data",lp=0.5,dy=-6,fs=9,color=FLAG)
+    b+=arr(390,80,420,80,"write",dy=-5,fs=9)
+    b+=arr(306,106,306,150,"valid",lp=0.5,dy=-3,fs=9)
+    b+=arr(390,178,420,178,"token",dy=-5,fs=9)
+    b+=note(24,248,592,["Every arrow crossing the dashed line is one round of threat-model questions: can it be spoofed,","tampered with, replayed, or read by someone who should not see it?"],FLAG)
+    b+=txt(24,330,"A DFD shows data movement, not the order steps execute in. Mixing control flow into it turns it",10,MUTED)
+    b+=txt(24,345,"into a flowchart and it stops being usable for either privacy review or STRIDE.",10,MUTED)
+    return svg(356,b)
 
 def d_erd():
     b=""
-    b+=classbox(30,40,160,["id  PK","email  UK","created_at"],"CUSTOMER")
-    b+=classbox(240,40,164,["id  PK","customer_id  FK","status","total_amount"],"ORDER","acc")
-    b+=classbox(452,40,158,["id  PK","order_id  FK","quantity","unit_price"],"ORDER_ITEM")
-    b+=classbox(240,168,164,["id  PK","amount","status"],"PAYMENT")
-    b+=arr(190,74,238,74,None,head=False)
-    b+=lbl(214,68,"places"); b+=lbl(196,88,"1",9.5); b+=lbl(232,88,"0..N",9.5)
-    b+=arr(404,74,450,74,None,head=False)
-    b+=lbl(427,68,"contains"); b+=lbl(410,88,"1",9.5); b+=lbl(444,88,"1..N",9.5)
-    b+=arr(322,140,322,166,None,head=False)
-    b+=lbl(352,156,"settled by"); b+=lbl(312,152,"0..1",9.5)
-    b+=txt(30,232,"unit_price is stored on the line, not read from the product — price changes",10,MUTED)
-    b+=txt(30,247,"must not rewrite history. Snapshot vs reference is the call an ERD forces.",10,MUTED)
-    return svg(262,b)
+    b+=classbox(24,44,164,["id  PK","email  UK","created_at"],"CUSTOMER","grn")
+    b+=classbox(236,44,168,["id  PK","customer_id  FK","status","total_amount"],"ORDER","acc")
+    b+=classbox(452,44,164,["id  PK","order_id  FK","quantity","unit_price"],"ORDER_ITEM","grn")
+    b+=classbox(236,176,168,["id  PK","amount","status"],"PAYMENT","vio")
+    b+=arr(188,78,234,78,None,head=False)
+    b+=lbl(211,72,"places"); b+=lbl(194,92,"1",9.5); b+=lbl(228,92,"0..N",9.5)
+    b+=arr(404,78,450,78,None,head=False)
+    b+=lbl(427,72,"contains"); b+=lbl(410,92,"1",9.5); b+=lbl(444,92,"1..N",9.5)
+    b+=arr(320,148,320,174,None,head=False)
+    b+=lbl(352,164,"settled by"); b+=lbl(310,160,"0..1",9.5)
+    b+=note(24,248,592,["unit_price is stored on the line, not read from the product — a price change must not rewrite","history. Snapshot or reference is the decision an ERD forces you to make, quietly, once."])
+    b+=txt(24,330,"Keys, cardinality on both ends, and — in a service estate — which service owns each entity. One",10,MUTED)
+    b+=txt(24,345,"diagram of eighty tables helps nobody: split by bounded context and link at the boundaries.",10,MUTED)
+    return svg(356,b)
 
 def d_lineage():
     b=""
@@ -256,53 +281,62 @@ def d_storming():
 
 def d_topology():
     b=""
-    b+=node(250,110,140,54,"Kafka","3 brokers","amb",fs=13)
-    left=[("Order Service","OrderPlaced",24),("Payment Service","PaymentAuthorised",92),("Inventory","StockReserved",160)]
-    for i,(n,ev,y) in enumerate(left):
-        b+=node(24,y,150,44,n,ev,"plain",fs=10.5)
-        b+=arr(174,y+22,248,132,None,AMB)
-    right=[("Shipping Service",24),("Notification Service",92),("Analytics sink",160)]
-    for n,y in right:
-        b+=node(466,y,150,44,n,None,"plain",fs=10.5)
-        b+=arr(392,132,464,y+22,None,AMB)
-    b+=txt(24,242,"The question it answers: if I change this event’s schema, who breaks?",10.5,MUTED,style="i")
-    return svg(256,b)
+    b+=band(24,20,180,236,"publishers",ACC,fs=10)
+    pubs=[("Order Service","OrderPlaced",56),("Payment Service","PaymentAuthorised",120),
+          ("Inventory","StockReserved",184)]
+    for n,ev,y in pubs:
+        b+=inode(36,y,156,52,n,ev,"acc","server",fs=10)
+    b+=inode(238,110,164,58,"Kafka","3 brokers · registry","amb","queue",fs=11.5)
+    b+=band(436,20,180,236,"consumers",GRN,fs=10)
+    cons=[("Shipping Service","OrderPlaced v3",56),("Notification Service","OrderPlaced v3",120),
+          ("Analytics sink","all events",184)]
+    for n,ev,y in cons:
+        b+=inode(448,y,156,52,n,ev,"grn","server",fs=10)
+    for y in (82,146,210): b+=arr(204,y,236,y-(y-139)*0.35,None,AMB)
+    for y in (82,146,210): b+=arr(404,139+(y-139)*0.35,434,y,None,AMB)
+    b+=txt(320,186,"one publish,",9,MUTED,anchor="middle")
+    b+=txt(320,198,"three consumers",9,MUTED,anchor="middle")
+    b+=note(24,272,592,["The question it answers: if I change this event’s schema, who breaks? The fan-out on the right","is the blast radius, and the registry is what stops a breaking change reaching it."])
+    b+=txt(24,354,"Name events as facts, in the past tense. OrderPlaced is a fact; ShipOrder is an instruction to one",10,MUTED)
+    b+=txt(24,369,"handler, and the moment you name it that way you have built a queue with extra steps.",10,MUTED)
+    return svg(380,b)
 
 def d_saga():
     b=""
-    steps=[("Order","placed",24),("Payment","authorised",180),("Inventory","rejected",336),("Shipping","not reached",492)]
-    sts=["acc","grn","flag","soft"]
-    for i,(n,s2,x) in enumerate(steps):
-        b+=node(x,46,124,50,n,s2,sts[i],fs=11.5)
-        if i<3: b+=arr(x+124,71,x+178,71)
-    b+=txt(24,32,"FORWARD PATH",9,MUTED,"600")
-    b+=txt(24,140,"COMPENSATION",9,FLAG,"600")
-    b+=node(180,154,124,44,"Refund payment",None,"flag",fs=10.5)
-    b+=node(24,154,124,44,"Cancel order",None,"flag",fs=10.5)
-    b+=poly([(398,96),(398,124),(242,124),(242,152)],color=FLAG,label="StockRejected",lx=320,ly=118,fs=9)
-    b+=arr(178,176,150,176,"PaymentRefunded",FLAG,lp=0.5,dy=-6,fs=9)
-    b+=txt(24,228,"There is no rollback across services — only a second business transaction that undoes the first.",10,MUTED)
-    b+=txt(24,243,"A saga diagram with no compensation arrows is not a saga.",10,MUTED)
-    return svg(256,b)
+    b+=band(24,20,592,110,"forward path",GRN,fs=10)
+    steps=[("Order","placed",40,"grn","check"),("Payment","authorised",188,"grn","check"),
+           ("Inventory","rejected",336,"flag","warn"),("Shipping","never reached",484,"soft","clock")]
+    for n,s2,x,st,ic in steps:
+        b+=inode(x,58,116,48,n,s2,st,ic,fs=10.5,isize=14,pad=7)
+    for x in (156,304,452): b+=arr(x,82,x+30,82)
+    b+=band(24,150,444,110,"compensation  ·  runs in reverse",FLAG,fs=10)
+    b+=inode(40,188,168,48,"Cancel order","OrderCancelled","flag","sync",fs=10.5)
+    b+=inode(240,188,206,48,"Refund payment","PaymentRefunded","flag","sync",fs=10.5)
+    b+=arr(238,212,212,212,None,FLAG)
+    b+=poly([(394,106),(394,132),(343,132),(343,186)],color=FLAG,label="StockRejected",lx=430,ly=128,fs=9)
+    b+=note(486,150,130,["There is no","rollback across","services — only a","second business","transaction that","undoes the first."],FLAG)
+    b+=txt(24,296,"A compensation for every forward step, and a timeout branch for any step that may never answer.",10,MUTED)
+    b+=txt(24,311,"A saga diagram with no compensation arrows is not a saga, it is a wish.",10,MUTED)
+    return svg(322,b)
 
 def d_cqrs():
     b=""
-    b+=node(24,40,132,46,"Command API","write side","acc",fs=11)
-    b+=node(24,110,132,46,"Query API","read side","grn",fs=11)
-    b+=node(190,40,140,46,"Order aggregate","validates invariants",fs=11)
-    b+=cyl(364,34,132,52,"Write store","normalised")
-    b+=node(190,110,140,46,"Projector","denormalises",fs=11)
-    b+=cyl(364,104,132,52,"Read store","query-shaped","grn")
-    b+=node(530,34,86,52,"Kafka",None,"amb",fs=11)
-    b+=arr(156,63,188,63)
-    b+=arr(330,60,362,60)
-    b+=arr(496,60,528,60,"events",lp=0.5,dy=-5,fs=9)
-    b+=poly([(573,86),(573,132),(498,132)],color=AMB)
-    b+=arr(330,130,362,130,None,GRN)
-    b+=arr(188,133,158,133,None,GRN)
-    b+=txt(24,192,"The read model is eventually consistent. Say by how much — “under 2 s at p99” — or the",10,MUTED)
-    b+=txt(24,207,"product team will assume zero and design a UI that lies.",10,MUTED)
-    return svg(220,b)
+    b+=frame(24,44,286,196,"write side  ·  one model, strict invariants",ACC,dash=False)
+    b+=inode(40,72,254,40,"Command API","POST /orders","acc","network",fs=10.5)
+    b+=inode(40,124,254,44,"Order aggregate","validates every invariant","acc","container",fs=10.5)
+    b+=cyl(40,182,254,48,"Write store","normalised","acc")
+    b+=arr(167,112,167,122); b+=arr(167,168,167,180)
+    b+=frame(330,44,286,196,"read side  ·  one model per query shape",GRN,dash=False)
+    b+=inode(346,72,254,40,"Query API","GET /orders?…","grn","search",fs=10.5)
+    b+=inode(346,124,254,44,"Projector","denormalises on event","grn","sync",fs=10.5)
+    b+=cyl(346,182,254,48,"Read store","query-shaped","grn")
+    b+=arr(473,168,473,180); b+=arr(473,112,473,122,None,GRN,head=True)
+    b+=inode(226,258,188,40,"Kafka  ·  domain events",None,"amb","queue",fs=10.5)
+    b+=poly([(167,230),(167,278),(224,278)],color=AMB)
+    b+=poly([(416,278),(473,278),(473,232)],color=AMB)
+    b+=note(24,314,592,["The read model is eventually consistent. Put a number on it — “under 2 s at p99” — or the","product team will assume zero and design a UI that lies to the customer."],FLAG)
+    b+=txt(24,396,"Sold as a scaling pattern; bought as a consistency problem. Adopt it per context, never estate-wide.",10,MUTED)
+    return svg(408,b)
 
 def d_bff():
     b=""
@@ -337,26 +371,27 @@ def d_mesh():
 
 def d_swimlane():
     b=""
-    lanes=[("Customer",30),("Order system",96),("Support agent",184),("Warehouse",250)]
-    for n,y in lanes:
-        b+='<line x1="120" y1="%g" x2="616" y2="%g" stroke="%s" stroke-width="1"/>'%(y-12,y-12,LINE)
-        b+=txt(24,y+12,n,10.5,INK,"600")
-    b+='<line x1="120" y1="18" x2="120" y2="304" stroke="%s" stroke-width="1.2"/>'%LINE
-    b+='<line x1="120" y1="304" x2="616" y2="304" stroke="%s" stroke-width="1"/>'%LINE
-    b+=node(140,26,140,36,"Submit return",None,"plain",fs=10.5)
-    b+=node(320,92,132,36,"Within 30 days?",None,"acc",fs=10.5)
-    b+=node(140,180,140,36,"Manual review",None,"amb",fs=10.5)
-    b+=node(320,246,140,36,"Inspect item",None,"plain",fs=10.5)
-    b+=node(486,92,124,36,"Issue label",None,"plain",fs=10.5)
-    b+=node(486,158,124,36,"Trigger refund",None,"grn",fs=10.5)
-    b+=arr(210,62,340,90)
-    b+=poly([(340,128),(340,156),(210,156),(210,178)],color=MUTED,label="no",lx=280,ly=150,fs=9)
-    b+=poly([(452,110),(484,110)],color=MUTED,label="yes",lx=468,ly=104,fs=9)
-    b+=poly([(280,198),(548,198),(548,130)],color=MUTED,label="approved",lx=430,ly=192,fs=9)
-    b+=poly([(548,128),(548,92),(390,92),(390,244)],color=MUTED)
-    b+=poly([(460,264),(548,264),(548,196)],color=MUTED,label="item OK",lx=506,ly=258,fs=9)
-    b+=txt(24,326,"Every lane crossing is a handoff — a queue, a delay, a place work gets lost. Count them.",10,MUTED)
-    return svg(338,b)
+    lanes=[("Customer",26,ACC),("Order system",96,ACC),("Support agent",180,AMB),("Warehouse",256,GRN)]
+    for n,y,c in lanes:
+        b+='<rect x="112" y="%g" width="504" height="%g" rx="3" fill="%s" stroke="%s" stroke-width="1"/>'%(
+            y-14,64 if n!="Order system" else 72,TINT[c],LINE)
+        b+='<rect x="24" y="%g" width="82" height="%g" rx="3" fill="%s"/>'%(y-14,64 if n!="Order system" else 72,c)
+        b+=txt(65,y+22,n,10,"#FFFFFF","600","middle")
+    b+=inode(128,24,150,36,"Submit return",None,"plain","log",fs=10,isize=13,pad=6)
+    b+=dia(360,112,132,44,"within 30 days?","acc",fs=9.5)
+    b+=inode(128,186,150,36,"Manual review",None,"amb","user",fs=10,isize=13,pad=6)
+    b+=inode(310,256,150,36,"Inspect item",None,"grn","search",fs=10,isize=13,pad=6)
+    b+=inode(478,88,132,30,"Issue label",None,"plain","cert",fs=9.6,isize=12,pad=5)
+    b+=inode(478,122,132,30,"Trigger refund",None,"grn","check",fs=9.6,isize=12,pad=5)
+    b+=arr(203,60,340,104)
+    b+=poly([(360,134),(360,168),(203,168),(203,184)],color=MUTED,label="no",lx=280,ly=163,fs=9)
+    b+=arr(426,112,476,103,"yes",dy=-5,fs=9)
+    b+=poly([(278,204),(544,204),(544,154)],color=AMB,label="approved",lx=420,ly=199,fs=9)
+    b+=poly([(544,128),(544,96),(385,96),(385,254)],color=MUTED)
+    b+=poly([(460,274),(566,274),(566,154)],color=GRN,label="item OK",lx=512,ly=269,fs=9)
+    b+=txt(24,330,"Every lane crossing is a handoff — a queue, a delay, a place work gets lost. Count them, then",10,MUTED)
+    b+=txt(24,345,"label the diagram as-is or to-be, or everyone will read your to-be as a description of today.",10,MUTED)
+    return svg(356,b)
 
 def d_bpmn():
     b=""
@@ -385,23 +420,26 @@ def d_bpmn():
 
 def d_pipeline():
     b=""
-    st=[("Commit","git push",24,"branch"),("Build + unit","one artefact",144,"gear"),
-        ("SAST / SCA","blocking",264,"shield"),("Contract tests","consumer-led",384,"check"),
-        ("Sign + SBOM","provenance",504,"cert")]
+    b+=band(24,20,592,92,"build once  ·  one immutable artefact",ACC,fs=10)
+    st=[("Commit","git push",36,"branch"),("Build + unit","artefact",150,"gear"),
+        ("SAST / SCA","blocking",264,"shield"),("Contract","consumer-led",378,"check"),
+        ("Sign + SBOM","provenance",492,"cert")]
     for i,(n,s2,x,ic) in enumerate(st):
-        b+=inode(x,50,110,46,n,s2,"plain",ic,fs=9.8,isize=13,pad=6)
-        if i<len(st)-1: b+=arr(x+110,73,st[i+1][2]-2,73)
-    b+=poly([(559,96),(559,128),(367,128)],color=MUTED)
-    b+=dia(320,128,90,36,"approve","acc",fs=9.5)
-    b+=poly([(275,128),(94,128),(94,154)],color=MUTED)
-    b+=inode(24,156,140,44,"Deploy dev","automatic","plain","rocket",fs=10.5)
-    b+=inode(180,156,150,44,"Deploy staging","+ smoke tests","plain","rocket",fs=10.5)
-    b+=inode(346,156,130,44,"Canary  5 %",None,"acc","pulse",fs=10.5)
-    b+=inode(492,156,124,44,"Promote 100 %",None,"grn","check",fs=10.5)
-    b+=arr(164,178,178,178); b+=arr(330,178,344,178); b+=arr(476,178,490,178)
-    b+=poly([(411,200),(411,226),(94,226),(94,202)],color=FLAG,label="SLO breach → auto rollback",lx=262,ly=240,fs=9)
-    b+=txt(24,274,"One immutable artefact promoted across environments — never rebuilt per environment.",10,MUTED)
-    return svg(286,b)
+        b+=inode(x,56,108,44,n,s2,"plain",ic,fs=9.6,isize=13,pad=6)
+        if i<len(st)-1: b+=arr(x+108,78,st[i+1][2]-2,78)
+    b+=poly([(546,112),(546,136),(367,136)],color=MUTED)
+    b+=dia(322,136,90,36,"approve","acc",fs=9.5)
+    b+=poly([(277,136),(94,136),(94,166)],color=MUTED)
+    b+=band(24,166,592,96,"promote the same artefact  ·  never rebuild",GRN,fs=10)
+    dp=[("Deploy dev","automatic",40,"rocket","plain"),("Deploy staging","+ smoke tests",180,"rocket","plain"),
+        ("Canary  5 %","watch the SLO",324,"pulse","amb"),("Promote 100 %",None,464,"check","grn")]
+    for i,(n,s2,x,ic,stl) in enumerate(dp):
+        b+=inode(x,202,132,44,n,s2,stl,ic,fs=10,isize=13,pad=6)
+        if i<3: b+=arr(x+132,224,dp[i+1][2]-2,224)
+    b+=poly([(390,246),(390,278),(106,278),(106,248)],color=FLAG,label="SLO breach → automatic rollback",lx=248,ly=292,fs=9)
+    b+=txt(24,326,"One immutable artefact promoted across environments — never rebuilt per environment, or what",10,MUTED)
+    b+=txt(24,341,"you tested is not what you shipped. Roll back on a signal, not on somebody noticing.",10,MUTED)
+    return svg(352,b)
 
 def d_release():
     b=""
@@ -986,22 +1024,27 @@ def d_datapipeline():
 
 def d_warehouse():
     b=""
-    b+=node(24,50,116,44,"Sources","OLTP, SaaS","soft",fs=10.5)
-    b+=node(160,50,116,44,"Staging","1:1, no logic",fs=10.5)
-    b+=frame(296,24,320,166,"core  ·  dimensional model",ACC,dash=False)
-    b+=node(400,52,120,44,"FactOrders","grain: 1 line","acc",fs=10.5)
-    b+=node(312,118,110,36,"DimCustomer","SCD 2",fs=9.8)
-    b+=node(436,118,110,36,"DimDate",None,fs=9.8)
-    b+=node(312,52,76,28,"DimProduct",None,fs=9)
-    b+=arr(388,66,398,68,None,head=False)
-    b+=arr(367,118,420,98,None,head=False)
-    b+=arr(470,118,470,98,None,head=False)
-    b+=arr(140,72,158,72); b+=arr(276,72,294,72)
-    b+=node(24,142,246,44,"Marts  ·  finance, ops, product","one per consumer","grn",fs=10.5)
-    b+=poly([(456,190),(456,210),(147,210),(147,188)],color=GRN)
-    b+=txt(24,244,"State the grain of the fact table in words on the diagram — “one row per order line per day”.",10,MUTED)
-    b+=txt(24,259,"Nearly every warehouse dispute is two people assuming different grains and both being right.",10,MUTED)
-    return svg(270,b)
+    cols=[("Sources",24,110,MUTED),("Staging",148,104,MUTED),("Core  ·  dimensional",276,214,ACC),
+          ("Marts",504,112,GRN)]
+    for t,x,w,c in cols: b+=band(x,24,w,196,t,c)
+    b+=inode(34,60,90,32,"OLTP",None,"soft","db",fs=9.5,isize=12,pad=5)
+    b+=inode(34,100,90,32,"SaaS",None,"soft","cloud",fs=9.5,isize=12,pad=5)
+    b+=inode(34,140,90,32,"Files",None,"soft","log",fs=9.5,isize=12,pad=5)
+    b+=inode(158,90,84,42,"1:1","no logic","plain","archive",fs=9.5,isize=12,pad=5)
+    b+=inode(322,58,122,36,"DimProduct",None,"plain","container",fs=9.5,isize=12,pad=5)
+    b+=inode(322,104,122,44,"FactOrders","grain: 1 line","acc","chart",fs=10)
+    b+=inode(288,160,94,32,"DimCustomer",None,"plain","user",fs=9,isize=11,pad=4)
+    b+=inode(392,160,94,32,"DimDate",None,"plain","clock",fs=9,isize=11,pad=4)
+    b+=inode(514,60,92,34,"Finance",None,"grn","chart",fs=9.5,isize=12,pad=5)
+    b+=inode(514,104,92,34,"Ops",None,"grn","chart",fs=9.5,isize=12,pad=5)
+    b+=inode(514,148,92,34,"Product",None,"grn","chart",fs=9.5,isize=12,pad=5)
+    b+=arr(124,116,156,112); b+=arr(242,111,286,116)
+    b+=arr(383,148,383,152,None,head=False)
+    b+=arr(335,160,360,148,None,head=False); b+=arr(439,160,414,148,None,head=False)
+    b+=arr(444,122,512,110)
+    b+=note(24,236,592,["State the grain of the fact table in words, on the diagram — “one row per order line per day”.","Nearly every warehouse dispute is two people assuming different grains, and both being right."])
+    b+=txt(24,318,"Staging holds the data exactly as it arrived. Business logic starts in core, never before it.",10,MUTED)
+    return svg(330,b)
 
 def d_lakehouse():
     b=""
@@ -1358,25 +1401,30 @@ def d_eventsourcing():
 
 def d_kafka():
     b=""
-    b+=node(24,44,124,44,"Producer","key = orderId","acc",fs=10.5)
-    b+=frame(180,20,436,140,"topic  orders.v1  ·  6 partitions  ·  RF 3",AMB,dash=False)
-    for i,(p,y) in enumerate([("P0",44),("P1",80),("P2",116)]):
-        b+=node(196,y,52,26,p,None,"amb",fs=9.5)
-        b+=node(256,y,344,26,"offsets ── 0 1 2 3 4 5 6 7 → ordered within the partition only",None,"soft",fs=8.8)
-    b+=arr(148,66,194,58,"hash(key)",lp=0.5,dy=-7,fs=8.4)
-    b+=frame(24,188,286,96,"consumer group  billing",GRN,dash=False)
-    b+=node(40,212,120,32,"instance 1","P0, P1","grn",fs=9.5)
-    b+=node(170,212,124,32,"instance 2","P2","grn",fs=9.5)
-    b+=node(40,252,254,24,"own offset per partition  ·  scales to 6",None,"soft",fs=8.8)
-    b+=frame(330,188,286,96,"consumer group  analytics",MUTED,dash=False)
-    b+=node(346,212,254,32,"instance 1","all partitions, own offsets",fs=9.5)
-    b+=node(346,252,254,24,"reads the same events, independently",None,"soft",fs=8.8)
-    b+=poly([(300,160),(300,176),(167,176),(167,210)],color=AMB)
-    b+=poly([(300,176),(473,176),(473,210)],color=AMB)
-    b+=txt(24,314,"Three facts do all the work: ordering is per partition, the key chooses the partition, and one",10,MUTED)
-    b+=txt(24,329,"partition goes to one consumer per group. So partition count is your maximum parallelism, and",10,MUTED)
-    b+=txt(24,344,"any two events that must stay in order have to share a key. Pick the key deliberately.",10,MUTED)
-    return svg(356,b)
+    b+=inode(24,48,120,44,"Producer","key = orderId","acc","server",fs=10.5)
+    b+=band(166,20,450,150,"topic  orders.v1  ·  6 partitions  ·  RF 3",AMB,fs=10)
+    for p,y,c in [("P0",56,AMB),("P1",92,AMB),("P2",128,AMB)]:
+        b+=node(180,y,50,26,p,None,"amb",fs=9.5)
+        b+='<rect x="238" y="%g" width="364" height="26" rx="3" fill="#FFFFFF" stroke="%s" stroke-width="1.2"/>'%(y,LINE)
+        for i in range(8):
+            b+='<rect x="%g" y="%g" width="36" height="16" rx="2" fill="%s" stroke="%s" stroke-width="1"/>'%(
+                246+i*44, y+5, AMB_S, AMB)
+            b+=txt(264+i*44, y+16, str(i), 8.4, AMB, "600", "middle")
+    b+=txt(420,182,"offsets — ordered within a partition, never across them",9,MUTED,anchor="middle")
+    b+=arr(144,70,164,66,"hash(key)",lp=0.5,dy=-7,fs=8.4)
+    b+=band(24,206,286,96,"consumer group  billing",GRN,fs=10)
+    b+=inode(36,238,124,30,"instance 1","P0, P1","grn","server",fs=9.2,isize=12,pad=5)
+    b+=inode(172,238,126,30,"instance 2","P2","grn","server",fs=9.2,isize=12,pad=5)
+    b+=txt(167,288,"own offset per partition · scales to 6",8.8,MUTED,anchor="middle")
+    b+=band(330,206,286,96,"consumer group  analytics",VIO,fs=10)
+    b+=inode(342,238,262,30,"instance 1","all partitions, own offsets","vio","server",fs=9.2,isize=12,pad=5)
+    b+=txt(473,288,"reads the same events, independently",8.8,MUTED,anchor="middle")
+    b+=poly([(300,170),(300,196),(167,196),(167,204)],color=AMB)
+    b+=poly([(300,196),(473,196),(473,204)],color=AMB)
+    b+=txt(24,326,"Three facts do all the work: ordering is per partition, the key chooses the partition, and one",10,MUTED)
+    b+=txt(24,341,"partition goes to one consumer per group. Partition count is therefore your maximum parallelism,",10,MUTED)
+    b+=txt(24,356,"and any two events that must stay in order have to share a key. Choose the key deliberately.",10,MUTED)
+    return svg(368,b)
 
 def d_outbox():
     b=frame(24,24,318,148,"one local transaction",ACC,dash=False)

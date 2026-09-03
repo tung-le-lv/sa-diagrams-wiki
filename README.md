@@ -21,9 +21,13 @@ the whole dictionary:
 | Page | Contains |
 |---|---|
 | `index.html` | Overview: level cards, the question → diagram table, and the category index |
-| `learning-path.html` | The three levels sequenced, plus the 34 path entries in order |
-| `level-<slug>.html` | Every entry at one level (3 pages) |
-| `<category-slug>.html` | Every entry in one category (15 pages) — an entry's canonical home |
+| `pages/learning-path.html` | The three levels sequenced, plus the 34 path entries in order |
+| `pages/level-<slug>.html` | Every entry at one level (3 pages) |
+| `pages/<category-slug>.html` | Every entry in one category (15 pages) — an entry's canonical home |
+
+`index.html` stays at the repo root because GitHub Pages needs it there; every other page
+lives in `pages/`. Links are generated through `P(target, root)`, which knows whether the
+page being written sits at the root or inside `pages/` — never hard-code a page link.
 
 Each entry appears twice: once on its category page (its canonical URL and anchor) and
 once on its level page. Search is global — every page embeds a small index of all 94
@@ -82,9 +86,21 @@ drawing is always "on paper". Consequences:
   where they cross a line.
 - Boxes carry a title and an optional smaller subtitle (technology, cardinality,
   a constraint). Arrows carry a verb or a protocol, not nothing.
-- Emphasis is the `acc` style, spent on at most one or two boxes per drawing.
+- Fill carries meaning. Give each box a semantic style rather than leaving it white:
+  `acc` for the system's own components, `grn` for data at rest and success paths, `amb`
+  for anything asynchronous, `vio` for external managed services, `flag` for failure,
+  `soft` for out of scope. A drawing of white boxes reads as a wireframe, not a design.
 - Keep text inside the shape that holds it. A long sentence belongs in a `note()`
   or in the footnote lines under the drawing, not in a `node()` subtitle.
+
+### Zones and bands
+
+`frame()` fills with a light wash of its own colour (`TINT`), so a grouping box reads as a
+region and nesting is visible at a glance — a VPC inside a region, a trust boundary inside
+the internet. Pass `fill="none"` for the old outline-only behaviour.
+
+`band(x, y, w, h, title, colour)` draws a solid title bar over a tinted body: use it for
+layered architectures, pipeline stages and swimlane headers.
 
 ### Icons
 

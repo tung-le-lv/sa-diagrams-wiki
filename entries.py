@@ -1,21 +1,77 @@
 # -*- coding: utf-8 -*-
-"""Categories, the architect's priority shortlist, and the dictionary entries.
+"""Categories, the learning path, and the dictionary entries.
 
 All prose lives here. `alias` carries the other names each type travels under,
 so the alternative vocabulary in the source notes stays searchable.
 """
 from diagrams import *
 
+# (number, name, slug, what the category is for)
 CATS = [
- (1,"Architecture & system-level"),(2,"UML"),(3,"Interaction & runtime"),(4,"Data architecture"),
- (5,"Deployment & infrastructure"),(6,"Security"),(7,"Business & domain"),(8,"Event-driven"),
- (9,"Integration & API"),(10,"Process & workflow"),(11,"DevOps & CI/CD"),(12,"Observability"),
- (13,"Reliability & resilience"),(14,"Decision"),(15,"Specialised"),
+ (1,"Architecture & system-level","architecture-system-level",
+    "The whole-system views: what the system is, what it is made of, and how the pieces fit together. "
+    "Keep these current — they are the diagrams people actually read."),
+ (2,"UML","uml",
+    "The standard notations. A handful earn their keep in architecture work; the rest are worth "
+    "recognising, so you know what you are looking at when someone hands you one."),
+ (3,"Interaction & runtime","interaction-runtime",
+    "What happens at runtime rather than what exists: the order of messages, the path of a single "
+    "request, and where the time actually goes."),
+ (4,"Data architecture","data-architecture",
+    "How data is structured, where it lives, how it moves between systems, and how you prove where "
+    "a number on a report came from."),
+ (5,"Deployment & infrastructure","deployment-infrastructure",
+    "Where the software actually runs. These settle availability, capacity and cost arguments, "
+    "because they are the diagrams that carry numbers."),
+ (6,"Security","security",
+    "Who can do what, how they prove who they are, and what protects data as it crosses each "
+    "boundary between zones of different trust."),
+ (7,"Business & domain","business-domain",
+    "The views that decide service boundaries before any technology is chosen. A wrong boundary "
+    "costs more than any technology choice, and no amount of engineering recovers it."),
+ (8,"Event-driven","event-driven",
+    "Asynchronous communication: what is published, who consumes it, what is ordered relative to "
+    "what, and how a transaction spanning several services unwinds when a step fails."),
+ (9,"Integration & API","integration-api",
+    "How systems reach each other across team and company boundaries, and who owns each contract."),
+ (10,"Process & workflow","process-workflow",
+    "Business processes as they are actually executed, in notations that business stakeholders "
+    "will read and correct."),
+ (11,"DevOps & CI/CD","devops-cicd",
+    "How a change reaches production, and how it comes back out. Architecture that cannot be "
+    "deployed safely is not finished architecture."),
+ (12,"Observability","observability",
+    "How you find out something broke, and then why. Design these before go-live, not after the "
+    "first incident."),
+ (13,"Reliability & resilience","reliability-resilience",
+    "How the system behaves when part of it fails, and whether the availability you promised is "
+    "arithmetically possible in the first place."),
+ (14,"Decision","decision",
+    "Not diagrams of systems but of choices: what was decided, what was rejected, and what the "
+    "decision now costs you."),
+ (15,"Specialised","specialised",
+    "Domain-specific architectures. Recognise them all so you know what exists and what it is "
+    "called; reach for one when the problem is genuinely that shape."),
 ]
 
-# The ranked shortlist: (tier, rank, label as written in the notes, entry name).
-PRIORITY = [
- (1, 1,"System context diagram","System context diagram"),
+# The three levels of the learning path. Each builds on the one before it.
+# (level, name, what it enables, why it comes at this point)
+STAGES = [
+ (1,"Foundation","Describe any system, to any audience",
+    "The questions asked in every architecture review: what the system is, what it is made of, how a "
+    "request moves through it, where it runs, and how its data is shaped."),
+ (2,"Core practice","Design and operate a distributed system",
+    "What a service estate demands beyond description: where boundaries fall, how services "
+    "communicate without coupling, how a change reaches production, and how the system behaves "
+    "when part of it fails."),
+ (3,"Specialist","Go deep where the domain requires it",
+    "Depth for one technology or problem shape. Recognise all of them; reach for one when the "
+    "problem is genuinely that shape, and not before."),
+]
+
+# The learning path: (level, step, label, entry name). Order is the order to learn them in.
+PATH = [
+ (1, 1,"System context diagram","System context diagram (C4 level 1)"),
  (1, 2,"C4 container diagram","Container diagram (C4 level 2)"),
  (1, 3,"C4 component diagram","Component diagram (C4 level 3)"),
  (1, 4,"Sequence diagram","Sequence diagram"),
@@ -53,7 +109,7 @@ PRIORITY = [
 
 # Choose by the question you are trying to settle, not by the diagram's name.
 QUESTIONS = [
- ("What is our system?","System context diagram"),
+ ("What is our system?","System context diagram (C4 level 1)"),
  ("What are its major pieces?","Container diagram (C4 level 2)"),
  ("What’s inside a service?","Component diagram (C4 level 3)"),
  ("How do requests flow?","Sequence diagram"),
@@ -77,14 +133,14 @@ def add(cat,name,tier,defn,answers,when,must,fail,fn,cap,alias=None):
                   must=must,fail=fail,svg=fn(),cap=cap,alias=alias or []))
 
 # ================= 1. Architecture & system-level =================
-add(1,"System context diagram",1,
- "The whole system as a single box, surrounded by every person and external system that touches it. The outermost ring of the C4 model, and the only architecture diagram a non-technical audience should ever be shown.",
+add(1,"System context diagram (C4 level 1)",1,
+ "The whole system as a single box, surrounded by every person and external system that touches it. C4 adopted it as level 1, but the context diagram is older than C4 and stands on its own — it is the only architecture diagram a non-technical audience should ever be shown.",
  "Who and what interacts with our system, and where does our responsibility end?",
  "Kickoff, scoping, executive briefings, and the first page of any architecture document.",
  "One box for your system. Every human role. Every external system, marked as external. A short verb on each arrow.",
  "Drawing internal services on it. The moment a second box of yours appears, it is a container diagram.",
  d_context,"A context diagram for an order platform. Five external actors, one system, no internals.",
- ["Context diagram","C4 level 1","Scope diagram"])
+ ["Context diagram","Scope diagram","Level 1 diagram"])
 
 add(1,"Container diagram (C4 level 2)",1,
  "The deployable units inside your system — applications, services, databases, brokers — and the technology each one is built on. This is the default answer to “explain the architecture”.",
@@ -93,7 +149,7 @@ add(1,"Container diagram (C4 level 2)",1,
  "Technology in brackets on every box. Protocol on every arrow. Solid for synchronous calls, dashed for events.",
  "Boxes with no technology annotation — that is a picture of nouns, not an architecture.",
  d_container,"Containers for the same order platform. Note sync vs async arrows and the external system.",
- ["C4 level 2","Application architecture diagram"])
+ ["Application architecture diagram","Level 2 diagram"])
 
 add(1,"Component diagram (C4 level 3)",1,
  "One container opened up: the major structural parts inside a single service and the responsibilities they hold. Worth drawing only for a service whose internals are genuinely non-obvious.",
@@ -102,7 +158,7 @@ add(1,"Component diagram (C4 level 3)",1,
  "The container boundary drawn explicitly, so the level of zoom is unambiguous. Layer or responsibility labels.",
  "Drawing one per service as a matter of routine. Most services do not earn a component diagram.",
  d_component,"Inside the Order Service. The aggregate root is the emphasised box.",
- ["C4 level 3","UML component diagram"])
+ ["UML component diagram","Level 3 diagram"])
 
 add(1,"Code diagram (C4 level 4)",3,
  "The innermost C4 ring: the classes and interfaces inside one component. The level the C4 model itself tells you to skip most of the time.",
@@ -111,7 +167,7 @@ add(1,"Code diagram (C4 level 4)",3,
  "The interface boundaries, so the dependency direction is visible. Nothing that an IDE could tell you faster.",
  "Checking it in. A hand-maintained code diagram is wrong within a sprint and misleads everyone who trusts it.",
  d_c4_code,"One component in UML class notation. Note the dependency inversion at the repository boundary.",
- ["C4 level 4","Class-level view","Code-level diagram"])
+ ["Class-level view","Code-level diagram","Level 4 diagram"])
 
 add(1,"Solution architecture diagram",2,
  "One page that puts business capability, applications, integration and data in the same frame — the diagram a steering committee approves before anything is built.",
@@ -165,7 +221,7 @@ add(1,"System landscape diagram",2,
  "Ownership, build/buy, lifecycle state, and the integrations — especially the batch jobs nobody claims.",
  "Trying to be complete. A landscape that needs a page of legend is not read; a lossy one-pager is.",
  d_landscape,"Three domains, nine systems, one unowned nightly batch. That last one is the finding.",
- ["Organisation landscape","Application portfolio","Service landscape","Estate map"])
+ ["Organisation landscape","Application portfolio","Service landscape","Estate map","C4 system landscape"])
 
 # ================= 2. UML =================
 add(2,"Class diagram",3,
@@ -275,7 +331,7 @@ add(3,"Sequence diagram",1,
  "Timeouts and retries on network hops, idempotency keys, and at least the declined and timed-out branches.",
  "Happy path only. And treating a timeout as a decline — on a timeout you do not know whether it happened.",
  d_sequence,"An order placement with three outcomes. The timeout branch returns 202, not 402.",
- ["UML sequence diagram","Interaction diagram","Call flow diagram"])
+ ["UML sequence diagram","Interaction diagram","Call flow diagram","C4 dynamic diagram"])
 
 add(3,"Request flow diagram",2,
  "One request traced across every hop, with a latency number on each — a sequence diagram optimised for the performance conversation.",
@@ -385,7 +441,7 @@ add(5,"Deployment diagram",1,
  "Zone and region boundaries, replication direction and mode, where state lives, and rough instance counts.",
  "Omitting availability zones. Without them the diagram cannot answer a single HA question.",
  d_deploy,"Multi-AZ with one primary. The picture admits that an AZ-A failure means a write pause.",
- ["Deployment view","Runtime infrastructure diagram","UML deployment diagram","Microservices deployment"])
+ ["Deployment view","Runtime infrastructure diagram","UML deployment diagram","C4 deployment diagram","Microservices deployment"])
 
 add(5,"Network / VPC diagram",1,
  "Subnets, routing and reachability: what can talk to what, on which port, across which boundary.",

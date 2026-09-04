@@ -251,14 +251,12 @@ aside.toc{position:sticky;top:var(--hdr);align-self:start;height:calc(100vh - va
 .toclabel{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--muted);margin:0 0 10px 10px}
 aside.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
-aside.toc a{display:flex;gap:8px;align-items:baseline;text-decoration:none;color:var(--ink2);
+aside.toc a{display:block;text-decoration:none;color:var(--ink2);
   font-size:12.4px;line-height:1.35;padding:4px 10px;border-left:2px solid transparent;
   border-radius:0 3px 3px 0}
 aside.toc a:hover{color:var(--ink);background:var(--hair)}
 aside.toc a.on{color:var(--accent-ink);border-left-color:var(--accent);
   background:var(--accent-soft);font-weight:600}
-aside.toc .tn{font-family:var(--mono);font-size:9.5px;color:var(--muted);flex:0 0 auto}
-aside.toc a.on .tn{color:var(--accent-ink)}
 aside.toc a.sec{font-family:var(--disp);font-weight:600;margin-top:9px;padding-top:10px;
   border-top:1px solid var(--hair)}
 @media (max-width:1300px){
@@ -278,9 +276,7 @@ nav.cats{position:sticky;top:var(--hdr);align-self:start;height:calc(100vh - var
 .cat:hover{color:var(--ink);background:var(--hair)}
 .cat[aria-current="page"]{color:var(--accent-ink);border-left-color:var(--accent);
   background:var(--accent-soft);font-weight:700}
-.cat .n{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:15px}
 .cat .k{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:auto}
-.cat.star .n{color:var(--flag)}
 
 main{padding-top:30px;min-width:0}
 #pagebody{display:flex;flex-direction:column;gap:14px}
@@ -348,8 +344,6 @@ article.entry{background:var(--surface);border:1px solid var(--line);border-radi
   padding:24px 26px 26px;box-shadow:var(--shadow);scroll-margin-top:calc(var(--hdr) + 16px)}
 article.entry.flash{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft),var(--shadow)}
 .ehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:3px}
-.plateno{font-family:var(--mono);font-size:11px;color:var(--accent-ink);letter-spacing:.06em;
-  background:var(--accent-soft);padding:2px 7px;border-radius:2px}
 h2.name{font-family:var(--disp);font-weight:700;font-size:23px;letter-spacing:.004em;margin:0;
   text-wrap:balance;line-height:1.15}
 .catline{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
@@ -411,6 +405,7 @@ ol.listing{margin:0;padding:0;list-style:none;display:flex;flex-direction:column
 ol.listing a{background:var(--surface);display:grid;
   grid-template-columns:32px minmax(0,1fr) minmax(0,1.35fr);gap:14px;align-items:baseline;
   padding:11px 15px;text-decoration:none}
+ol.listing a.two{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)}
 ol.listing a:hover{background:var(--accent-soft)}
 ol.listing .st{font-family:var(--mono);font-size:10px;color:var(--muted)}
 ol.listing .nm{font-family:var(--disp);font-weight:600;font-size:14px;color:var(--ink)}
@@ -456,7 +451,9 @@ footer a{color:var(--muted)}
   dl.facts{grid-template-columns:1fr}
   .qgrid{grid-template-columns:1fr}
   ol.listing a{grid-template-columns:26px 1fr;gap:6px 10px}
+  ol.listing a.two{grid-template-columns:1fr}
   ol.listing .an{grid-column:2}
+  ol.listing a.two .an{grid-column:1}
   .pager{flex-direction:column}
   .pager .nx{text-align:left}
   h1.ptitle{font-size:24px}
@@ -494,7 +491,7 @@ ul.rel a:hover{color:var(--accent-ink);border-color:var(--accent);background:var
 """
 
 # ------------------------------------------------------------------ fragments
-def render_entry(en, idx, root=False, home=None):
+def render_entry(en, root=False, home=None):
     ap, asec = AUDIENCE[en["name"]]
     aud = ('<ul class="alias aud"><li class="lab">audience</li>'
            + '<li class="pri"><a href="%s">%s</a></li>' % (P(AUDSLUG[ap], root), e(AUDNAME[ap]))
@@ -519,7 +516,7 @@ def render_entry(en, idx, root=False, home=None):
                               '<svg class="plate" aria-labelledby="%s"' % capid, 1)
     return (
     '<article class="entry" id="%s">'
-    '<div class="ehead"><span class="plateno">%02d.%d</span><h2 class="name">%s</h2></div>'
+    '<div class="ehead"><h2 class="name">%s</h2></div>'
     '<p class="catline"><a href="%s">%s</a>%s</p>'
     '<p class="defn">%s</p>%s%s'
     '<figure class="fig"><div class="sheet">%s</div><figcaption id="%s">%s</figcaption></figure>'
@@ -529,38 +526,32 @@ def render_entry(en, idx, root=False, home=None):
     '<div><dt>It must show</dt><dd>%s</dd></div>'
     '<div class="fail"><dt>Common failure</dt><dd>%s</dd></div>'
     '</dl>%s</article>'
-    % (anchor(en["name"]), en["cat"], idx, e(en["name"]),
+    % (anchor(en["name"]), e(en["name"]),
        P(CATSLUG[en["cat"]], root), e(CATNAME[en["cat"]]),
        ("" if home is None or home == en["cat"] else ' <span class="shown">also shown here</span>'),
        e(en["defn"]), aud, alias,
        plate, capid, e(en["cap"]), e(en["answers"]), e(en["when"]), e(en["must"]), e(en["fail"]), rel))
 
-# Plate number NN.n — position within the entry's own category, in declaration order.
-CAT_INDEX, _seen = {}, {}
-for _en in E:
-    _seen[_en["cat"]] = _seen.get(_en["cat"], 0) + 1
-    CAT_INDEX[_en["name"]] = _seen[_en["cat"]]
-
 def nav(active, root):
-    n = ('<a class="cat" href="%s"%s><span class="n">⌂</span><span>Overview</span></a>'
+    n = ('<a class="cat" href="%s"%s><span>Overview</span></a>'
          % (P("index", root), ' aria-current="page"' if active == "index" else ""))
-    n += ('<a class="cat" href="%s"%s><span class="n">?</span>'
+    n += ('<a class="cat" href="%s"%s>'
           '<span>Question → diagram</span><span class="k">%d</span></a>'
           % (P("questions", root),
              ' aria-current="page"' if active == "questions" else "", len(QUESTIONS)))
     n += '<p class="navlabel second">By audience</p>'
     for k, label, _pl, _who, _want in AUDIENCES:
         cnt = sum(1 for x in E if AUDIENCE[x["name"]][0] == k)
-        n += ('<a class="cat" href="%s"%s><span class="n">@</span>'
+        n += ('<a class="cat" href="%s"%s>'
               '<span>%s</span><span class="k">%d</span></a>'
               % (P(AUDSLUG[k], root),
                  ' aria-current="page"' if active == AUDSLUG[k] else "", e(label), cnt))
     n += '<p class="navlabel second">Categories</p>'
     for i, name, cslug, _ in CATS:
         cnt = len(cat_listing(i))
-        n += ('<a class="cat" href="%s"%s><span class="n">%02d</span>'
+        n += ('<a class="cat" href="%s"%s>'
               '<span>%s</span><span class="k">%d</span></a>'
-              % (P(cslug, root), ' aria-current="page"' if active == cslug else "", i, e(name), cnt))
+              % (P(cslug, root), ' aria-current="page"' if active == cslug else "", e(name), cnt))
     return n
 
 def frequency_panel(root=True):
@@ -593,8 +584,8 @@ def toc(ents, extra=None):
     if not ents and not extra:
         return ""
     rows = "".join(
-        '<li><a href="#%s"><span class="tn">%02d.%d</span><span>%s</span></a></li>'
-        % (anchor(en["name"]), en["cat"], CAT_INDEX[en["name"]], e(en["name"])) for en in ents)
+        '<li><a href="#%s">%s</a></li>'
+        % (anchor(en["name"]), e(en["name"])) for en in ents)
     rows += "".join('<li><a class="sec" href="#%s">%s</a></li>' % (i, e(t))
                     for i, t in (extra or []))
     return ('<aside class="toc" aria-label="On this page"><p class="toclabel">On this page</p>'
@@ -842,9 +833,9 @@ def build():
     for en in E:
         byq.setdefault(CATNAME[en["cat"]], []).append(en)
     alist = "".join(
-        '<li><a href="%s"><span class="st">%02d</span><span class="nm">%s</span>'
+        '<li><a class="two" href="%s"><span class="nm">%s</span>'
         '<span class="an">%s</span></a></li>'
-        % (url(en), en["cat"], e(en["name"]), e(en["answers"]))
+        % (url(en), e(en["name"]), e(en["answers"]))
         for en in sorted(E, key=lambda x: x["answers"].lower()))
     body = ('<div class="phead"><p class="crumb"><a href="../index.html">Overview</a> · '
             'Question → diagram</p><h1 class="ptitle">Start from the question</h1>'
@@ -885,7 +876,7 @@ def build():
                 'read</p></div>' % (e(plural), e(who), e(want), len(ents),
                                     ", ranked by how often you will reach for one" if ranked else "",
                                     len(also)))
-        body += "".join(render_entry(en, CAT_INDEX[en["name"]], root=False) for en in ents)
+        body += "".join(render_entry(en, root=False) for en in ents)
         body += secondary
         body += pager(prev, nxt, root=False)
         written.append((AUDSLUG[k] + ".html", page(
@@ -938,7 +929,7 @@ def build():
                      'for a sequence or deployment diagram by the job it does rather than by its '
                      'notation — so their entries live in those categories and are shown here too.'
                      '</p><div class="canoncols">%s</div></div>' % canon_cols(UML_14, CAT_UML))
-        body += "".join(render_entry(en, CAT_INDEX[en["name"]], root=False, home=i) for en in ents)
+        body += "".join(render_entry(en, root=False, home=i) for en in ents)
         body += pager(prev, nxt)
         written.append((cslug + ".html", page(
             cslug + ".html", "%s · Software Architect Diagram Dictionary" % name,

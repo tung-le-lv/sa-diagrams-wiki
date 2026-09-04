@@ -127,6 +127,182 @@ QUESTIONS = [
  ("Why did we choose this architecture?","Architecture decision record"),
 ]
 
+# ---------------------------------------------------------------------------
+# Primary audience — who the diagram is drawn FOR. It is often the question that
+# decides which of two similar diagrams to reach for: a context diagram and a
+# container diagram show the same system, but one is for a steering committee and
+# the other for the engineers building it.
+# (key, label, plural, who that means, what they want from a diagram)
+AUDIENCES = [
+ ("architect","Architect","architects","Architecture peers, design review, other teams",
+   "Wants the boundaries, the trade-off and the consequence. An architect reads every diagram "
+   "here; these are the ones drawn primarily for a fellow architect rather than for a specific "
+   "delivery need."),
+ ("developer","Developer","developers","Engineers building and changing the code",
+   "Wants enough precision to implement from: technologies, protocols, contracts, failure "
+   "branches. A diagram that omits the timeout is one they cannot code against."),
+ ("operations","Operations","operations","SRE, platform engineering and whoever is on call",
+   "Wants to know what runs where, what fails, what it looks like when it fails, and what to do "
+   "about it at three in the morning. Numbers matter more than shapes."),
+ ("security","Security","security","Security review, threat modelling, audit and compliance",
+   "Wants boundaries, data classification, and the control on every crossing. Reads a diagram "
+   "looking for what is missing rather than for what is there."),
+ ("data","Data","data teams","Data engineers, analysts and data stewards",
+   "Wants grain, lineage, freshness and ownership — where a number came from, and whether it can "
+   "be trusted."),
+ ("business","Business","business stakeholders","Business analysts, product and domain experts",
+   "Wants the process and the language of the domain, with no technology in the way. If they "
+   "cannot correct it out loud, the diagram has failed."),
+ ("management","Management","management","Executives, portfolio owners and whoever signs the budget",
+   "Wants scope, cost, risk, and what happens if it is not funded. One page, and no notation to "
+   "learn first."),
+]
+
+# entry name -> (primary audience, [also useful to])
+AUDIENCE = {
+ "System context diagram (C4 level 1)":       ("management",["architect","business"]),
+ "Container diagram (C4 level 2)":            ("developer",["architect"]),
+ "Component diagram (C4 level 3)":            ("developer",["architect"]),
+ "Code diagram (C4 level 4)":                 ("developer",[]),
+ "Solution architecture diagram":             ("management",["architect"]),
+ "Logical architecture diagram":              ("architect",["management"]),
+ "Physical architecture diagram":             ("operations",["architect"]),
+ "Cloud architecture diagram":                ("architect",["operations","developer"]),
+ "Reference architecture":                    ("architect",["developer"]),
+ "System landscape diagram":                  ("management",["architect"]),
+
+ "Class diagram":                             ("developer",["architect"]),
+ "Object diagram":                            ("developer",[]),
+ "Package diagram":                           ("developer",["architect"]),
+ "Composite structure diagram":               ("developer",["architect"]),
+ "Component diagram (UML)":                   ("developer",["architect"]),
+ "Profile diagram":                           ("architect",[]),
+ "Use case diagram":                          ("business",["architect"]),
+ "Activity diagram":                          ("business",["developer"]),
+ "State machine diagram":                     ("developer",["architect","business"]),
+ "Communication diagram":                     ("developer",[]),
+ "Timing diagram":                            ("developer",["operations"]),
+ "Interaction overview diagram":              ("architect",["developer"]),
+
+ "Sequence diagram":                          ("developer",["architect"]),
+ "Request flow diagram":                      ("operations",["developer"]),
+ "Message flow diagram":                      ("architect",["developer"]),
+ "Data flow diagram":                         ("security",["architect","data"]),
+
+ "Entity relationship diagram":               ("developer",["data","architect"]),
+ "Conceptual, logical & physical data models":("data",["architect","business"]),
+ "Data pipeline / ETL–ELT architecture": ("data",["architect"]),
+ "Data lineage diagram":                      ("data",["management"]),
+ "Data warehouse architecture":               ("data",["architect"]),
+ "Data lake / lakehouse architecture":        ("data",["architect"]),
+ "Data mesh architecture":                    ("architect",["data","management"]),
+ "Streaming data architecture":               ("data",["developer","architect"]),
+
+ "Deployment diagram":                        ("operations",["architect"]),
+ "Network / VPC diagram":                     ("operations",["security"]),
+ "Kubernetes architecture diagram":           ("operations",["developer"]),
+ "Container architecture diagram":            ("operations",["developer","security"]),
+ "High availability architecture":            ("operations",["architect","management"]),
+ "Multi-region architecture":                 ("architect",["operations"]),
+
+ "OAuth 2.0 / OIDC flow":                     ("developer",["security","architect"]),
+ "Identity architecture":                     ("security",["architect"]),
+ "Authorisation model diagram":               ("security",["developer"]),
+ "Trust boundary diagram":                    ("security",["architect"]),
+ "Threat model (STRIDE)":                     ("security",["architect"]),
+ "Zero trust architecture":                   ("security",["architect"]),
+ "Data classification diagram":               ("security",["business","data"]),
+ "Encryption & key management diagram":       ("security",["operations"]),
+
+ "Domain model":                              ("developer",["architect","business"]),
+ "Bounded context map":                       ("architect",["management"]),
+ "Event storming board":                      ("business",["architect","developer"]),
+ "Business capability map":                   ("management",["business"]),
+ "Value stream map":                          ("business",["management"]),
+
+ "Event topology diagram":                    ("architect",["developer"]),
+ "Saga diagram":                              ("developer",["architect"]),
+ "CQRS diagram":                              ("developer",["architect"]),
+ "Event sourcing diagram":                    ("developer",["architect"]),
+ "Kafka topic architecture":                  ("developer",["operations"]),
+ "Outbox pattern diagram":                    ("developer",[]),
+ "Pub/sub diagram":                           ("developer",["architect"]),
+
+ "Integration architecture diagram":          ("architect",["management"]),
+ "API gateway & BFF diagram":                 ("architect",["developer"]),
+ "Webhook flow diagram":                      ("developer",["architect"]),
+ "ESB / middleware architecture":             ("architect",["operations"]),
+ "Service mesh diagram":                      ("operations",["architect"]),
+
+ "Swimlane diagram":                          ("business",["architect"]),
+ "BPMN process model":                        ("business",["developer"]),
+ "Flowchart":                                 ("operations",["business","developer"]),
+
+ "CI/CD pipeline diagram":                    ("developer",["operations"]),
+ "Release strategy diagram":                  ("operations",["developer","management"]),
+ "GitOps architecture":                       ("operations",["developer"]),
+ "DevSecOps pipeline":                        ("security",["operations","developer"]),
+
+ "Observability architecture":                ("operations",["architect"]),
+ "Metrics architecture":                      ("operations",["developer"]),
+ "Distributed tracing diagram":               ("developer",["operations"]),
+ "Logging architecture":                      ("operations",["security"]),
+ "Alerting & on-call routing":                ("operations",["management"]),
+
+ "Failover / DR diagram":                     ("operations",["management","architect"]),
+ "Active/active architecture":                ("architect",["operations"]),
+ "Circuit breaker diagram":                   ("developer",["architect"]),
+ "Retry & backoff flow":                      ("developer",["operations"]),
+ "Bulkhead architecture":                     ("developer",["operations"]),
+ "Failure mode diagram (FMEA)":               ("architect",["operations"]),
+ "Fault tree analysis":                       ("architect",["operations","management"]),
+ "Reliability block diagram":                 ("architect",["management"]),
+
+ "Architecture decision record":              ("architect",["developer"]),
+ "Trade-off / decision matrix":               ("management",["architect"]),
+ "Decision tree":                             ("developer",["architect"]),
+
+ "Service dependency diagram":                ("operations",["architect"]),
+ "Serverless architecture":                   ("developer",["architect"]),
+ "RAG architecture":                          ("architect",["developer","security"]),
+ "LLM application & agent architecture":      ("architect",["developer","security"]),
+ "ML pipeline & MLOps architecture":          ("data",["developer","operations"]),
+ "IoT architecture":                          ("architect",["operations"]),
+ "Edge computing architecture":               ("architect",["operations"]),
+}
+
+# UML 2.5 defines 14 diagram types. Three of them are filed in this dictionary by the job
+# they do rather than by their notation — a sequence diagram is reached for as a runtime
+# tool, not as "a UML diagram" — so the UML category itself holds 12. This maps the
+# canonical set so the category page can show all 14 and say where each one lives.
+UML_14 = [
+ ("Structural", ["Class diagram", "Object diagram", "Component diagram (UML)",
+                 "Composite structure diagram", "Deployment diagram", "Package diagram",
+                 "Profile diagram"]),
+ ("Behavioural", ["Use case diagram", "Activity diagram", "State machine diagram",
+                  "Sequence diagram", "Communication diagram",
+                  "Interaction overview diagram", "Timing diagram"]),
+]
+
+# ---------------------------------------------------------------------------
+# A diagram can belong in more than one category, and several genuinely do — the
+# source notes cross-list them themselves. An entry keeps one canonical home (its
+# `cat`, which sets its NN.n plate number and its URL) and is *also shown* on the
+# category pages listed here, at the given position in that category's order.
+#   entry name -> [(category, position in that category's list), ...]
+ALSO_IN = {
+ "Sequence diagram":       [(2, 1), (9, 3)],
+ "Deployment diagram":     [(2, 4)],
+ "Activity diagram":       [(10, 3)],
+ "State machine diagram":  [(10, 5)],
+ "Decision tree":          [(10, 6)],
+ "Data flow diagram":      [(4, 2), (6, 5)],
+ "Swimlane diagram":       [(3, 5)],
+ "Message flow diagram":   [(8, 4), (9, 4)],
+ "Event storming board":   [(8, 8)],
+ "Service mesh diagram":   [(15, 2)],
+}
+
 E = []
 def add(cat,name,tier,defn,answers,when,must,fail,fn,cap,alias=None):
     E.append(dict(cat=cat,name=name,tier=tier,defn=defn,answers=answers,when=when,
@@ -158,16 +334,16 @@ add(1,"Component diagram (C4 level 3)",1,
  "The container boundary drawn explicitly, so the level of zoom is unambiguous. Layer or responsibility labels.",
  "Drawing one per service as a matter of routine. Most services do not earn a component diagram.",
  d_component,"Inside the Order Service. The aggregate root is the emphasised box.",
- ["UML component diagram","Level 3 diagram"])
+ ["Level 3 diagram"])
 
-add(1,"Code diagram (C4 level 4)",3,
- "The innermost C4 ring: the classes and interfaces inside one component. The level the C4 model itself tells you to skip most of the time.",
- "How is this one component actually put together?",
- "A component with a deliberate pattern worth explaining — and generated on demand, not maintained.",
- "The interface boundaries, so the dependency direction is visible. Nothing that an IDE could tell you faster.",
- "Checking it in. A hand-maintained code diagram is wrong within a sprint and misleads everyone who trusts it.",
- d_c4_code,"One component in UML class notation. Note the dependency inversion at the repository boundary.",
- ["Class-level view","Code-level diagram","Level 4 diagram"])
+add(1,"Cloud architecture diagram",1,
+ "The system drawn in the provider's own vocabulary — named managed services, wired together as they will really be configured. The most requested diagram in a cloud estate, and the one most often drawn too vaguely.",
+ "How do the AWS, Azure or GCP resources fit together, and what does each one guarantee?",
+ "Any design on a public cloud, every cost review, and every well-architected-style review.",
+ "Real service names, region and AZ boundaries, managed-versus-self-hosted, and where identity is enforced.",
+ "Generic boxes — “database”, “queue”, “cache”. The named service is the contract for failover, quotas and price.",
+ d_cloud,"Named services, not categories. “Aurora Multi-AZ” answers questions “database” cannot.",
+ ["Cloud infrastructure diagram","AWS architecture diagram","Azure architecture diagram","GCP architecture diagram"])
 
 add(1,"Solution architecture diagram",2,
  "One page that puts business capability, applications, integration and data in the same frame — the diagram a steering committee approves before anything is built.",
@@ -187,6 +363,15 @@ add(1,"Logical architecture diagram",2,
  d_logical,"Five logical bands. Not one vendor name — that is the discipline the view depends on.",
  ["Logical view","Building block view","Technology-neutral architecture"])
 
+add(1,"System landscape diagram",2,
+ "Every system in the organisation on one page, grouped by domain, each marked with who owns it and whether it is being invested in, tolerated or retired.",
+ "What systems exist across the organisation, and which ones are we still paying for?",
+ "Portfolio review, M&A integration, decommissioning programmes, and your first month in a new organisation.",
+ "Ownership, build/buy, lifecycle state, and the integrations — especially the batch jobs nobody claims.",
+ "Trying to be complete. A landscape that needs a page of legend is not read; a lossy one-pager is.",
+ d_landscape,"Three domains, nine systems, one unowned nightly batch. That last one is the finding.",
+ ["Organisation landscape","Application portfolio","Service landscape","Estate map","C4 system landscape"])
+
 add(1,"Physical architecture diagram",3,
  "The same architecture expressed as hardware and capacity: instance types, core counts, IOPS, link speeds — the numbers that decide the bill.",
  "What infrastructure actually hosts this, and how much of it do we need?",
@@ -195,15 +380,6 @@ add(1,"Physical architecture diagram",3,
  "Confusing it with the logical view. Stakeholders shown instance types stop hearing the architecture.",
  d_physical,"Named instance classes and storage numbers — capacity arguments settle here.",
  ["Server architecture diagram","Infrastructure diagram","Physical view"])
-
-add(1,"Cloud architecture diagram",1,
- "The system drawn in the provider's own vocabulary — named managed services, wired together as they will really be configured. The most requested diagram in a cloud estate, and the one most often drawn too vaguely.",
- "How do the AWS, Azure or GCP resources fit together, and what does each one guarantee?",
- "Any design on a public cloud, every cost review, and every well-architected-style review.",
- "Real service names, region and AZ boundaries, managed-versus-self-hosted, and where identity is enforced.",
- "Generic boxes — “database”, “queue”, “cache”. The named service is the contract for failover, quotas and price.",
- d_cloud,"Named services, not categories. “Aurora Multi-AZ” answers questions “database” cannot.",
- ["Cloud infrastructure diagram","AWS architecture diagram","Azure architecture diagram","GCP architecture diagram"])
 
 add(1,"Reference architecture",3,
  "A blueprint teams are expected to follow by default, published once, together with the rule for how to deviate from it.",
@@ -214,16 +390,26 @@ add(1,"Reference architecture",3,
  d_reference,"The standard, and the three honest ways to relate to it.",
  ["Architecture blueprint","Standard pattern","Golden path"])
 
-add(1,"System landscape diagram",2,
- "Every system in the organisation on one page, grouped by domain, each marked with who owns it and whether it is being invested in, tolerated or retired.",
- "What systems exist across the organisation, and which ones are we still paying for?",
- "Portfolio review, M&A integration, decommissioning programmes, and your first month in a new organisation.",
- "Ownership, build/buy, lifecycle state, and the integrations — especially the batch jobs nobody claims.",
- "Trying to be complete. A landscape that needs a page of legend is not read; a lossy one-pager is.",
- d_landscape,"Three domains, nine systems, one unowned nightly batch. That last one is the finding.",
- ["Organisation landscape","Application portfolio","Service landscape","Estate map","C4 system landscape"])
+add(1,"Code diagram (C4 level 4)",3,
+ "The innermost C4 ring: the classes and interfaces inside one component. The level the C4 model itself tells you to skip most of the time.",
+ "How is this one component actually put together?",
+ "A component with a deliberate pattern worth explaining — and generated on demand, not maintained.",
+ "The interface boundaries, so the dependency direction is visible. Nothing that an IDE could tell you faster.",
+ "Checking it in. A hand-maintained code diagram is wrong within a sprint and misleads everyone who trusts it.",
+ d_c4_code,"One component in UML class notation. Note the dependency inversion at the repository boundary.",
+ ["Class-level view","Code-level diagram","Level 4 diagram"])
+
 
 # ================= 2. UML =================
+add(2,"State machine diagram",1,
+ "Every state an entity can occupy and every legal transition between them. The cheapest bug-finding tool in architecture: drawing one raises the questions nobody asked.",
+ "What states exist, and which transitions are legal?",
+ "Any entity with a lifecycle — order, payment, subscription, ticket, claim.",
+ "The initial state, every terminal state, and the event or method that causes each transition.",
+ "A state with no exit. In production that is an entity stuck forever and a support ticket nobody can close.",
+ d_state,"An order lifecycle. Can a shipped order be cancelled? The diagram forces the question.",
+ ["State transition diagram","Statechart","UML state machine"])
+
 add(2,"Class diagram",3,
  "UML's structural workhorse: types, their attributes and operations, and the relationships between them — with cardinality and ownership carried in the notation itself.",
  "How is the domain model structured, and what owns what?",
@@ -232,51 +418,6 @@ add(2,"Class diagram",3,
  "Reverse-engineering the whole codebase into UML and checking it in. It is stale the next sprint.",
  d_class,"Three classes and their relationships. Cardinality is the content, not decoration.",
  ["UML class diagram","Structural model"])
-
-add(2,"Object diagram",3,
- "A snapshot of specific instances at one moment, with their actual values — a class diagram frozen at runtime.",
- "What does the model look like for this particular case?",
- "Pinning down a confusing example: an edge case in a review, a bug nobody can describe, a test fixture.",
- "Underlined instance names, real values, and only the objects the example needs.",
- "Using it as documentation. It describes one case; the class diagram describes all of them.",
- d_object,"One order on one day. Concrete enough to argue about.",
- ["Instance diagram","UML object diagram","Snapshot diagram"])
-
-add(2,"Package diagram",3,
- "Modules and the dependencies between them — the diagram that makes an architectural rule checkable.",
- "What may depend on what, and where has that been violated?",
- "Layered or hexagonal codebases, modular monoliths, and any rule you intend to enforce in a build test.",
- "Dependency direction on every edge, and the packages that are allowed no outgoing dependencies at all.",
- "Drawing the rule but never asserting it. Encode it as a test or it decays within two sprints.",
- d_package,"Dependencies point inward; Domain depends on nothing. One reversed arrow is a build failure.",
- ["UML package diagram","Module dependency diagram","Layer diagram"])
-
-add(2,"Composite structure diagram",3,
- "The internals of one component expressed as parts, ports and connectors — what it contains and what it requires to run.",
- "What does this component need wired to it before it works?",
- "Reusable components, plug-in architectures, and embedded or automotive designs where this notation is standard.",
- "Provided and required interfaces on the boundary, so the component's contract is readable from outside.",
- "Reaching for it when a component diagram would do. The extra notation only pays when ports genuinely vary.",
- d_composite,"Ports on the boundary, parts inside, connectors between. The contract is the boundary.",
- ["Composite structure","Internal block diagram","Parts and ports"])
-
-add(2,"Profile diagram",3,
- "The one UML diagram about UML: it defines the stereotypes and tagged values your other models are allowed to use.",
- "What modelling vocabulary is standard here, and what must every element carry?",
- "Organisations with a mandated modelling tool and a governance function that audits the models.",
- "Each stereotype, the metaclass it extends, and the tagged values it makes mandatory.",
- "Building an elaborate profile nobody adopts. If the tool does not enforce it, it does not exist.",
- d_profile,"A «Service» stereotype that forces every service box to carry an SLA and a tier.",
- ["UML profile","Stereotype definition","Metamodel extension"])
-
-add(2,"Use case diagram",3,
- "Actors outside a boundary, goals inside it. A scoping tool that deliberately says nothing about how anything works.",
- "Who needs what from this system, and what is in this release?",
- "Requirements framing and scope negotiation — particularly with stakeholders who do not read technical diagrams.",
- "The system boundary, every actor including other systems, and goals phrased as outcomes.",
- "Writing UI steps in the ovals. “Place order” is a goal; “click submit” is not.",
- d_usecase,"Scope as a boundary. Every actor outside it is someone whose needs you owe.",
- ["UML use case diagram","Actor–goal diagram"])
 
 add(2,"Activity diagram",2,
  "A flow with real concurrency notation: fork, join, and parallel branches that must all complete. A flowchart that can express “at the same time”.",
@@ -287,14 +428,41 @@ add(2,"Activity diagram",2,
  d_activity,"Stock and payment run concurrently; the join says both must finish before the order proceeds.",
  ["UML activity diagram","Workflow diagram","Process flow diagram"])
 
-add(2,"State machine diagram",1,
- "Every state an entity can occupy and every legal transition between them. The cheapest bug-finding tool in architecture: drawing one raises the questions nobody asked.",
- "What states exist, and which transitions are legal?",
- "Any entity with a lifecycle — order, payment, subscription, ticket, claim.",
- "The initial state, every terminal state, and the event or method that causes each transition.",
- "A state with no exit. In production that is an entity stuck forever and a support ticket nobody can close.",
- d_state,"An order lifecycle. Can a shipped order be cancelled? The diagram forces the question.",
- ["State transition diagram","Statechart","UML state machine"])
+add(2,"Use case diagram",3,
+ "Actors outside a boundary, goals inside it. A scoping tool that deliberately says nothing about how anything works.",
+ "Who needs what from this system, and what is in this release?",
+ "Requirements framing and scope negotiation — particularly with stakeholders who do not read technical diagrams.",
+ "The system boundary, every actor including other systems, and goals phrased as outcomes.",
+ "Writing UI steps in the ovals. “Place order” is a goal; “click submit” is not.",
+ d_usecase,"Scope as a boundary. Every actor outside it is someone whose needs you owe.",
+ ["UML use case diagram","Actor–goal diagram"])
+
+add(2,"Component diagram (UML)",3,
+ "Components with the interfaces they provide and require, fitted together ball into socket. UML's structural view of replaceable parts — and not the same diagram C4 means by the word.",
+ "What does this component offer, what does it need, and what could I swap it for?",
+ "Component-based and plug-in designs, and published libraries where the contract is the deliverable.",
+ "A named provided and required interface on every connection, so the contract is readable without opening the code.",
+ "Confusing it with the C4 component diagram. Same word, different diagram — say which you mean before anyone draws.",
+ d_uml_component,"Balls are provided interfaces, sockets required. Where they meet is the contract you can swap either side of.",
+ ["UML component diagram","Provided and required interfaces","Lollipop notation"])
+
+add(2,"Package diagram",3,
+ "Modules and the dependencies between them — the diagram that makes an architectural rule checkable.",
+ "What may depend on what, and where has that been violated?",
+ "Layered or hexagonal codebases, modular monoliths, and any rule you intend to enforce in a build test.",
+ "Dependency direction on every edge, and the packages that are allowed no outgoing dependencies at all.",
+ "Drawing the rule but never asserting it. Encode it as a test or it decays within two sprints.",
+ d_package,"Dependencies point inward; Domain depends on nothing. One reversed arrow is a build failure.",
+ ["UML package diagram","Module dependency diagram","Layer diagram"])
+
+add(2,"Object diagram",3,
+ "A snapshot of specific instances at one moment, with their actual values — a class diagram frozen at runtime.",
+ "What does the model look like for this particular case?",
+ "Pinning down a confusing example: an edge case in a review, a bug nobody can describe, a test fixture.",
+ "Underlined instance names, real values, and only the objects the example needs.",
+ "Using it as documentation. It describes one case; the class diagram describes all of them.",
+ d_object,"One order on one day. Concrete enough to argue about.",
+ ["Instance diagram","UML object diagram","Snapshot diagram"])
 
 add(2,"Communication diagram",3,
  "The same interaction as a sequence diagram, arranged by topology instead of time, with numbered messages carrying the order.",
@@ -314,6 +482,15 @@ add(2,"Timing diagram",3,
  d_timing,"A breaker tripping and recovering while the dependency is still failing. Durations to scale.",
  ["UML timing diagram","Protocol timing chart"])
 
+add(2,"Composite structure diagram",3,
+ "The internals of one component expressed as parts, ports and connectors — what it contains and what it requires to run.",
+ "What does this component need wired to it before it works?",
+ "Reusable components, plug-in architectures, and embedded or automotive designs where this notation is standard.",
+ "Provided and required interfaces on the boundary, so the component's contract is readable from outside.",
+ "Reaching for it when a component diagram would do. The extra notation only pays when ports genuinely vary.",
+ d_composite,"Ports on the boundary, parts inside, connectors between. The contract is the boundary.",
+ ["Composite structure","Internal block diagram","Parts and ports"])
+
 add(2,"Interaction overview diagram",3,
  "An activity diagram whose nodes are entire sequence diagrams — the index page for a flow too big for one sheet.",
  "Which of our twelve sequence diagrams applies here, and in what order?",
@@ -322,6 +499,16 @@ add(2,"Interaction overview diagram",3,
  "Inlining the details. The moment a message appears on it, you have drawn a bad sequence diagram.",
  d_interaction_overview,"Four referenced interactions and the branch between them. No messages on this level.",
  ["Interaction overview","Sequence diagram index"])
+
+add(2,"Profile diagram",3,
+ "The one UML diagram about UML: it defines the stereotypes and tagged values your other models are allowed to use.",
+ "What modelling vocabulary is standard here, and what must every element carry?",
+ "Organisations with a mandated modelling tool and a governance function that audits the models.",
+ "Each stereotype, the metaclass it extends, and the tagged values it makes mandatory.",
+ "Building an elaborate profile nobody adopts. If the tool does not enforce it, it does not exist.",
+ d_profile,"A «Service» stereotype that forces every service box to carry an SLA and a tier.",
+ ["UML profile","Stereotype definition","Metamodel extension"])
+
 
 # ================= 3. Interaction & runtime =================
 add(3,"Sequence diagram",1,
@@ -332,6 +519,15 @@ add(3,"Sequence diagram",1,
  "Happy path only. And treating a timeout as a decline — on a timeout you do not know whether it happened.",
  d_sequence,"An order placement with three outcomes. The timeout branch returns 202, not 402.",
  ["UML sequence diagram","Interaction diagram","Call flow diagram","C4 dynamic diagram"])
+
+add(3,"Data flow diagram",1,
+ "Processes, data stores, external entities and the data moving between them — with trust boundaries drawn in. The foundation layer for threat modelling and for privacy review.",
+ "How does data move through the system, and where does it cross a boundary?",
+ "Privacy and compliance reviews, and as the first step of a STRIDE threat model.",
+ "Numbered processes, named data stores, and a dashed line wherever trust changes.",
+ "Mixing control flow into it. A DFD shows data movement, not the order steps execute in.",
+ d_dfd,"A level-1 DFD. Every arrow crossing the dashed boundary is a threat-model question.",
+ ["DFD","Level-0 / level-1 data flow","Privacy flow diagram"])
 
 add(3,"Request flow diagram",2,
  "One request traced across every hop, with a latency number on each — a sequence diagram optimised for the performance conversation.",
@@ -351,14 +547,6 @@ add(3,"Message flow diagram",2,
  d_messageflow,"Five links, each carrying its contract. This is the artefact two teams sign.",
  ["Event flow diagram","Interface catalogue","Integration contract diagram"])
 
-add(3,"Data flow diagram",1,
- "Processes, data stores, external entities and the data moving between them — with trust boundaries drawn in. The foundation layer for threat modelling and for privacy review.",
- "How does data move through the system, and where does it cross a boundary?",
- "Privacy and compliance reviews, and as the first step of a STRIDE threat model.",
- "Numbered processes, named data stores, and a dashed line wherever trust changes.",
- "Mixing control flow into it. A DFD shows data movement, not the order steps execute in.",
- d_dfd,"A level-1 DFD. Every arrow crossing the dashed boundary is a threat-model question.",
- ["DFD","Level-0 / level-1 data flow","Privacy flow diagram"])
 
 # ================= 4. Data architecture =================
 add(4,"Entity relationship diagram",1,
@@ -369,15 +557,6 @@ add(4,"Entity relationship diagram",1,
  "One diagram of eighty tables. Split by context and link at the boundaries.",
  d_erd,"An order model. One-or-more line items means an order cannot be empty — a rule in two characters.",
  ["ER diagram","ERD","Schema diagram"])
-
-add(4,"Conceptual, logical & physical data models",2,
- "The same data at three altitudes: business concepts, a vendor-neutral normalised model, and the actual DDL with its types and indexes.",
- "Which version of the data model is this, and who is it for?",
- "Any modelling effort that involves both business stakeholders and a DBA — which is most of them.",
- "A stated level. Conceptual carries no keys; logical carries no types; physical carries everything.",
- "Showing a physical model to business stakeholders and calling the review done.",
- d_datamodels,"One domain, three audiences. Mixing the levels is what makes data reviews go badly.",
- ["Conceptual data model","Logical data model","Physical data model"])
 
 add(4,"Data pipeline / ETL–ELT architecture",2,
  "How data gets from where it is produced to where it is consumed: ingestion, landing, transformation, serving — and how it is reprocessed when something was wrong.",
@@ -397,6 +576,15 @@ add(4,"Data lineage diagram",2,
  d_lineage,"Source to dashboard. Two consumers off one warehouse, which is where reconciliation disputes start.",
  ["Data provenance diagram","Impact analysis diagram"])
 
+add(4,"Conceptual, logical & physical data models",2,
+ "The same data at three altitudes: business concepts, a vendor-neutral normalised model, and the actual DDL with its types and indexes.",
+ "Which version of the data model is this, and who is it for?",
+ "Any modelling effort that involves both business stakeholders and a DBA — which is most of them.",
+ "A stated level. Conceptual carries no keys; logical carries no types; physical carries everything.",
+ "Showing a physical model to business stakeholders and calling the review done.",
+ d_datamodels,"One domain, three audiences. Mixing the levels is what makes data reviews go badly.",
+ ["Conceptual data model","Logical data model","Physical data model"])
+
 add(4,"Data warehouse architecture",2,
  "Staging, a dimensional core, and marts per consumer — the classic analytical stack and the grain decisions inside it.",
  "How is analytical data organised, and at what grain?",
@@ -405,6 +593,15 @@ add(4,"Data warehouse architecture",2,
  "Leaving the grain implicit. Nearly every warehouse dispute is two people assuming different grains.",
  d_warehouse,"A star schema with its grain stated. “One row per order line per day” ends most arguments.",
  ["Dimensional model","Star schema diagram","Kimball architecture"])
+
+add(4,"Streaming data architecture",3,
+ "Continuous data through a partitioned log into stateful processing and out to serving stores — with windows, keys and late arrivals made explicit.",
+ "How is data processed continuously, and what is ordered relative to what?",
+ "Sub-minute freshness requirements: fraud, telemetry, pricing, personalisation.",
+ "The partition key, the window definition, and the late-arrival policy.",
+ "A box labelled “Kafka” and nothing else. None of the three decisions that matter is visible.",
+ d_streaming,"Ingest, window, join, serve. The key and the window are the design.",
+ ["Event streaming architecture","Real-time pipeline","Stream processing diagram"])
 
 add(4,"Data lake / lakehouse architecture",3,
  "Raw, cleaned and business-ready tiers over one open-format storage layer, queried by SQL and ML alike.",
@@ -424,14 +621,6 @@ add(4,"Data mesh architecture",3,
  d_datamesh,"Domains in the middle, governance above, platform below. Remove either band and it fails.",
  ["Data mesh","Data product architecture"])
 
-add(4,"Streaming data architecture",3,
- "Continuous data through a partitioned log into stateful processing and out to serving stores — with windows, keys and late arrivals made explicit.",
- "How is data processed continuously, and what is ordered relative to what?",
- "Sub-minute freshness requirements: fraud, telemetry, pricing, personalisation.",
- "The partition key, the window definition, and the late-arrival policy.",
- "A box labelled “Kafka” and nothing else. None of the three decisions that matter is visible.",
- d_streaming,"Ingest, window, join, serve. The key and the window are the design.",
- ["Event streaming architecture","Real-time pipeline","Stream processing diagram"])
 
 # ================= 5. Deployment & infrastructure =================
 add(5,"Deployment diagram",1,
@@ -452,24 +641,6 @@ add(5,"Network / VPC diagram",1,
  d_vpc,"A three-tier VPC. Ports on the arrows are what make it reviewable.",
  ["Network diagram","VPC diagram","Subnet diagram","Network security diagram"])
 
-add(5,"Kubernetes architecture diagram",3,
- "Control plane, nodes, pods and services — and the reconciliation loop that is the whole mental model.",
- "How does a workload actually get scheduled and reached in this cluster?",
- "Onboarding onto Kubernetes, cluster design, and debugging why something is not where you expected.",
- "The control-plane components, how pods are selected by services, and where ingress terminates.",
- "Drawing it as a deployment pipeline. Nothing is deployed here; state is declared and continuously reconciled.",
- d_k8s,"Control plane left, workers right. The arrow that matters is the watch, not the deploy.",
- ["Kubernetes cluster diagram","K8s architecture","Container orchestration diagram"])
-
-add(5,"Container architecture diagram",3,
- "Image build, registry and runtime, plus the layer structure and the base-image policy behind them.",
- "What is in the image we are running, and how does a fix reach every service?",
- "Supply-chain reviews, CVE response planning, and standardising build practice across teams.",
- "Base image ownership and patch cadence, layer ordering, and pinning by digest rather than tag.",
- "Deploying by mutable tag. Then nobody can answer what is actually running in production.",
- d_containerarch,"Build, registry, runtime — and the layer order that decides your rebuild cost.",
- ["Image supply chain","Docker architecture diagram"])
-
 add(5,"High availability architecture",2,
  "Redundancy inside one region, drawn with the arithmetic: how many instances, spread how, at what utilisation.",
  "What can fail here without users noticing?",
@@ -488,6 +659,25 @@ add(5,"Multi-region architecture",2,
  d_multiregion,"Two active regions, data partitioned by customer home. No synchronous cross-region hop.",
  ["Global architecture","Geo-distributed architecture"])
 
+add(5,"Kubernetes architecture diagram",3,
+ "Control plane, nodes, pods and services — and the reconciliation loop that is the whole mental model.",
+ "How does a workload actually get scheduled and reached in this cluster?",
+ "Onboarding onto Kubernetes, cluster design, and debugging why something is not where you expected.",
+ "The control-plane components, how pods are selected by services, and where ingress terminates.",
+ "Drawing it as a deployment pipeline. Nothing is deployed here; state is declared and continuously reconciled.",
+ d_k8s,"Control plane left, workers right. The arrow that matters is the watch, not the deploy.",
+ ["Kubernetes cluster diagram","K8s architecture","Container orchestration diagram"])
+
+add(5,"Container architecture diagram",3,
+ "Image build, registry and runtime, plus the layer structure and the base-image policy behind them.",
+ "What is in the image we are running, and how does a fix reach every service?",
+ "Supply-chain reviews, CVE response planning, and standardising build practice across teams.",
+ "Base image ownership and patch cadence, layer ordering, and pinning by digest rather than tag.",
+ "Deploying by mutable tag. Then nobody can answer what is actually running in production.",
+ d_containerarch,"Build, registry, runtime — and the layer order that decides your rebuild cost.",
+ ["Image supply chain","Docker architecture diagram"])
+
+
 # ================= 6. Security =================
 add(6,"OAuth 2.0 / OIDC flow",1,
  "The exact sequence by which a caller obtains a token and a service decides to trust it. Being able to draw this from memory is a real differentiator.",
@@ -497,6 +687,15 @@ add(6,"OAuth 2.0 / OIDC flow",1,
  "Implicit grant in a new design — it is deprecated. And assuming the gateway's authentication is also authorisation.",
  d_oauth,"Authorisation code flow with PKCE. The service still authorises after the gateway authenticates.",
  ["Authentication flow diagram","OAuth 2.0 flow","OIDC flow","SSO flow","Security / auth flow"])
+
+add(6,"Trust boundary diagram",2,
+ "Concentric zones of decreasing exposure, with the assets and controls in each. The canvas a threat model is drawn on.",
+ "Where does data cross into a less-trusted zone, and what protects it there?",
+ "Design review of anything internet-facing, and as the starting point for STRIDE.",
+ "What crosses each boundary, in what form, and the encryption state in transit and at rest.",
+ "Showing security only at the perimeter. Internal service calls need authentication too.",
+ d_trust,"Three nested boundaries. Each crossing is one round of spoofing, tampering and disclosure questions.",
+ ["Security architecture diagram","Security zones diagram"])
 
 add(6,"Identity architecture",2,
  "Where identities come from, how they are provisioned and de-provisioned, and what issues the tokens everything else trusts.",
@@ -515,15 +714,6 @@ add(6,"Authorisation model diagram",2,
  "Scattering ad-hoc rules across services. Nobody can then answer who has access to a record.",
  d_authz,"Enforcement stays local, the decision is centralised — and the two are not the same thing.",
  ["Authorization flow diagram","RBAC diagram","ABAC model","Permission model"])
-
-add(6,"Trust boundary diagram",2,
- "Concentric zones of decreasing exposure, with the assets and controls in each. The canvas a threat model is drawn on.",
- "Where does data cross into a less-trusted zone, and what protects it there?",
- "Design review of anything internet-facing, and as the starting point for STRIDE.",
- "What crosses each boundary, in what form, and the encryption state in transit and at rest.",
- "Showing security only at the perimeter. Internal service calls need authentication too.",
- d_trust,"Three nested boundaries. Each crossing is one round of spoofing, tampering and disclosure questions.",
- ["Security architecture diagram","Security zones diagram"])
 
 add(6,"Threat model (STRIDE)",3,
  "A data flow diagram with boundaries, walked flow by flow through six threat categories, each row ending in a named mitigation and an owner.",
@@ -560,6 +750,7 @@ add(6,"Encryption & key management diagram",3,
  "One key for everything. Rotation then means re-encrypting everything, so it never happens.",
  d_keymgmt,"Rotation becomes a re-wrap; deletion becomes crypto-shredding. Both are contractual promises.",
  ["Key management architecture","Envelope encryption diagram","KMS architecture"])
+
 
 # ================= 7. Business & domain =================
 add(7,"Domain model",1,
@@ -607,6 +798,7 @@ add(7,"Value stream map",3,
  d_valuestream,"Fifteen minutes of work inside 6.4 days of elapsed time. Automate the approval, not the typing.",
  ["Value stream","Lead time analysis"])
 
+
 # ================= 8. Event-driven =================
 add(8,"Event topology diagram",2,
  "Which services publish which events and which consume them — the map of an event-driven estate.",
@@ -635,14 +827,14 @@ add(8,"CQRS diagram",2,
  d_cqrs,"Command side, event, projection, query side — and the lag between them.",
  ["Command query responsibility segregation","Read model diagram"])
 
-add(8,"Event sourcing diagram",3,
- "State stored as an append-only sequence of events, with current state derived by replaying them and snapshots as an optimisation.",
- "What is the system of record, and can we reconstruct any past state?",
- "Domains where the audit trail is the product: finance, trading, claims, regulated workflows.",
- "The event store as the source of truth, the replay path, snapshotting, and how projections are rebuilt.",
- "Not planning for schema evolution. Old event shapes live forever and must stay readable.",
- d_eventsourcing,"Append, fold, project. Correcting data means a new event, never an update.",
- ["Event log architecture","Append-only store diagram"])
+add(8,"Outbox pattern diagram",2,
+ "A local table written in the same transaction as the business change, drained afterwards by a relay — the standard answer to the dual-write problem.",
+ "How do we change the database and publish an event without losing one of them?",
+ "Every service that both owns data and publishes events. Which is most of them.",
+ "One transaction spanning both writes, the relay mechanism, and at-least-once delivery stated plainly.",
+ "Publishing inside the transaction and hoping. A crash between the two leaves silent, permanent divergence.",
+ d_outbox,"One transaction, two rows, a relay after the fact. Consumers must be idempotent.",
+ ["Transactional outbox","Dual-write pattern"])
 
 add(8,"Kafka topic architecture",3,
  "Topics, partitions, keys and consumer groups — the four facts that determine ordering and parallelism.",
@@ -653,14 +845,14 @@ add(8,"Kafka topic architecture",3,
  d_kafka,"One topic, six partitions, two independent groups. Partition count caps parallelism.",
  ["Kafka topology","Partition diagram","Consumer group diagram"])
 
-add(8,"Outbox pattern diagram",2,
- "A local table written in the same transaction as the business change, drained afterwards by a relay — the standard answer to the dual-write problem.",
- "How do we change the database and publish an event without losing one of them?",
- "Every service that both owns data and publishes events. Which is most of them.",
- "One transaction spanning both writes, the relay mechanism, and at-least-once delivery stated plainly.",
- "Publishing inside the transaction and hoping. A crash between the two leaves silent, permanent divergence.",
- d_outbox,"One transaction, two rows, a relay after the fact. Consumers must be idempotent.",
- ["Transactional outbox","Dual-write pattern"])
+add(8,"Event sourcing diagram",3,
+ "State stored as an append-only sequence of events, with current state derived by replaying them and snapshots as an optimisation.",
+ "What is the system of record, and can we reconstruct any past state?",
+ "Domains where the audit trail is the product: finance, trading, claims, regulated workflows.",
+ "The event store as the source of truth, the replay path, snapshotting, and how projections are rebuilt.",
+ "Not planning for schema evolution. Old event shapes live forever and must stay readable.",
+ d_eventsourcing,"Append, fold, project. Correcting data means a new event, never an update.",
+ ["Event log architecture","Append-only store diagram"])
 
 add(8,"Pub/sub diagram",3,
  "One topic, many independent subscriptions, each with its own filter and failure handling — publisher unaware of all of them.",
@@ -670,6 +862,7 @@ add(8,"Pub/sub diagram",3,
  "A publisher that must change to add a subscriber. That is point-to-point integration wearing a topic.",
  d_pubsub,"Fan-out with per-subscription filters and one DLQ. Adding a fourth consumer costs the publisher nothing.",
  ["Publish/subscribe diagram","Topic fan-out diagram"])
+
 
 # ================= 9. Integration & API =================
 add(9,"Integration architecture diagram",2,
@@ -699,6 +892,15 @@ add(9,"Webhook flow diagram",2,
  d_webhook,"Register, sign, deliver, retry, replay. Four properties separate this from a POST and a prayer.",
  ["Callback integration","Outbound event delivery"])
 
+add(9,"Service mesh diagram",3,
+ "Sidecar proxies and a control plane taking over service-to-service concerns — mTLS, retries, timeouts, traces — without application code changing.",
+ "How is east-west traffic secured and controlled?",
+ "Large Kubernetes estates where those concerns are being reimplemented per service.",
+ "The control plane, the data plane, and which policies are enforced where.",
+ "Adopting it for three services. The operational cost lands long before the benefit does.",
+ d_mesh,"Control plane above, sidecars beside each service. The proxies carry mTLS between pods.",
+ ["Service mesh architecture","Sidecar diagram","Istio / Linkerd architecture"])
+
 add(9,"ESB / middleware architecture",3,
  "A mediating layer that adapts protocols, transforms to a canonical model, routes and orchestrates — the traditional enterprise integration shape.",
  "How do incompatible enterprise systems get connected without touching either of them?",
@@ -708,14 +910,6 @@ add(9,"ESB / middleware architecture",3,
  d_esb,"Adapters and canonical model, yes. Orchestration in the middle is where these estates ossify.",
  ["ESB architecture","Middleware architecture","Hub and spoke integration"])
 
-add(9,"Service mesh diagram",3,
- "Sidecar proxies and a control plane taking over service-to-service concerns — mTLS, retries, timeouts, traces — without application code changing.",
- "How is east-west traffic secured and controlled?",
- "Large Kubernetes estates where those concerns are being reimplemented per service.",
- "The control plane, the data plane, and which policies are enforced where.",
- "Adopting it for three services. The operational cost lands long before the benefit does.",
- d_mesh,"Control plane above, sidecars beside each service. The proxies carry mTLS between pods.",
- ["Service mesh architecture","Sidecar diagram","Istio / Linkerd architecture"])
 
 # ================= 10. Process & workflow =================
 add(10,"Swimlane diagram",2,
@@ -744,6 +938,7 @@ add(10,"Flowchart",3,
  "Using it for two actors or for concurrency. That is a swimlane and an activity diagram respectively.",
  d_flowchart,"A cache-aside read path. Every branch resolves; no path just stops.",
  ["Process flow diagram","Program flowchart","Decision flowchart"])
+
 
 # ================= 11. DevOps & CI/CD =================
 add(11,"CI/CD pipeline diagram",2,
@@ -782,6 +977,7 @@ add(11,"DevSecOps pipeline",3,
  d_devsecops,"Six gates, two severities, one unbypassable control at admission.",
  ["Secure SDLC diagram","Supply chain security pipeline","Shift-left diagram"])
 
+
 # ================= 12. Observability =================
 add(12,"Observability architecture",2,
  "How logs, metrics and traces get from services to the humans who need them at three in the morning, and what they cost to keep.",
@@ -801,6 +997,15 @@ add(12,"Metrics architecture",2,
  d_metrics,"RED for services, USE for resources — and cardinality as the cost function.",
  ["Monitoring architecture","Prometheus architecture","Time series architecture"])
 
+add(12,"Alerting & on-call routing",2,
+ "How a breached objective becomes a page for a specific human — burn rate, grouping, routing and escalation.",
+ "Who gets woken up, for what, and how quickly?",
+ "Before go-live. Retrofitting alerting after the first incident is how alert fatigue starts.",
+ "The SLO and error budget, the burn rate thresholds, ownership-based routing, and the escalation timer.",
+ "Paging on causes. Nobody has ever filed a complaint about CPU — page on what the user feels.",
+ d_alerting,"Fast burn pages a human; slow burn opens a ticket. Everything else is a dashboard.",
+ ["Alerting architecture","On-call escalation diagram","Incident routing"])
+
 add(12,"Distributed tracing diagram",2,
  "One request as a tree of timed spans across every service it touched, joined by a single propagated id.",
  "Which hop is slow, and what did this request actually do?",
@@ -819,14 +1024,6 @@ add(12,"Logging architecture",3,
  d_logging,"Redact and sample before you pay to index, and tier what survives.",
  ["Log pipeline","Log aggregation architecture","ELK architecture"])
 
-add(12,"Alerting & on-call routing",2,
- "How a breached objective becomes a page for a specific human — burn rate, grouping, routing and escalation.",
- "Who gets woken up, for what, and how quickly?",
- "Before go-live. Retrofitting alerting after the first incident is how alert fatigue starts.",
- "The SLO and error budget, the burn rate thresholds, ownership-based routing, and the escalation timer.",
- "Paging on causes. Nobody has ever filed a complaint about CPU — page on what the user feels.",
- d_alerting,"Fast burn pages a human; slow burn opens a ticket. Everything else is a dashboard.",
- ["Alerting architecture","On-call escalation diagram","Incident routing"])
 
 # ================= 13. Reliability & resilience =================
 add(13,"Failover / DR diagram",2,
@@ -837,15 +1034,6 @@ add(13,"Failover / DR diagram",2,
  "A DR plan that has never been executed. Untested failover is a hope, not a plan.",
  d_failover,"Warm standby. RPO is the replication lag; RTO is everything between detection and serving.",
  ["Disaster recovery diagram","DR architecture","Active/passive architecture"])
-
-add(13,"Active/active architecture",2,
- "Both sites live and serving, which removes the failover step and introduces the hardest problem in distributed data.",
- "Can we serve from two places at once, and what happens when both write the same row?",
- "Global low-latency requirements, and availability targets a failover procedure cannot meet.",
- "Ownership of each data partition, or an explicit conflict-resolution rule if there is none.",
- "Last-write-wins by default. That is silent data loss with a respectable-sounding name.",
- d_activeactive,"Both regions live, each row with one home. The conflict rule belongs on the diagram.",
- ["Multi-master architecture","Active-active deployment"])
 
 add(13,"Circuit breaker diagram",2,
  "A three-state machine that stops a slow or failing dependency from consuming your threads and taking you down with it.",
@@ -874,6 +1062,15 @@ add(13,"Bulkhead architecture",2,
  d_bulkhead,"Separate pools, bounded blast radius. Reports degrade; search keeps serving.",
  ["Pool isolation","Compartmentalisation diagram"])
 
+add(13,"Active/active architecture",2,
+ "Both sites live and serving, which removes the failover step and introduces the hardest problem in distributed data.",
+ "Can we serve from two places at once, and what happens when both write the same row?",
+ "Global low-latency requirements, and availability targets a failover procedure cannot meet.",
+ "Ownership of each data partition, or an explicit conflict-resolution rule if there is none.",
+ "Last-write-wins by default. That is silent data loss with a respectable-sounding name.",
+ d_activeactive,"Both regions live, each row with one home. The conflict rule belongs on the diagram.",
+ ["Multi-master architecture","Active-active deployment"])
+
 add(13,"Failure mode diagram (FMEA)",3,
  "Each way the system can fail, its immediate effect, what that effect becomes if unhandled, and how it is detected.",
  "What can break, and what does each break turn into?",
@@ -900,6 +1097,7 @@ add(13,"Reliability block diagram",3,
  "Assuming independence. Two instances sharing one config store or one certificate are one block, not two.",
  d_rbd,"Series multiplies availability down; parallel multiplies unavailability down. Independence is the catch.",
  ["RBD","Availability model","Redundancy calculation"])
+
 
 # ================= 14. Decision =================
 add(14,"Architecture decision record",1,
@@ -928,6 +1126,7 @@ add(14,"Decision tree",3,
  "Branches that overlap, so two paths give different answers to the same situation.",
  d_tree,"Sync or async, and which broker. Publish it once and stop re-answering it.",
  ["Selection guide","Choice tree"])
+
 
 # ================= 15. Specialised =================
 add(15,"Service dependency diagram",2,

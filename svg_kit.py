@@ -301,3 +301,22 @@ def ilifelines(items, top=16, bottom=270, hh=46):
         s+='<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="1.1" stroke-dasharray="4 4"/>'%(
             cx,top+hh,cx,bottom,LINE)
     return s, xs
+
+def lolli(x,y,label=None,color=ACC,side="left",length=24,fs=9.2):
+    """UML provided interface — the ball on a stick."""
+    d = -1 if side=="left" else 1
+    s='<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="1.4"/>'%(x,y,x+d*length,y,color)
+    s+='<circle cx="%g" cy="%g" r="5.5" fill="#FFFFFF" stroke="%s" stroke-width="1.4"/>'%(x+d*(length+6),y,color)
+    if label: s+=lbl(x+d*(length+6),y-16,label,fs,color,"600")
+    return s
+
+def socket(x,y,label=None,color=ACC,side="right",length=24,fs=9.2):
+    """UML required interface — the socket that a provided ball sits in."""
+    d = 1 if side=="right" else -1
+    cx = x+d*length          # where the provided ball sits, in the mouth of the cup
+    # the stem stops at the back of the cup, or the arc reads as part of the line
+    s='<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="1.4"/>'%(x,y,cx-d*12,y,color)
+    s+='<path d="M %g %g A 12 12 0 0 %d %g %g" fill="none" stroke="%s" stroke-width="1.6"/>'%(
+        cx,y-12,(0 if d>0 else 1),cx,y+12,color)
+    if label: s+=lbl(cx,y+25,label,fs,color,"600")
+    return s

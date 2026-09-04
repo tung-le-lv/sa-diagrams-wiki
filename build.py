@@ -26,6 +26,28 @@ PATH_ORDER   = {name:i+1 for i,(lvl,step,label,name)
                 in enumerate(sorted(PATH,key=lambda r:(r[0],r[1])))}
 BY_NAME  = {en["name"]: en for en in E}
 
+def cat_listing(i):
+    """Entries shown on category i: the ones filed there, plus any that also belong,
+    inserted at the position their ALSO_IN entry asks for."""
+    out = [x for x in E if x["cat"] == i]
+    borrowed = sorted(((pos, BY_NAME[n]) for n, lst in ALSO_IN.items()
+                       for c, pos in lst if c == i), key=lambda t: t[0])
+    for pos, en in borrowed:
+        out.insert(min(max(pos - 1, 0), len(out)), en)
+    return out
+AUDNAME  = {k:l for k,l,_,_,_ in AUDIENCES}
+AUDPLUR  = {k:pl for k,_,pl,_,_ in AUDIENCES}
+AUDSLUG  = {k:"audience-"+k for k,_,_,_,_ in AUDIENCES}
+AUDKEYS  = [k for k,_,_,_,_ in AUDIENCES]
+# extra words people actually type when they mean an audience
+AUDSYN   = {"architect":"architect solution architect design review",
+            "developer":"developer engineer engineering dev implementation",
+            "operations":"operations ops sre platform on-call oncall devops runbook",
+            "security":"security appsec threat audit compliance ciso",
+            "data":"data analytics analyst data engineer steward bi",
+            "business":"business ba business analyst product domain expert stakeholder",
+            "management":"management executive exec leadership portfolio budget cto sponsor"}
+
 def slug(s):
     return re.sub(r"-+","-",re.sub(r"[^a-z0-9]+","-",s.lower())).strip("-")
 
@@ -55,6 +77,20 @@ def check_plates():
                 bad.append("%s: %s=%r" % (en["name"], attr, val))
     if bad:
         raise SystemExit("Invalid SVG paint values:\n  " + "\n  ".join(sorted(set(bad))))
+
+def check_audiences():
+    """Every entry must declare an audience, and only ones that exist."""
+    valid = {k for k, _, _, _, _ in AUDIENCES}
+    names = {en["name"] for en in E}
+    missing = sorted(names - set(AUDIENCE))
+    unknown = sorted(set(AUDIENCE) - names)
+    badkey = sorted(k for k, v in AUDIENCE.items()
+                    if v[0] not in valid or any(x not in valid for x in v[1]))
+    problems = ([("untagged entry: " + m) for m in missing]
+                + [("AUDIENCE key matches no entry: " + u) for u in unknown]
+                + [("unknown audience on: " + b) for b in badkey])
+    if problems:
+        raise SystemExit("Audience tagging:\n  " + "\n  ".join(problems))
 
 def check_text_fit():
     """Rough fit check for icon boxes: left-aligned text can run past the box edge, and SVG
@@ -220,11 +256,39 @@ h2.name{font-family:var(--disp);font-weight:700;font-size:23px;letter-spacing:.0
   color:var(--muted);margin:0 0 12px}
 .catline a{color:var(--muted);text-decoration:none}
 .catline a:hover{color:var(--accent-ink)}
+.catline .shown{margin-left:8px;padding:1px 6px;border:1px solid var(--line);border-radius:2px;
+  color:var(--muted);letter-spacing:.06em}
 p.defn{margin:0 0 18px;max-width:70ch;font-size:15px;color:var(--ink2)}
 ul.alias{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0 0 20px;padding:0}
 ul.alias li{font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--hair);
   background:var(--paper);border-radius:2px;padding:2px 7px}
 ul.alias li.lab{border-color:transparent;background:none;letter-spacing:.08em;text-transform:uppercase}
+ul.alias.aud{margin-bottom:10px}
+ul.alias.aud li{border-color:var(--line);padding:0}
+ul.alias.aud li.lab{border-color:transparent;padding:2px 7px}
+ul.alias.aud a{display:block;padding:2px 8px;text-decoration:none;color:var(--ink2);
+  font-family:var(--sans);font-size:11px;font-weight:500}
+ul.alias.aud a:hover{color:var(--accent-ink);background:var(--accent-soft)}
+ul.alias.aud li.pri{border-color:var(--accent);background:var(--accent-soft)}
+ul.alias.aud li.pri a{color:var(--accent-ink);font-weight:700}
+a.card.acard{border-left:3px solid var(--accent)}
+.canon{background:var(--surface);border:1px solid var(--line);border-radius:4px;
+  padding:18px 20px 16px;box-shadow:var(--shadow)}
+.canon>h2{font-family:var(--disp);font-weight:700;font-size:17px;margin:0 0 4px}
+.canon>p{margin:0 0 14px;font-size:13.2px;color:var(--muted);max-width:74ch}
+.canoncols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.canoncols h3{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 8px;font-weight:600}
+.canoncols ol{margin:0;padding:0;list-style:none;counter-reset:u}
+.canoncols li{counter-increment:u;margin-bottom:1px}
+.canoncols a{display:flex;gap:8px;align-items:baseline;text-decoration:none;color:var(--ink2);
+  font-size:13.2px;padding:3px 6px;border-radius:3px}
+.canoncols a::before{content:counter(u);font-family:var(--mono);font-size:9.5px;
+  color:var(--muted);min-width:12px;text-align:right}
+.canoncols a:hover{background:var(--accent-soft);color:var(--accent-ink)}
+.canoncols .away{font-family:var(--mono);font-size:9.5px;color:var(--muted);margin-left:auto;
+  white-space:nowrap}
+a.card.acard .who{display:block;font-size:11.5px;color:var(--ink2);margin-top:5px}
 
 figure.fig{margin:0 0 20px}
 .sheet{background:var(--plate);border:1px solid var(--plate-line);border-radius:3px;
@@ -306,11 +370,17 @@ footer a{color:var(--muted)}
 """
 
 # ------------------------------------------------------------------ fragments
-def render_entry(en, idx, root=False):
+def render_entry(en, idx, root=False, home=None):
     lname, lslug, lcls = LEVELS[en["tier"]]
     step = PATH_BY_NAME.get(en["name"])
     badge = ('<a class="onpath" href="%s">learning path · step %d</a>'
              % (P("learning-path", root), step[1])) if step else ""
+    ap, asec = AUDIENCE[en["name"]]
+    aud = ('<ul class="alias aud"><li class="lab">audience</li>'
+           + '<li class="pri"><a href="%s">%s</a></li>' % (P(AUDSLUG[ap], root), e(AUDNAME[ap]))
+           + "".join('<li><a href="%s">%s</a></li>' % (P(AUDSLUG[k], root), e(AUDNAME[k]))
+                     for k in asec)
+           + '</ul>')
     alias = ""
     if en["alias"]:
         alias = ('<ul class="alias"><li class="lab">also called</li>'
@@ -319,8 +389,8 @@ def render_entry(en, idx, root=False):
     '<article class="entry" id="%s">'
     '<div class="ehead"><span class="plateno">%02d.%d</span><h2 class="name">%s</h2>'
     '<span class="badges">%s<a class="tier %s" href="%s">%s</a></span></div>'
-    '<p class="catline"><a href="%s">%s</a></p>'
-    '<p class="defn">%s</p>%s'
+    '<p class="catline"><a href="%s">%s</a>%s</p>'
+    '<p class="defn">%s</p>%s%s'
     '<figure class="fig"><div class="sheet">%s</div><figcaption>%s</figcaption></figure>'
     '<dl class="facts">'
     '<div><dt>Answers</dt><dd>%s</dd></div>'
@@ -329,7 +399,9 @@ def render_entry(en, idx, root=False):
     '<div class="fail"><dt>Common failure</dt><dd>%s</dd></div>'
     '</dl></article>'
     % (anchor(en["name"]), en["cat"], idx, e(en["name"]), badge, lcls, P(lslug, root), e(lname),
-       P(CATSLUG[en["cat"]], root), e(CATNAME[en["cat"]]), e(en["defn"]), alias,
+       P(CATSLUG[en["cat"]], root), e(CATNAME[en["cat"]]),
+       ("" if home is None or home == en["cat"] else ' <span class="shown">also shown here</span>'),
+       e(en["defn"]), aud, alias,
        en["svg"], e(en["cap"]), e(en["answers"]), e(en["when"]), e(en["must"]), e(en["fail"])))
 
 # Plate number NN.n — position within the entry's own category, in declaration order.
@@ -352,9 +424,16 @@ def nav(active, root):
         n += ('<a class="cat" href="%s"%s><span class="n">L%d</span>'
               '<span>%s</span><span class="k">%d</span></a>'
               % (P(lslug, root), ' aria-current="page"' if active == lslug else "", l, e(name), cnt))
+    n += '<p class="navlabel second">By audience</p>'
+    for k, label, _pl, _who, _want in AUDIENCES:
+        cnt = sum(1 for x in E if AUDIENCE[x["name"]][0] == k)
+        n += ('<a class="cat" href="%s"%s><span class="n">@</span>'
+              '<span>%s</span><span class="k">%d</span></a>'
+              % (P(AUDSLUG[k], root),
+                 ' aria-current="page"' if active == AUDSLUG[k] else "", e(label), cnt))
     n += '<p class="navlabel second">Categories</p>'
     for i, name, cslug, _ in CATS:
-        cnt = sum(1 for x in E if x["cat"] == i)
+        cnt = len(cat_listing(i))
         n += ('<a class="cat" href="%s"%s><span class="n">%02d</span>'
               '<span>%s</span><span class="k">%d</span></a>'
               % (P(cslug, root), ' aria-current="page"' if active == cslug else "", i, e(name), cnt))
@@ -372,7 +451,9 @@ def pager(prev, nxt, root=False):
 def search_index(root):
   return json.dumps(
     [[en["name"], url(en, root), CATNAME[en["cat"]], LEVELS[en["tier"]][0], en["answers"],
-      " ".join([en["name"], CATNAME[en["cat"]], en["answers"], en["when"]] + en["alias"]).lower()]
+      AUDNAME[AUDIENCE[en["name"]][0]],
+      " ".join([en["name"], CATNAME[en["cat"]], en["answers"], en["when"]] + en["alias"]
+               + [AUDSYN[a] for a in [AUDIENCE[en["name"]][0]] + AUDIENCE[en["name"]][1]]).lower()]
      for en in E], ensure_ascii=False, separators=(",", ":"))
 
 JS_TPL = """
@@ -386,11 +467,12 @@ JS_TPL = """
   function run(){
     var t=(box.value||'').trim().toLowerCase();
     if(!t){ res.style.display='none'; body.style.display=''; count.textContent=''; return; }
-    var hits=window.IDX.filter(function(r){return r[5].indexOf(t)>-1;});
+    var hits=window.IDX.filter(function(r){return r[6].indexOf(t)>-1;});
     res.innerHTML = hits.length
       ? hits.map(function(r){
           return '<a href="'+r[1]+'"><span class="rn">'+esc(r[0])+'</span>'
-               + '<span class="rm">'+esc(r[2])+' \\u00b7 '+esc(r[3])+'</span>'
+               + '<span class="rm">'+esc(r[2])+' \\u00b7 '+esc(r[3])
+               + ' \\u00b7 for '+esc(r[5])+'</span>'
                + '<span class="ra">'+esc(r[4])+'</span></a>';}).join('')
       : '<p class="none">No diagram type matches that. Try \\u201cevent\\u201d, '
         + '\\u201cfailover\\u201d or \\u201clineage\\u201d.</p>';
@@ -454,10 +536,16 @@ def build():
                    % (l, P(lslug, True), l, e(name), e(outcome), cnt))
     ccards = ""
     for i, name, cslug, blurb in CATS:
-        cnt = sum(1 for x in E if x["cat"] == i)
+        cnt = len(cat_listing(i))
         ccards += ('<a class="card" href="%s"><span class="cn">%02d</span><h3>%s</h3>'
                    '<p>%s</p><span class="k">%d types →</span></a>'
                    % (P(cslug, True), i, e(name), e(blurb), cnt))
+    acards = ""
+    for k, label, plural, who, want in AUDIENCES:
+        cnt = sum(1 for x in E if AUDIENCE[x["name"]][0] == k)
+        acards += ('<a class="card acard" href="%s"><span class="cn">Audience</span><h3>%s</h3>'
+                   '<span class="who">%s</span><span class="k">%d types →</span></a>'
+                   % (P(AUDSLUG[k], True), e(label), e(who), cnt))
     qrows = "".join('<a href="%s"><span class="q">%s</span><span class="d">%s</span></a>'
                     % (url(BY_NAME[n], True), e(q), e(n)) for q, n in QUESTIONS)
     body = ('<div class="phead"><h1 class="ptitle">An architecture diagram dictionary</h1>'
@@ -468,8 +556,9 @@ def build():
             '<p class="sect">Start here · by level</p><div class="grid">%s</div>'
             '<p class="sect">Or start from the question you need to settle</p>'
             '<div class="qwrap"><p>Question → diagram</p><div class="qgrid">%s</div></div>'
+            '<p class="sect">Or by who you are drawing it for</p><div class="grid">%s</div>'
             '<p class="sect">Browse by category</p><div class="grid">%s</div>'
-            % (len(E), len(CATS), lcards, qrows, ccards))
+            % (len(E), len(CATS), lcards, qrows, acards, ccards))
     written.append(("index.html", page(
         "index.html", "Architecture Diagram Dictionary",
         "%d software architecture diagram types across %d categories — each with a sample plate, "
@@ -528,9 +617,38 @@ def build():
             "Level %d of the learning path — %s. %d diagram types."
             % (l, outcome[0].lower() + outcome[1:], len(ents)), lslug, body)))
 
+    # one page per audience ------------------------------------------------
+    for pos, (k, label, plural, who, want) in enumerate(AUDIENCES):
+        ents = [x for x in E if AUDIENCE[x["name"]][0] == k]
+        also = [x for x in E if k in AUDIENCE[x["name"]][1]]
+        prev = ((AUDSLUG[AUDIENCES[pos-1][0]], "For %s" % AUDIENCES[pos-1][1].lower())
+                if pos > 0 else ("index", "Overview"))
+        nxt = ((AUDSLUG[AUDIENCES[pos+1][0]], "For %s" % AUDIENCES[pos+1][1].lower())
+               if pos < len(AUDIENCES)-1 else None)
+        secondary = ""
+        if also:
+            secondary = ('<p class="sect">Also useful to %s</p><ol class="listing">%s</ol>'
+                         % (e(plural), "".join(
+                '<li><a href="%s"><span class="st">%s</span><span class="nm">%s</span>'
+                '<span class="an">%s</span></a></li>'
+                % (url(x), AUDNAME[AUDIENCE[x["name"]][0]][:3].upper(), e(x["name"]), e(x["answers"]))
+                for x in also)))
+        body = ('<div class="phead"><p class="crumb"><a href="../index.html">Overview</a> · '
+                'Audience</p><h1 class="ptitle">Drawn for %s</h1>'
+                '<p class="pblurb"><b>%s.</b> %s</p>'
+                '<p class="pmeta">%d types drawn primarily for this audience · %d more they also '
+                'read</p></div>' % (e(plural), e(who), e(want), len(ents), len(also)))
+        body += "".join(render_entry(en, CAT_INDEX[en["name"]], root=False) for en in ents)
+        body += secondary
+        body += pager(prev, nxt, root=False)
+        written.append((AUDSLUG[k] + ".html", page(
+            AUDSLUG[k] + ".html", "For %s · Architecture Diagram Dictionary" % plural,
+            "Architecture diagram types drawn primarily for %s. %s" % (plural, who),
+            AUDSLUG[k], body)))
+
     # one page per category ------------------------------------------------
     for pos, (i, name, cslug, blurb) in enumerate(CATS):
-        ents = [x for x in E if x["cat"] == i]
+        ents = cat_listing(i)
         prev = ((CATS[pos-1][2], "%02d · %s" % (CATS[pos-1][0], CATS[pos-1][1])) if pos > 0
                 else ("index", "Overview"))
         nxt = ((CATS[pos+1][2], "%02d · %s" % (CATS[pos+1][0], CATS[pos+1][1]))
@@ -538,11 +656,31 @@ def build():
         lv = {}
         for x in ents: lv[x["tier"]] = lv.get(x["tier"], 0) + 1
         mix = " · ".join("%d %s" % (lv[k], LEVELS[k][0].lower()) for k in sorted(lv))
+        nborrow = sum(1 for x in ents if x["cat"] != i)
+        if nborrow:
+            mix += " · %d filed here, %d also shown" % (len(ents) - nborrow, nborrow)
+        mix += " · ordered by how often it earns its place" 
         body = ('<div class="phead"><p class="crumb"><a href="../index.html">Overview</a> · '
                 'Category %02d</p><h1 class="ptitle">%s</h1><p class="pblurb">%s</p>'
                 '<p class="pmeta">%d types · %s</p></div>'
                 % (i, e(name), e(blurb), len(ents), e(mix)))
-        body += "".join(render_entry(en, n + 1, root=False) for n, en in enumerate(ents))
+        if i == 2:
+            cols = ""
+            for group, members in UML_14:
+                items = ""
+                for n in members:
+                    en = BY_NAME[n]
+                    away = ("" if en["cat"] == 2
+                            else '<span class="away">filed in %s</span>' % e(CATNAME[en["cat"]]))
+                    items += '<li><a href="%s">%s%s</a></li>' % (url(en), e(n), away)
+                cols += '<div><h3>%s · 7</h3><ol>%s</ol></div>' % (e(group), items)
+            body += ('<div class="canon"><h2>The 14 UML diagram types</h2>'
+                     '<p>UML 2.5 defines fourteen, in two groups of seven, and all fourteen are '
+                     'on this page. Two of them are <em>filed</em> elsewhere — an architect reaches '
+                     'for a sequence or deployment diagram by the job it does rather than by its '
+                     'notation — so their entries live in those categories and are shown here too.'
+                     '</p><div class="canoncols">%s</div></div>' % cols)
+        body += "".join(render_entry(en, CAT_INDEX[en["name"]], root=False, home=i) for en in ents)
         body += pager(prev, nxt)
         written.append((cslug + ".html", page(
             cslug + ".html", "%s · Architecture Diagram Dictionary" % name,
@@ -551,13 +689,27 @@ def build():
 
 
 check_plates()
+check_audiences()
 _fit = check_text_fit()
 if _fit:
     print("text may overflow its box in %d place(s):" % len(_fit))
     for w in _fit: print("   " + w)
+
+def order_report():
+    """Entries appear in declaration order, which is meant to run most-used first.
+    Print each category's level sequence so an out-of-place entry is easy to spot."""
+    rows=[]
+    for i, name, _slug, _b in CATS:
+        seq=[(str(x["tier"]) if x["cat"]==i else "+") for x in cat_listing(i)]
+        own=[t for t in seq if t!="+"]
+        flag="" if seq[0]=="+" or seq[0]==min(own) else "   <-- does not lead with its top level"
+        rows.append("   %02d %-30s %s%s" % (i, name, "".join(seq), flag))
+    return rows
 
 pages = build()
 print("wrote %d pages, %.0f KB total, %d entries"
       % (len(pages), sum(n for _, n in pages) / 1024.0, len(E)))
 for fname, n in pages:
     print("   %-32s %6.0f KB" % (fname, n / 1024.0))
+print("\ncategory ordering (level sequence, most-used first):")
+for r in order_report(): print(r)

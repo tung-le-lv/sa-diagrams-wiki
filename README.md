@@ -1,6 +1,6 @@
 # SA Diagrams Wiki
 
-A single-page diagram dictionary for software architects: **94 diagram types across 15
+A single-page diagram dictionary for software architects: **95 diagram types across 15
 categories**, each with a sample plate, the question it answers, when to reach for it,
 what it must show, and the mistake that shows up in review.
 
@@ -15,7 +15,7 @@ the 15 categories.
 
 ## Site structure
 
-The build emits **20 static pages** — one per category and per level, so no page carries
+The build emits **27 static pages** — one per category and per level, so no page carries
 the whole dictionary:
 
 | Page | Contains |
@@ -23,24 +23,87 @@ the whole dictionary:
 | `index.html` | Overview: level cards, the question → diagram table, and the category index |
 | `pages/learning-path.html` | The three levels sequenced, plus the 34 path entries in order |
 | `pages/level-<slug>.html` | Every entry at one level (3 pages) |
+| `pages/audience-<key>.html` | Every entry drawn primarily for one audience, plus the ones they also read (7 pages) |
 | `pages/<category-slug>.html` | Every entry in one category (15 pages) — an entry's canonical home |
 
 `index.html` stays at the repo root because GitHub Pages needs it there; every other page
 lives in `pages/`. Links are generated through `P(target, root)`, which knows whether the
 page being written sits at the root or inside `pages/` — never hard-code a page link.
 
-Each entry appears twice: once on its category page (its canonical URL and anchor) and
-once on its level page. Search is global — every page embeds a small index of all 94
-types and links results to their canonical page and anchor, so searching from any page
-finds everything.
+Each entry appears on three axes: its category page (the canonical URL and anchor), its
+level page, and its audience page. Search is global — every page embeds a small index of
+all 94 types and links results to their canonical page and anchor, so searching from any
+page finds everything.
+
+## Ordering within a category
+
+Entries appear in declaration order, and that order is meaningful: **each category runs
+most-used first**. It also sets the `NN.n` plate numbers and the order entries appear on
+a category page, so there is one source of truth — move the `add(...)` call to change the
+order.
+
+Order mostly tracks level (foundation before core practice before specialist) but does
+not have to. UML deliberately puts the class diagram (specialist) second, ahead of the
+activity diagram (core practice), because it is far more often reached for in practice.
+
+`python build.py` prints each category's level sequence at the end of the run, so an
+out-of-place entry is easy to spot:
+
+```
+   02 UML                            13233333333
+```
+
+## A diagram can be in more than one category
+
+An entry has one **canonical home** — its `cat`, which sets its `NN.n` plate number and
+its URL — and may also be *shown* on other category pages. `ALSO_IN` in `entries.py` maps
+an entry name to `[(category, position)]`, where position is its slot in that category's
+ordering:
+
+```python
+ALSO_IN = {
+ "Sequence diagram":  [(2, 1), (9, 3)],   # first in UML, third in Integration & API
+ "Deployment diagram":[(2, 4)],
+}
+```
+
+There is nothing to gain from being strict here: entries already render on three axes
+(category, level, audience), so a fourth appearance costs only page weight. Several
+diagrams genuinely belong in two places, and the source notes cross-list them too.
+
+A borrowed entry keeps its canonical plate number and links back to where it is filed, and
+is marked *also shown here*, so the reader can tell which page owns it. Nav counts show
+what a page actually contains, so they sum to more than the entry count.
+
+`UML_14` lists UML 2.5's fourteen types in their two groups of seven; the UML page renders
+that panel and, thanks to `ALSO_IN`, all fourteen entries are on the page.
+
+Note that a UML component diagram and a C4 component diagram are different things that
+share a word: the UML one shows provided and required interfaces, the C4 one shows what
+is inside a container. They are separate entries; do not alias one onto the other.
+
+## Audience tags
+
+Every entry declares a primary audience and any secondary ones in `AUDIENCE` in
+`entries.py`, keyed by entry name. `AUDIENCES` defines the seven: architect, developer,
+operations, security, data, business, management.
+
+Audience is often what actually decides between two similar diagrams — a context diagram
+and a container diagram show the same system, but one is for a steering committee and the
+other for the engineers building it.
+
+Tags are searchable by the words people really type, not only the label: `AUDSYN` in
+`build.py` maps each audience to its synonyms, so "BA", "SRE", "on-call", "CISO",
+"exec" and "product" all find the right entries. Add a synonym there rather than
+inventing a new audience.
 
 No build step at serve time, no backend, no runtime dependencies. Only Google Fonts is
-loaded externally; everything else, including all 94 sample diagrams, is inline SVG.
+loaded externally; everything else, including all 95 sample diagrams, is inline SVG.
 
 ## Build
 
 ```bash
-python build.py       # writes all 20 pages
+python build.py       # writes all 27 pages
 ```
 
 No third-party packages. Python 3.8+.
@@ -53,7 +116,7 @@ No third-party packages. Python 3.8+.
 | `diagrams.py` | One `d_*()` function per diagram type, returning a complete `<svg>` string |
 | `entries.py` | The 15 categories, the `STAGES` level definitions, the ordered `PATH`, the `QUESTIONS` table, and the 94 entries — all prose lives here |
 | `build.py` | CSS, page assembly, nav, the learning-path panel, client-side filter/search, plate validation |
-| `*.html` | Generated output — 20 pages. Do not edit by hand; every build overwrites them |
+| `index.html`, `pages/*.html` | Generated output — 27 pages. Do not edit by hand; every build overwrites them |
 
 ## Adding a diagram type
 
@@ -69,12 +132,13 @@ add(cat, name, level, defn, answers, when, must, fail, d_yourthing, caption,
 
    `cat` is 1–15 (see `CATS`), `level` is 1 (foundation), 2 (core practice) or
    3 (specialist) — see `STAGES`. The trailing alias list is optional but is what
-   makes a synonym findable. Entries are numbered `NN.n` automatically by category
-   and position, so order within `entries.py` sets the plate numbers.
-3. To put it on the learning path, add a row to `PATH` — `(level, step, label, entry
+   makes a synonym findable.
+3. Tag it in `AUDIENCE` — `(primary, [also useful to])`. The build fails loudly if an
+   entry is missing from that dict or names an audience that does not exist.
+4. To put it on the learning path, add a row to `PATH` — `(level, step, label, entry
    name)`. `step` orders it within its level; the entry name must match exactly, and
    `build.py` resolves it to an anchor.
-4. `python build.py`
+5. `python build.py`
 
 ## House style for the plates
 

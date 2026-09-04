@@ -1920,3 +1920,31 @@ def d_edge():
     b+=txt(24,329,"analytics rule at 100 ms is a different product from one at 5 ms. Push the decision to the tier",10,MUTED)
     b+=txt(24,344,"that has enough information to make it, and no further.",10,MUTED)
     return svg(356,b)
+def d_uml_component():
+    b=""
+    def comp(x,y,w,h,name,style="acc"):
+        fill,stroke,tc = STYLES[style]
+        s='<rect x="%g" y="%g" width="%g" height="%g" rx="3" fill="%s" stroke="%s" stroke-width="1.4"/>'%(
+            x,y,w,h,fill,stroke)
+        s+=txt(x+w/2.0,y+21,"«component»",9,MUTED,anchor="middle")
+        s+=txt(x+w/2.0,y+40,name,12,tc,"600","middle")
+        s+=icon("container",x+w-17,y+16,13,stroke)
+        return s
+    b+=comp(24,140,132,72,"Web UI","soft")
+    b+=comp(230,100,170,140,"Order Service")
+    b+=comp(500,90,116,72,"Payment Svc")
+    b+=comp(500,182,116,72,"Notification")
+    # provided (ball) meets required (socket): the assembly connector
+    b+=socket(156,176,None,MUTED,"right",44)
+    b+=lolli(230,176,"IOrders",ACC,"left",24)
+    b+=socket(400,126,None,ACC,"right",70)
+    b+=lolli(500,126,"IPayments",ACC,"left",24)
+    b+=socket(400,218,None,ACC,"right",70)
+    b+=lolli(500,218,"INotify",ACC,"left",24)
+    b+=txt(214,268,"assembly connector  ·  a required interface sitting on the provided one",9,MUTED,anchor="middle")
+    b+=poly([(200,182),(200,258),(214,258)],color=MUTED,head=False)
+    b+=txt(24,300,"Not the C4 component diagram. This is UML structural notation: the ball is an interface a",10,MUTED)
+    b+=txt(24,315,"component provides, the socket one it requires, and the two together are a contract you can",10,MUTED)
+    b+=txt(24,330,"swap either side of. C4 borrowed the word and means something else by it — what is inside",10,MUTED)
+    b+=txt(24,345,"one container — so say which you mean before anyone starts drawing.",10,MUTED)
+    return svg(358,b)

@@ -197,6 +197,7 @@ CSS = """
   --accent-ink:#134568; --accent-soft:#E1EBF3; --flag:#9C4034; --flag-soft:#F4E7E4;
   --amb:#7A5C1F; --amb-soft:#F4EEDF; --grn:#33604A; --grn-soft:#E4EEE8;
   --plate:#FFFFFF; --plate-line:#DEE3E7; --shadow:0 1px 2px rgba(20,30,40,.06),0 8px 24px -14px rgba(20,30,40,.28);
+  --track:#DCE1E5; --thumb:#A5AEB6; --thumb-hover:#86909A;
   --hdr:61px;   /* height of the sticky header; site.js measures the real one */
   --disp:'IBM Plex Sans Condensed',system-ui,-apple-system,'Segoe UI',sans-serif;
   --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
@@ -207,18 +208,32 @@ CSS = """
   --line:#292F35; --hair:#20262A; --accent:#79B7DF; --accent-ink:#A3CDEA; --accent-soft:#16242E;
   --flag:#D28D80; --flag-soft:#2A1D1A; --amb:#D0B475; --amb-soft:#25211A; --grn:#8CBFA3; --grn-soft:#182420;
   --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -14px rgba(0,0,0,.8);
+  --track:#0B0E10; --thumb:#343C44; --thumb-hover:#454F59;
 }}
 :root[data-theme="dark"]{
   --paper:#111417; --surface:#191D21; --ink:#E8EBED; --ink2:#BAC3CA; --muted:#8A949D;
   --line:#292F35; --hair:#20262A; --accent:#79B7DF; --accent-ink:#A3CDEA; --accent-soft:#16242E;
   --flag:#D28D80; --flag-soft:#2A1D1A; --amb:#D0B475; --amb-soft:#25211A; --grn:#8CBFA3; --grn-soft:#182420;
   --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -14px rgba(0,0,0,.8);
+  --track:#0B0E10; --thumb:#343C44; --thumb-hover:#454F59;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
   font-size:14.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--accent-ink)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+/* The browser default track is near-white, which glares beside a grey page and looks
+   like a seam down the right-hand edge. scrollbar-color is the standard property;
+   the ::-webkit- rules cover Safari, which still does not support it. */
+html{scrollbar-color:var(--thumb) var(--track);scrollbar-width:thin}
+nav.cats,aside.toc,.sheet,#results{scrollbar-color:var(--thumb) var(--track)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:var(--track)}
+::-webkit-scrollbar-thumb{background:var(--thumb);border-radius:7px;
+  border:2px solid var(--track)}
+::-webkit-scrollbar-thumb:hover{background:var(--thumb-hover)}
+::-webkit-scrollbar-corner{background:var(--track)}
 
 header.top{position:sticky;top:0;z-index:20;background:var(--surface);
   border-bottom:1px solid var(--line);padding:14px 26px}

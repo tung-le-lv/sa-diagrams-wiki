@@ -229,6 +229,8 @@ body.wide .topin{max-width:1400px}
 @media (max-width:1300px){body.wide .topin{max-width:1180px}}
 .brand{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.005em;margin:0}
 .brand a{text-decoration:none;color:var(--ink)}
+/* inline rather than a flex child, so the tagline still sits on the brand's baseline */
+.brand img.mark{width:22px;height:22px;vertical-align:-4px;margin-right:9px}
 .brand em{font-style:normal;color:var(--accent-ink)}
 .tagline{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.02em;margin:0}
 .search{margin-left:auto;display:flex;align-items:center;gap:9px}
@@ -717,6 +719,10 @@ def write_assets():
     into all 30 pages. Roughly halves the built site and lets the browser cache them."""
     d = os.path.join(ROOT, AST)
     os.makedirs(d, exist_ok=True)
+    # favicon.svg is a source file that happens to live beside the generated ones;
+    # every page links to it, so fail loudly rather than shipping a broken icon
+    if not os.path.exists(os.path.join(d, "favicon.svg")):
+        raise SystemExit("assets/favicon.svg is missing — every page links to it")
     out = {}
     for fname, text in (("site.css", CSS),
                         ("search-index.js", "window.IDX=%s;\n" % search_index()),
@@ -744,15 +750,19 @@ def page(fname, title, desc, active, body, root=False, aside=""):
             '<meta name="description" content="%s">\n'
             '<title>%s</title>\n' % (e(desc), e(title))
         + social
+        + '<link rel="icon" type="image/svg+xml" href="%s">\n' % A("favicon.svg", root)
         + FONTS
         + '<link rel="stylesheet" href="%s">\n' % A("site.css", root)
         + ('</head>\n<body%s>\n' % (' class="wide"' if aside else ""))
         + ('<header class="top"><div class="topin">'
-           '<h1 class="brand"><a href="%s">Software Architect <em>Diagram Dictionary</em></a></h1>'
+           '<h1 class="brand"><a href="%s">'
+           '<img class="mark" src="%s" alt="" width="22" height="22">'
+           'Software Architect <em>Diagram Dictionary</em></a></h1>'
            '<p class="tagline">%d types · %d categories</p>'
            '<div class="search"><input id="q" type="search" placeholder="Search all %d types…" '
            'aria-label="Search diagram types" autocomplete="off"><span id="count"></span></div>'
-           '</div></header>' % (P("index", root), len(E), len(CATS), len(E)))
+           '</div></header>'
+           % (P("index", root), A("favicon.svg", root), len(E), len(CATS), len(E)))
         + DEFS
         + ('<div class="shell%s"><nav class="cats" aria-label="Sections">' % (" has-toc" if aside else ""))
         + nav(active, root) + '</nav>'

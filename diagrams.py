@@ -33,24 +33,24 @@ def d_container():
     b+=arr(504,68,504,94)
     b+=arr(422,118,392,118,"validates",dy=-5,fs=9,color=VIO,dash=True)
     b+=frame(24,158,382,142,"our services",ACC,dash=False)
-    b+=inode(40,182,170,42,"Order Service",".NET 8","acc","server",fs=10.5)
-    b+=inode(222,182,170,42,"Payment Service",".NET 8","acc","server",fs=10.5)
-    b+=cyl(40,240,170,48,"Orders DB","PostgreSQL","grn")
-    b+=cyl(222,240,170,48,"Payments DB","PostgreSQL","grn")
-    b+=arr(125,224,125,238); b+=arr(307,224,307,238)
-    b+=arr(210,203,220,203)
+    b+=inode(40,182,164,42,"Order Service",".NET 8","acc","server",fs=10.5)
+    b+=inode(222,182,164,42,"Payment Service",".NET 8","acc","server",fs=10.5)
+    b+=cyl(40,244,164,48,"Orders DB","PostgreSQL","grn")
+    b+=cyl(222,244,164,48,"Payments DB","PostgreSQL","grn")
+    b+=arr(122,224,122,242); b+=arr(304,224,304,242)
+    b+=arr(204,203,220,203)
     b+=arr(230,140,200,180,"HTTPS / JSON",lp=0.5,dy=-4,fs=9)
     b+=inode(424,182,192,42,"Kafka","event bus · 3 brokers","amb","queue",fs=10.5)
     b+=inode(424,240,192,42,"Notification Svc",".NET 8","acc","bell",fs=10.5)
     b+=inode(424,296,192,40,"Stripe","external system","soft","lock",fs=10.5)
-    b+=arr(392,196,422,196,"events",dy=-5,fs=9,color=AMB,dash=True)
+    b+=arr(386,196,422,196,"events",dy=-5,fs=9,color=AMB,dash=True)
     b+=arr(520,224,520,238,None,AMB,dash=True)
     # Payment Service — not its database — is what calls the provider
-    b+=poly([(392,214),(410,214),(410,316),(422,316)],color=MUTED)
+    b+=poly([(386,214),(404,214),(404,316),(422,316)],color=MUTED)
     b+=lbl(352,312,"HTTPS  ·  sync, 3 s timeout",9)
     b+=txt(24,362,"Technology in brackets on every box, protocol on every arrow, solid for synchronous calls and",10,MUTED)
     b+=txt(24,377,"dashed for events. Boxes with no technology on them are a picture of nouns, not an architecture.",10,MUTED)
-    return svg(388,b)
+    return svg(406,b)
 
 def d_component():
     b=frame(24,20,592,240,"Order Service  ·  one container",ACC,dash=False)
@@ -201,22 +201,22 @@ def d_lineage():
 def d_deploy():
     b=""
     b+=inode(225,14,190,38,"Route 53","health-checked","plain","globe",fs=11)
-    b+=inode(225,62,190,38,"CloudFront + WAF",None,"plain","shield",fs=11)
-    b+=inode(225,110,190,38,"Load balancer",None,"acc","balancer",fs=11)
-    b+=frame(24,166,282,124,"availability zone A")
-    b+=frame(334,166,282,124,"availability zone B")
-    b+=inode(42,190,140,44,"EKS nodes","2–10 pods","plain","container",fs=10.5)
-    b+=inode(352,190,140,44,"EKS nodes","2–10 pods","plain","container",fs=10.5)
-    b+=cyl(198,186,90,52,"RDS primary",None,"acc")
-    b+=cyl(508,186,90,52,"RDS standby",None,"soft")
-    b+=arr(320,52,320,60)
-    b+=arr(320,100,320,108)
-    b+=poly([(290,148),(150,148),(150,188)],color=MUTED)
-    b+=poly([(350,148),(460,148),(460,188)],color=MUTED)
-    b+=arr(182,208,196,208)
-    b+=poly([(352,224),(320,224),(320,212),(290,212)],color=MUTED)
-    b+=arr(288,264,506,264,"synchronous replication",color=MUTED,dash=True,dy=-5,fs=9)
-    return svg(302,b)
+    b+=inode(225,70,190,38,"CloudFront + WAF",None,"plain","shield",fs=11)
+    b+=inode(225,126,190,38,"Load balancer",None,"acc","balancer",fs=11)
+    b+=frame(24,182,282,132,"availability zone A")
+    b+=frame(334,182,282,132,"availability zone B")
+    b+=inode(42,208,132,44,"EKS nodes","2–10 pods","plain","container",fs=10.5)
+    b+=inode(352,208,132,44,"EKS nodes","2–10 pods","plain","container",fs=10.5)
+    b+=cyl(198,204,90,52,"RDS primary",None,"acc")
+    b+=cyl(508,204,90,52,"RDS standby",None,"soft")
+    b+=arr(320,52,320,68)
+    b+=arr(320,108,320,124)
+    b+=poly([(290,164),(150,164),(150,206)],color=MUTED)
+    b+=poly([(350,164),(460,164),(460,206)],color=MUTED)
+    b+=arr(174,226,196,226)
+    b+=poly([(352,242),(320,242),(320,230),(290,230)],color=MUTED)
+    b+=arr(288,286,506,286,"synchronous replication",color=MUTED,dash=True,dy=-5,fs=9)
+    return svg(326,b)
 
 def d_vpc():
     b=frame(24,44,592,238,"VPC  ·  10.0.0.0/16",ACC)
@@ -278,7 +278,7 @@ def d_trust():
     b+=arr(176,158,218,164,None,FLAG,dash=True)
     b+=arr(295,114,295,144)
     b+=arr(370,164,406,124,"JWT, 15 min",lp=0.5,dy=-4,fs=9)
-    b+=arr(493,130,493,142)
+    b+=arr(493,124,493,142)
     return svg(246,b)
 
 def d_context_map():
@@ -302,17 +302,17 @@ def d_storming():
     b=""
     # one colour per sticky type and no two the same — the colour vocabulary IS the notation,
     # so an actor that looks like an event defeats the whole exercise
-    cols=[("Actor","soft",24),("Command","acc",128),("Aggregate","plain",232),
-          ("Event","amb",336),("Policy","vio",440),("Read model","grn",544)]
+    cols=[("Actor","soft",22),("Command","acc",124),("Aggregate","plain",226),
+          ("Event","amb",328),("Policy","vio",430),("Read model","grn",532)]
     names=["Customer","Place order","Order","OrderPlaced","When placed,\nreserve stock","Order summary"]
     for i,(cap,st,x) in enumerate(cols):
-        b+=node(x,74,92,64,names[i].split("\n")[0],(names[i].split("\n")[1] if "\n" in names[i] else None),st,fs=10.5)
-        b+=txt(x+46,64,cap.upper(),8.6,MUTED,"600","middle")
-        if i<len(cols)-1: b+=arr(x+92,106,x+102,106)
+        b+=node(x,74,84,64,names[i].split("\n")[0],(names[i].split("\n")[1] if "\n" in names[i] else None),st,fs=10.5)
+        b+=txt(x+42,64,cap.upper(),8.6,MUTED,"600","middle")
+        if i<len(cols)-1: b+=arr(x+84,106,x+100,106)
     # the hot spot — the sticky that records that the room could not agree
-    b+=node(336,20,196,30,"Does stock reserve before payment?",None,"flag",fs=8.6)
-    b+=txt(300,38,"HOT SPOT",8.6,FLAG,"600","end")
-    b+=poly([(392,50),(392,72)],color=FLAG,dash=True)
+    b+=node(272,20,196,30,"Does stock reserve before payment?",None,"flag",fs=8.6)
+    b+=txt(262,38,"HOT SPOT",8.6,FLAG,"600","end")
+    b+=poly([(370,50),(370,72)],color=FLAG,dash=True)
     # the timeline the wall is built along
     b+='<line x1="24" y1="162" x2="612" y2="162" stroke="%s" stroke-width="1.4" marker-end="url(#mkm)"/>'%MUTED
     b+=txt(24,178,"time — events in the past tense, left to right, before anyone is allowed to discuss a solution",9,MUTED)
@@ -367,26 +367,26 @@ def d_saga():
 
 def d_cqrs():
     b=""
-    b+=frame(24,44,286,196,"write side  ·  one model, strict invariants",ACC,dash=False)
+    b+=frame(24,44,286,212,"write side  ·  one model, strict invariants",ACC,dash=False)
     b+=inode(40,72,254,40,"Command API","POST /orders","acc","network",fs=10.5)
-    b+=inode(40,124,254,44,"Order aggregate","validates every invariant","acc","container",fs=10.5)
-    b+=cyl(40,182,254,48,"Write store","normalised","acc")
-    b+=arr(167,112,167,122); b+=arr(167,168,167,180)
-    b+=frame(330,44,286,196,"read side  ·  one model per query shape",GRN,dash=False)
+    b+=inode(40,130,254,44,"Order aggregate","validates every invariant","acc","container",fs=10.5)
+    b+=cyl(40,192,254,48,"Write store","normalised","acc")
+    b+=arr(167,112,167,128); b+=arr(167,174,167,190)
+    b+=frame(330,44,286,212,"read side  ·  one model per query shape",GRN,dash=False)
     # events feed the projector, the projector writes the store, the API reads it.
     # Stacked bottom-up so the chain reads in the direction the data actually flows.
     b+=inode(346,72,254,40,"Query API","GET /orders?…","grn","search",fs=10.5)
-    b+=cyl(346,128,254,48,"Read store","query-shaped","grn")
-    b+=inode(346,190,254,44,"Projector","denormalises on event","grn","sync",fs=10.5)
-    b+=arr(473,188,473,178,None,GRN)
-    b+=arr(473,126,473,114,None,GRN)
-    b+=inode(226,258,188,40,"Kafka  ·  domain events",None,"amb","queue",fs=10.5)
-    b+=poly([(167,230),(167,278),(224,278)],color=AMB)
-    b+=poly([(416,278),(473,278),(473,238)],color=AMB)
-    b+=lbl(545,268,"p99 lag 1.4 s",9,AMB,"600")
-    b+=note(24,314,592,["The read model is eventually consistent. Put a number on it — “under 2 s at p99” — or the","product team will assume zero and design a UI that lies to the customer."],FLAG)
-    b+=txt(24,396,"Sold as a scaling pattern; bought as a consistency problem. Adopt it per context, never estate-wide.",10,MUTED)
-    return svg(408,b)
+    b+=cyl(346,134,254,48,"Read store","query-shaped","grn")
+    b+=inode(346,202,254,44,"Projector","denormalises on event","grn","sync",fs=10.5)
+    b+=arr(473,200,473,184,None,GRN)
+    b+=arr(473,132,473,114,None,GRN)
+    b+=inode(226,274,188,40,"Kafka  ·  domain events",None,"amb","queue",fs=10.5)
+    b+=poly([(167,240),(167,294),(224,294)],color=AMB)
+    b+=poly([(416,294),(473,294),(473,250)],color=AMB)
+    b+=lbl(545,284,"p99 lag 1.4 s",9,AMB,"600")
+    b+=note(24,330,592,["The read model is eventually consistent. Put a number on it — “under 2 s at p99” — or the","product team will assume zero and design a UI that lies to the customer."],FLAG)
+    b+=txt(24,412,"Sold as a scaling pattern; bought as a consistency problem. Adopt it per context, never estate-wide.",10,MUTED)
+    return svg(424,b)
 
 def d_bff():
     b=""
@@ -490,22 +490,22 @@ def d_bpmn():
 def d_pipeline():
     b=""
     b+=band(24,20,592,92,"build once  ·  one immutable artefact",ACC,fs=10)
-    st=[("Commit","git push",36,"branch"),("Build + unit","artefact",150,"gear"),
-        ("SAST / SCA","blocking",264,"shield"),("Contract","consumer-led",378,"check"),
-        ("Sign + SBOM","provenance",492,"cert")]
+    st=[("Commit","git push",32,"branch"),("Build + unit","artefact",152,"gear"),
+        ("SAST / SCA","blocking",272,"shield"),("Contract","consumer-led",392,"check"),
+        ("Sign + SBOM","provenance",512,"cert")]
     for i,(n,s2,x,ic) in enumerate(st):
-        b+=inode(x,56,108,44,n,s2,"plain",ic,fs=9.6,isize=13,pad=6)
-        if i<len(st)-1: b+=arr(x+108,78,st[i+1][2]-2,78)
-    b+=poly([(546,112),(546,136),(367,136)],color=MUTED)
+        b+=inode(x,56,98,44,n,s2,"plain",ic,fs=9.6,isize=13,pad=6)
+        if i<len(st)-1: b+=arr(x+98,78,st[i+1][2]-2,78)
+    b+=poly([(561,112),(561,136),(367,136)],color=MUTED)
     b+=dia(322,136,90,36,"approve","acc",fs=9.5)
-    b+=poly([(277,136),(94,136),(94,166)],color=MUTED)
+    b+=poly([(277,136),(97,136),(97,166)],color=MUTED)
     b+=band(24,166,592,96,"promote the same artefact  ·  never rebuild",GRN,fs=10)
-    dp=[("Deploy dev","automatic",40,"rocket","plain"),("Deploy staging","+ smoke tests",180,"rocket","plain"),
-        ("Canary  5 %","watch the SLO",324,"pulse","amb"),("Promote 100 %",None,464,"check","grn")]
+    dp=[("Deploy dev","automatic",34,"rocket","plain"),("Deploy staging","+ smoke tests",180,"rocket","plain"),
+        ("Canary  5 %","watch the SLO",326,"pulse","amb"),("Promote 100 %",None,472,"check","grn")]
     for i,(n,s2,x,ic,stl) in enumerate(dp):
-        b+=inode(x,202,132,44,n,s2,stl,ic,fs=10,isize=13,pad=6)
-        if i<3: b+=arr(x+132,224,dp[i+1][2]-2,224)
-    b+=poly([(390,246),(390,278),(106,278),(106,248)],color=FLAG,label="SLO breach → automatic rollback",lx=248,ly=292,fs=9)
+        b+=inode(x,202,126,44,n,s2,stl,ic,fs=10,isize=13,pad=6)
+        if i<3: b+=arr(x+126,224,dp[i+1][2]-2,224)
+    b+=poly([(389,246),(389,278),(97,278),(97,248)],color=FLAG,label="SLO breach → automatic rollback",lx=248,ly=292,fs=9)
     b+=txt(24,326,"One immutable artefact promoted across environments — never rebuilt per environment, or what",10,MUTED)
     b+=txt(24,341,"you tested is not what you shipped. Roll back on a signal, not on somebody noticing.",10,MUTED)
     return svg(352,b)
@@ -659,7 +659,7 @@ def d_rag():
     # and the permission filter is applied there — not in the prompt
     b+=poly([(204,164),(204,128),(470,128),(470,88)],color=ACC,
             label="k-NN search, filtered by this user’s ACL",lx=330,ly=124,fs=9)
-    b+=poly([(524,88),(524,150),(328,150),(328,162)],color=ACC,label="top-k chunks",lx=390,ly=146,fs=9)
+    b+=poly([(524,88),(524,146),(328,146),(328,162)],color=ACC,label="top-k chunks",lx=390,ly=142,fs=9)
     b+=node(24,240,246,38,"No relevant hit → say so","never let the model fill the gap","flag",fs=10)
     b+=node(290,240,326,38,"Guardrails + grounding check","every claim traceable to a cited chunk","amb",fs=10)
     b+=poly([(328,206),(328,222),(147,222),(147,238)],color=FLAG)
@@ -681,7 +681,7 @@ def d_serverless():
     b+=node(24,152,110,40,"DLQ","alarmed","flag",fs=10.5)
     b+=arr(134,82,158,82,"HTTP",dy=-5,fs=9)
     b+=arr(280,82,304,82)
-    b+=poly([(430,68),(444,68),(444,44),(454,44)],color=MUTED,label="streams",lx=452,ly=64,fs=9)
+    b+=poly([(430,68),(438,68),(438,44),(454,44)],color=MUTED,label="streams",lx=458,ly=64,fs=9)
     b+=poly([(430,94),(454,94)],color=MUTED)
     b+=poly([(536,126),(536,172),(432,172)],color=AMB,label="events",lx=520,ly=166,fs=9)
     b+=arr(304,172,282,172)
@@ -777,27 +777,36 @@ def d_physical():
 
 def d_cloud():
     b=""
-    b+=node(24,24,104,34,"Users",None,"soft",fs=10.5)
-    b+=node(150,24,116,34,"Route 53",None,"plain",fs=10.5)
-    b+=node(288,24,140,34,"CloudFront + WAF",None,"plain",fs=10.5)
-    b+=node(450,24,166,34,"Cognito  ·  OIDC",None,"plain",fs=10.5)
-    b+=frame(24,76,592,192,"VPC  ·  10.0.0.0/16  ·  3 AZs",ACC)
-    b+=node(44,104,150,42,"ALB","public subnets","acc",fs=10.5)
-    b+=node(214,104,180,42,"ECS Fargate","order-svc · 4–20 tasks",fs=10.5)
-    b+=node(414,104,182,42,"ECS Fargate","payment-svc · 2–8 tasks",fs=10.5)
-    b+=cyl(44,166,150,52,"Aurora","Multi-AZ writer","acc")
-    b+=node(214,168,180,44,"ElastiCache","Redis · 3 nodes",fs=10.5)
-    b+=node(414,168,182,44,"SQS + EventBridge","async fan-out","amb",fs=10.5)
-    b+=node(44,230,270,26,"S3  ·  versioned, SSE-KMS",None,"plain",fs=9.5)
-    b+=node(330,230,266,26,"Secrets Manager  ·  30 d rotation",None,"plain",fs=9.5)
-    b+=arr(128,41,148,41); b+=arr(266,41,286,41)
-    b+=poly([(358,58),(358,74),(119,74),(119,102)],color=MUTED)
-    b+=arr(194,125,212,125); b+=arr(394,125,412,125)
-    b+=arr(119,146,119,164); b+=arr(304,146,304,166); b+=arr(505,146,505,166)
-    b+=poly([(533,58),(533,68),(304,68),(304,102)],color=MUTED,dash=True,label="JWT",lx=424,ly=64,fs=9)
-    b+=txt(24,296,"Use the provider’s own service names — “Aurora Multi-AZ”, not “database”. The named service is the",10,MUTED)
-    b+=txt(24,311,"contract: it fixes failover behaviour, quotas and price. A generic box hides all three.",10,MUTED)
-    return svg(322,b)
+    # Infrastructure plates use inode(): a glyph per service, because a cloud estate is a
+    # vocabulary of recognisable things and flat boxes make them all look alike.
+    b+=txt(24,24,"EDGE  ·  outside the VPC",9,ACC,"600")
+    b+=inode(24,34,132,52,"Users",None,"soft","user",fs=11,isize=20,pad=12)
+    b+=inode(172,34,132,52,"Route 53","DNS + health","plain","globe",fs=11,isize=20,pad=12)
+    b+=inode(320,34,148,52,"CloudFront","+ WAF managed rules","plain","cdn",fs=11,isize=20,pad=12)
+    b+=inode(484,34,132,52,"Cognito","OIDC","plain","id",fs=11,isize=20,pad=12)
+    b+=arr(156,60,170,60); b+=arr(304,60,318,60)
+    b+=frame(24,112,592,310,"VPC  ·  10.0.0.0/16  ·  eu-west-1",ACC)
+    b+=inode(46,146,168,56,"ALB","public subnets","acc","balancer",fs=11,isize=20,pad=12)
+    b+=inode(232,146,186,56,"ECS Fargate","order-svc · 4–20 tasks","plain","container",fs=11,isize=20,pad=12)
+    b+=inode(436,146,158,56,"ECS Fargate","payment-svc · 2–8","plain","container",fs=11,isize=20,pad=12)
+    b+=inode(46,226,168,58,"Aurora","Multi-AZ writer","acc","db",fs=11,isize=20,pad=12)
+    b+=inode(232,226,186,58,"ElastiCache","Redis · 3 nodes","plain","cache",fs=11,isize=20,pad=12)
+    b+=inode(436,226,158,58,"SQS + EventBridge","async fan-out","amb","queue",fs=10,isize=20,pad=12)
+    b+=inode(46,302,272,46,"S3","versioned · SSE-KMS","plain","bucket",fs=11,isize=20,pad=12)
+    b+=inode(336,302,258,46,"Secrets Manager","30-day rotation","plain","key",fs=11,isize=20,pad=12)
+    b+=inode(46,364,548,40,"Spread across 3 availability zones",
+             "ALB targets, Fargate tasks and the Aurora replica in every one","grn","check",
+             fs=10.5,isize=18,pad=12)
+    b+=poly([(340,86),(340,126),(130,126),(130,144)],color=MUTED)
+    b+=poly([(550,86),(550,144)],color=MUTED,dash=True,label="JWT",lx=572,ly=116,fs=9)
+    b+=arr(216,174,230,174); b+=arr(420,174,434,174)
+    # the load balancer does not call the database — the service does
+    b+=poly([(270,202),(270,206),(130,206),(130,224)],color=MUTED)
+    b+=arr(325,202,325,224); b+=arr(515,202,515,224)
+    b+=txt(24,450,"Use the provider’s own service names — “Aurora Multi-AZ”, not “database”. The named service is",10,MUTED)
+    b+=txt(24,465,"the contract: it fixes failover behaviour, quotas and price, and a generic box hides all three.",10,MUTED)
+    b+=txt(24,480,"Mark the region and the zone spread too, or the drawing cannot answer one availability question.",10,MUTED)
+    return svg(492,b)
 
 def d_reference():
     b=frame(24,20,592,180,"reference architecture  ·  standard web service",ACC,dash=False)
@@ -1056,13 +1065,12 @@ def d_profile():
 # ---------- 3. Interaction & runtime ----------
 def d_requestflow():
     b=""
-    hops=[("Browser",None,24,"soft"),("CDN","cache miss",126,"plain"),("Gateway","authn",232,"plain"),
-          ("Order API","handler",338,"acc"),("Cache","hit 82 %",444,"plain"),("DB","read",550,"plain")]
+    hops=[("Browser",None,24,"soft"),("CDN","cache miss",126,"plain"),("Gateway","authn",228,"plain"),
+          ("Order API","handler",330,"acc"),("Cache","hit 82 %",432,"plain"),("DB","read",534,"plain")]
     for i,(n,s2,x,st) in enumerate(hops):
-        w=90 if i<5 else 66
-        b+=node(x,58,w,46,n,s2,st,fs=10.5)
-        if i<len(hops)-1: b+=arr(x+w,81,hops[i+1][2]-2,81)
-    budget=[("2 ms",120),("14 ms",226),("6 ms",332),("1 ms",438),("22 ms",544)]
+        b+=node(x,58,82,46,n,s2,st,fs=10.5)
+        if i<len(hops)-1: b+=arr(x+82,81,hops[i+1][2]-2,81)
+    budget=[("2 ms",116),("14 ms",218),("6 ms",320),("1 ms",422),("22 ms",524)]
     b+=txt(24,132,"LATENCY BUDGET  ·  p99 target 300 ms",9,ACC,"600")
     for t,x in budget:
         b+=txt(x,152,t,9.5,MUTED,"600","middle")
@@ -1119,7 +1127,7 @@ def d_datapipeline():
     st=[("Sources","CRM, ERP, files",24),("Ingest","Fivetran",158),("Raw","object storage",292),
         ("Transform","dbt models",426),("Serve","marts + BI",560)]
     for i,(n,s2,x) in enumerate(st):
-        w=118 if i<4 else 56
+        w=112 if i<4 else 56
         if i==2: b+=cyl(x,32,w,50,n,s2)
         else: b+=node(x,34,w,46,n,s2,"acc" if i==3 else "plain",fs=10.5)
         if i<len(st)-1: b+=arr(x+w,57,st[i+1][2]-2,57)
@@ -1128,7 +1136,7 @@ def d_datapipeline():
     st2=[("Source DB","Postgres",24),("CDC","Debezium",158),("Kafka","topic per table",292),
          ("Stream job","Flink",426),("Serve",None,560)]
     for i,(n,s2,x) in enumerate(st2):
-        w=118 if i<4 else 56
+        w=112 if i<4 else 56
         if i==0: b+=cyl(x,138,w,50,n,s2)
         else: b+=node(x,140,w,46,n,s2,"amb" if i==2 else "plain",fs=10.5)
         if i<len(st2)-1: b+=arr(x+w,163,st2[i+1][2]-2,163)
@@ -1169,16 +1177,16 @@ def d_lakehouse():
     tiers=[("Bronze","raw, append-only, as-landed",34,"soft"),("Silver","cleaned, conformed, typed",118,"plain"),("Gold","business-ready aggregates",202,"acc")]
     for n,s2,y,st in tiers:
         b+=node(24,y,300,58,n,s2,st,fs=12)
-        if y<202: b+=arr(174,y+58,174,y+80)
+        if y<202: b+=arr(174,y+58,174,y+82)
     b+=frame(356,24,260,236,"one storage layer  ·  open table format",ACC,dash=False)
     b+=node(376,58,220,40,"Parquet + Delta / Iceberg","ACID, time travel","acc",fs=10.5)
-    b+=node(376,112,220,36,"Catalogue","schema + lineage + ACL",fs=10.5)
-    b+=node(376,164,104,34,"SQL engine",None,fs=9.8)
-    b+=node(492,164,104,34,"Spark",None,fs=9.8)
-    b+=node(376,212,104,34,"BI",None,fs=9.8)
-    b+=node(492,212,104,34,"ML training",None,fs=9.8)
-    b+=arr(486,98,486,110); b+=arr(428,148,428,162); b+=arr(544,148,544,162)
-    b+=arr(428,198,428,210); b+=arr(544,198,544,210)
+    b+=node(376,114,220,36,"Catalogue","schema + lineage + ACL",fs=10.5)
+    b+=node(376,170,104,32,"SQL engine",None,fs=9.8)
+    b+=node(492,170,104,32,"Spark",None,fs=9.8)
+    b+=node(376,220,104,32,"BI",None,fs=9.8)
+    b+=node(492,220,104,32,"ML training",None,fs=9.8)
+    b+=arr(486,98,486,112); b+=arr(428,150,428,168); b+=arr(544,150,544,168)
+    b+=arr(428,202,428,218); b+=arr(544,202,544,218)
     b+=arr(324,140,354,140,"one copy",dy=-5,fs=9)
     b+=txt(24,290,"The lakehouse claim is that the warehouse and the lake stop being two copies of the truth: one",10,MUTED)
     b+=txt(24,305,"set of files, transactional, queried by SQL and by ML. The tier names carry the promise about",10,MUTED)
@@ -1213,12 +1221,12 @@ def d_streaming():
     b+=node(468,110,132,38,"State store","RocksDB + ckpt",fs=10)
     b+=arr(448,73,466,73); b+=arr(386,92,386,108); b+=arr(448,129,466,129)
     b+=arr(134,83,152,83); b+=arr(286,83,304,83)
-    b+=node(24,200,180,40,"Serving store","low-latency reads",fs=10.5)
-    b+=node(228,200,180,40,"Warehouse","same events, batch",fs=10.5)
-    b+=node(432,200,184,40,"Alerts / actions","sub-second","grn",fs=10.5)
-    b+=poly([(386,176),(386,190),(114,190),(114,198)],color=MUTED)
-    b+=poly([(386,190),(318,190),(318,198)],color=MUTED)
-    b+=poly([(386,190),(524,190),(524,198)],color=MUTED)
+    b+=node(24,208,180,40,"Serving store","low-latency reads",fs=10.5)
+    b+=node(228,208,180,40,"Warehouse","same events, batch",fs=10.5)
+    b+=node(432,208,184,40,"Alerts / actions","sub-second","grn",fs=10.5)
+    b+=poly([(386,176),(386,188),(114,188),(114,206)],color=MUTED)
+    b+=poly([(386,188),(318,188),(318,206)],color=MUTED)
+    b+=poly([(386,188),(524,188),(524,206)],color=MUTED)
     b+=note(24,116,262,["late arrivals: 2 min grace, then routed","to a side output and reconciled in the","batch path — never silently dropped"],AMB)
     b+=txt(24,272,"Three things make it a design rather than a picture, and all three are on the plate: the partition",10,MUTED)
     b+=txt(24,287,"key (which fixes what is ordered and what parallelises), the window definition, and what happens",10,MUTED)
@@ -1242,14 +1250,14 @@ def d_k8s():
     b+=frame(462,110,140,88,"node-2")
     b+=inode(472,128,120,26,"payment",None,"plain","container",fs=9,isize=12,pad=5)
     b+=inode(472,160,120,26,"order-svc",None,"plain","container",fs=9,isize=12,pad=5)
-    b+=inode(312,210,290,38,"Service  ·  stable VIP","selector app=order-svc","grn","balancer",fs=9.8)
+    b+=inode(312,216,290,38,"Service  ·  stable VIP","selector app=order-svc","grn","balancer",fs=9.8)
     # the kubelet watches the API server, not the other way round — and reports back.
     # Those two arrows are the reconciliation loop.
     b+=arr(310,86,278,86,"watches",dy=-6,fs=8.4)
     b+=arr(278,104,310,104,"status",dy=11,fs=8.4)
-    b+=arr(382,198,382,208,None,GRN); b+=arr(532,198,532,208,None,GRN)
+    b+=arr(382,198,382,214,None,GRN); b+=arr(532,198,532,214,None,GRN)
     b+=inode(180,0,142,22,"Ingress",None,"soft","globe",fs=9.5,isize=12,pad=5)
-    b+=poly([(251,22),(251,36),(457,36),(457,206)],color=MUTED,dash=True)
+    b+=poly([(251,22),(251,36),(457,36),(457,212)],color=MUTED,dash=True)
     b+=txt(24,296,"The mental model worth carrying is a loop, and both of its arrows are drawn: you write desired",10,MUTED)
     b+=txt(24,311,"state to the API server, the kubelet watches for what it has been assigned and reports back what",10,MUTED)
     b+=txt(24,326,"is really running. Nothing is “deployed” — it is declared, and the gap is closed continuously.",10,MUTED)
@@ -1370,7 +1378,7 @@ def d_identity():
     b+=inode(24,60,140,50,"Workforce","Entra ID","soft","user",fs=10.5)
     b+=inode(24,132,140,50,"Customers","CIAM tenant","soft","user",fs=10.5)
     b+=inode(196,88,150,66,"Identity provider","OIDC + SAML · MFA","acc","key",fs=11)
-    b+=inode(394,26,110,38,"Directory",None,"plain","db",fs=10,isize=14,pad=7)
+    b+=inode(394,26,104,38,"Directory",None,"plain","db",fs=10,isize=14,pad=7)
     b+=inode(516,26,100,38,"SCIM",None,"plain","sync",fs=10,isize=14,pad=7)
     b+=inode(394,84,222,40,"Token service","15 min · aud per API","acc","token",fs=10.5)
     b+=inode(394,142,110,38,"Sessions",None,"plain","clock",fs=10,isize=14,pad=7)
@@ -1378,7 +1386,7 @@ def d_identity():
     b+=inode(196,196,420,40,"Joiner / mover / leaver — deprovisioning is the tested control",None,"amb","check",fs=10.5)
     b+=arr(164,85,194,105); b+=arr(164,157,194,140)
     b+=arr(346,104,392,50); b+=arr(346,110,392,104); b+=arr(346,132,392,158)
-    b+=arr(504,45,514,45)
+    b+=arr(498,45,514,45)
     b+=arr(266,154,266,194,None,AMB)
     b+=txt(24,270,"Authentication is the easy half. The parts that fail audits are on the bottom row: what happens the",10,MUTED)
     b+=txt(24,285,"hour someone leaves, and who can use the emergency account without anyone noticing.",10,MUTED)
@@ -1541,20 +1549,20 @@ def d_kafka():
             b+=txt(257+i*45, y+13, str(i), 7.6, AMB, "600", "middle")
     b+=txt(420,200,"offsets — ordered within a partition, never across them",8.6,MUTED,anchor="middle")
     b+=arr(144,70,164,64,"hash(key)",lp=0.5,dy=-7,fs=8.4)
-    b+=band(24,234,286,96,"consumer group  billing",GRN,fs=10)
-    b+=inode(36,266,124,30,"instance 1","P0, P1, P2","grn","server",fs=9.2,isize=12,pad=5)
-    b+=inode(172,266,126,30,"instance 2","P3, P4, P5","grn","server",fs=9.2,isize=12,pad=5)
-    b+=txt(167,316,"own offset per partition · scales to 6 instances",8.8,MUTED,anchor="middle")
-    b+=band(330,234,286,96,"consumer group  analytics",VIO,fs=10)
-    b+=inode(342,266,262,30,"instance 1","all 6 partitions, own offsets","vio","server",fs=9.2,isize=12,pad=5)
-    b+=txt(473,316,"reads the same events, independently",8.8,MUTED,anchor="middle")
-    b+=poly([(300,206),(300,222),(167,222),(167,232)],color=AMB)
-    b+=poly([(300,222),(473,222),(473,232)],color=AMB)
-    b+=txt(24,356,"Three facts do all the work: ordering is per partition, the key chooses the partition, and one",10,MUTED)
-    b+=txt(24,371,"partition goes to one consumer per group. Partition count is therefore your maximum parallelism —",10,MUTED)
-    b+=txt(24,386,"six here, so a seventh billing instance would sit idle. Any two events that must stay in order",10,MUTED)
-    b+=txt(24,401,"have to share a key. Choose the key deliberately; it is the hardest thing here to change later.",10,MUTED)
-    return svg(413,b)
+    b+=band(24,240,286,96,"consumer group  billing",GRN,fs=10)
+    b+=inode(36,272,124,30,"instance 1","P0, P1, P2","grn","server",fs=9.2,isize=12,pad=5)
+    b+=inode(172,272,126,30,"instance 2","P3, P4, P5","grn","server",fs=9.2,isize=12,pad=5)
+    b+=txt(167,322,"own offset per partition · scales to 6 instances",8.8,MUTED,anchor="middle")
+    b+=band(330,240,286,96,"consumer group  analytics",VIO,fs=10)
+    b+=inode(342,272,262,30,"instance 1","all 6 partitions, own offsets","vio","server",fs=9.2,isize=12,pad=5)
+    b+=txt(473,322,"reads the same events, independently",8.8,MUTED,anchor="middle")
+    b+=poly([(300,206),(300,220),(167,220),(167,238)],color=AMB)
+    b+=poly([(300,220),(473,220),(473,238)],color=AMB)
+    b+=txt(24,362,"Three facts do all the work: ordering is per partition, the key chooses the partition, and one",10,MUTED)
+    b+=txt(24,377,"partition goes to one consumer per group. Partition count is therefore your maximum parallelism —",10,MUTED)
+    b+=txt(24,392,"six here, so a seventh billing instance would sit idle. Any two events that must stay in order",10,MUTED)
+    b+=txt(24,407,"have to share a key. Choose the key deliberately; it is the hardest thing here to change later.",10,MUTED)
+    return svg(419,b)
 
 def d_outbox():
     b=frame(24,24,318,148,"one local transaction",ACC,dash=False)
@@ -1673,7 +1681,7 @@ def d_flowchart():
     b=""
     b+=oval(76,44,104,34,"Start","soft",fs=10.5)
     b+=node(24,90,104,38,"Read request",None,"plain",fs=10.5)
-    b+=dia(76,168,120,54,"in cache?","acc",fs=10)
+    b+=dia(76,174,120,54,"in cache?","acc",fs=10)
     b+=node(200,148,124,40,"Return cached",None,"grn",fs=10.5)
     b+=node(200,222,124,40,"Query source",None,"plain",fs=10.5)
     b+=dia(430,168,124,54,"found?","acc",fs=10)
@@ -1681,7 +1689,7 @@ def d_flowchart():
     b+=node(368,44,124,38,"Return 404",None,"flag",fs=10.5)
     b+=oval(576,110,80,34,"End","soft",fs=10.5)
     b+=arr(76,61,76,88)
-    b+=arr(76,128,76,140)
+    b+=arr(76,128,76,145)
     b+=arr(136,168,198,168,"yes",dy=-5,fs=9)
     b+=poly([(76,195),(76,242),(198,242)],color=MUTED,label="no",lx=100,ly=236,fs=9)
     b+=poly([(324,242),(346,242),(346,168),(366,168)],color=MUTED)
@@ -1719,16 +1727,16 @@ def d_gitops():
 def d_devsecops():
     b=""
     b+=txt(24,32,"SHIFT LEFT  ·  each gate fails the build, not a report nobody opens",9,ACC,"600")
-    st=[("Pre-commit","secret scan",24,"key"),("Build","SCA · SBOM",124,"gear"),
-        ("Test","SAST",224,"search"),("Package","sign · attest",324,"cert"),
-        ("Deploy","IaC scan",424,"rocket"),("Run","DAST · runtime",524,"eye")]
+    st=[("Pre-commit","secret scan",24,"key"),("Build","SCA · SBOM",126,"gear"),
+        ("Test","SAST",228,"search"),("Package","sign · attest",330,"cert"),
+        ("Deploy","IaC scan",432,"rocket"),("Run","DAST · runtime",534,"eye")]
     for i,(n,s2,x,ic) in enumerate(st):
-        b+=ihead(x,44,92,52,n,ic,"acc",fs=9.8)
-        b+=txt(x+46,112,s2,8.6,MUTED,"500","middle")
-        if i<len(st)-1: b+=arr(x+92,70,st[i+1][2]-2,70)
+        b+=ihead(x,44,82,52,n,ic,"acc",fs=9.8)
+        b+=txt(x+41,112,s2,8.6,MUTED,"500","middle")
+        if i<len(st)-1: b+=arr(x+82,70,st[i+1][2]-2,70)
     b+=inode(24,136,286,42,"Blocking","criticals, secrets, unsigned images","flag","warn",fs=10.5)
     b+=inode(330,136,286,42,"Advisory","everything else, with an expiry date","amb","clock",fs=10.5)
-    b+=poly([(167,120),(167,134)],color=FLAG); b+=poly([(473,120),(473,134)],color=AMB)
+    b+=poly([(167,118),(167,134)],color=FLAG); b+=poly([(473,118),(473,134)],color=AMB)
     b+=inode(24,200,592,42,"Admission control","the cluster refuses unsigned or unscanned images — the gate you cannot skip","grn","shield",fs=10.5)
     b+=arr(320,178,320,198,None,GRN)
     b+=txt(24,282,"Every gate needs an owner, a threshold and an exception path with a deadline. Gates that cannot",10,MUTED)
@@ -1814,23 +1822,23 @@ def d_alerting():
 def d_faulttree():
     b=""
     b+=node(196,24,248,42,"TOP EVENT  ·  checkout unavailable",None,"flag",fs=11)
-    b+=dia(320,96,84,44,"OR","flag",fs=11)
-    b+=arr(320,66,320,74)
-    b+=node(44,148,168,40,"Order service down",None,"plain",fs=10.5)
-    b+=node(236,148,168,40,"Payment path down",None,"plain",fs=10.5)
-    b+=node(428,148,188,40,"Database unreachable",None,"plain",fs=10.5)
-    b+=poly([(320,118),(320,132),(128,132),(128,146)],color=FLAG)
-    b+=poly([(320,132),(320,146)],color=FLAG)
-    b+=poly([(320,132),(522,132),(522,146)],color=FLAG)
-    b+=dia(320,222,84,44,"AND","grn",fs=11)
-    b+=arr(320,188,320,200)
-    b+=node(196,286,110,36,"Provider A out",None,"soft",fs=10)
-    b+=node(330,286,110,36,"Provider B out",None,"soft",fs=10)
-    b+=poly([(320,244),(320,268),(251,268),(251,284)],color=GRN)
-    b+=poly([(320,268),(385,268),(385,284)],color=GRN)
-    b+=txt(24,346,"Read it downward: an OR gate is a single point of failure, an AND gate is redundancy that works.",10,MUTED)
-    b+=txt(24,361,"Every OR near the top is a design question — can this be made an AND? With rough probabilities on",10,MUTED)
-    b+=txt(24,376,"the leaves the tree also tells you which branch is worth spending money on first.",10,MUTED)
+    b+=dia(320,108,84,44,"OR","flag",fs=11)
+    b+=arr(320,66,320,84)
+    b+=node(44,162,168,40,"Order service down",None,"plain",fs=10.5)
+    b+=node(236,162,168,40,"Payment path down",None,"plain",fs=10.5)
+    b+=node(428,162,188,40,"Database unreachable",None,"plain",fs=10.5)
+    b+=poly([(320,130),(320,142),(128,142),(128,160)],color=FLAG)
+    b+=poly([(320,142),(320,160)],color=FLAG)
+    b+=poly([(320,142),(522,142),(522,160)],color=FLAG)
+    b+=dia(320,242,84,44,"AND","grn",fs=11)
+    b+=arr(320,202,320,218)
+    b+=node(196,300,110,36,"Provider A out",None,"soft",fs=10)
+    b+=node(330,300,110,36,"Provider B out",None,"soft",fs=10)
+    b+=poly([(320,264),(320,280),(251,280),(251,298)],color=GRN)
+    b+=poly([(320,280),(385,280),(385,298)],color=GRN)
+    b+=txt(24,364,"Read it downward: an OR gate is a single point of failure, an AND gate is redundancy that works.",10,MUTED)
+    b+=txt(24,379,"Every OR near the top is a design question — can this be made an AND? With rough probabilities on",10,MUTED)
+    b+=txt(24,394,"the leaves the tree also tells you which branch is worth spending money on first.",10,MUTED)
     return svg(388,b)
 
 def d_rbd():
@@ -1928,14 +1936,14 @@ def d_activeactive():
     b+=frame(334,80,282,150,"region B  ·  serving",GRN,dash=False)
     b+=node(46,106,150,38,"App  ·  live",None,"grn",fs=10.5)
     b+=node(356,106,150,38,"App  ·  live",None,"grn",fs=10.5)
-    b+=cyl(46,158,150,52,"Store A","writes for EU rows","acc")
-    b+=cyl(356,158,150,52,"Store B","writes for US rows","acc")
+    b+=cyl(46,164,150,52,"Store A","writes for EU rows","acc")
+    b+=cyl(356,164,150,52,"Store B","writes for US rows","acc")
     b+=poly([(280,56),(121,56),(121,104)],color=GRN)
     b+=poly([(360,56),(431,56),(431,104)],color=GRN)
-    b+=arr(121,144,121,156); b+=arr(431,144,431,156)
-    b+=arr(196,192,354,192,None,AMB,dash=True)
-    b+=arr(354,200,196,200,None,AMB,dash=True)
-    b+=lbl(275,186,"bidirectional replication",9,AMB)
+    b+=arr(121,144,121,162); b+=arr(431,144,431,162)
+    b+=arr(196,198,354,198,None,AMB,dash=True)
+    b+=arr(354,206,196,206,None,AMB,dash=True)
+    b+=lbl(275,192,"bidirectional replication",9,AMB)
     b+=node(24,254,286,44,"Conflicts are guaranteed","last-write-wins loses data silently","flag",fs=10.5)
     b+=node(330,254,286,44,"So partition ownership","each row has exactly one home region","grn",fs=10.5)
     b+=txt(24,330,"Active/active doubles your capacity and removes the failover step — and buys you the hardest",10,MUTED)
@@ -1996,7 +2004,7 @@ def d_servicedep():
     for x in (86,242,458):
         b+=poly([(x,222),(x,246)],color=FLAG,dash=True,head=False)
     b+='<line x1="86" y1="246" x2="578" y2="246" stroke="%s" stroke-width="1.2" stroke-dasharray="5 4"/>'%FLAG
-    b+=arr(350,246,350,258,None,FLAG,dash=True)
+    b+=arr(350,240,350,258,None,FLAG,dash=True)
     b+=lbl(350,240,"6 inbound",8.8,FLAG,"600")
     b+=txt(24,340,"Two things to look for and nothing else. Cycles — Order calls Catalogue and Catalogue calls back —",10,MUTED)
     b+=txt(24,355,"which make deployment order undefined and failures circular. And the node with the most inbound",10,MUTED)
@@ -2006,22 +2014,21 @@ def d_servicedep():
 def d_mlops():
     b=""
     b+=txt(24,24,"TRAINING",9,ACC,"600")
-    tr=[("Raw data","versioned",24),("Features","feature store",146),("Train","experiment log",268),
-        ("Evaluate","vs baseline",390),("Registry","staged model",506)]
+    tr=[("Raw data","versioned",24),("Features","feature store",147),("Train","experiment log",270),
+        ("Evaluate","vs baseline",393),("Registry","staged model",516)]
     for i,(n,s2,x) in enumerate(tr):
-        w=110 if i<4 else 110
-        b+=node(x,34,w,46,n,s2,"acc" if i==4 else "plain",fs=10.5)
-        if i<len(tr)-1: b+=arr(x+w,57,tr[i+1][2]-2,57)
+        b+=node(x,34,100,46,n,s2,"acc" if i==4 else "plain",fs=10.5)
+        if i<len(tr)-1: b+=arr(x+100,57,tr[i+1][2]-2,57)
     b+='<line x1="24" y1="104" x2="616" y2="104" stroke="%s" stroke-width="1"/>'%LINE
     b+=txt(24,128,"SERVING",9,GRN,"600")
-    b+=node(24,138,110,46,"Request",None,"soft",fs=10.5)
-    b+=node(146,138,124,46,"Feature lookup","same store","grn",fs=10.5)
-    b+=node(282,138,124,46,"Model","shadow + canary","grn",fs=10.5)
-    b+=node(418,138,198,46,"Prediction + explanation",None,"grn",fs=10.5)
-    b+=arr(134,161,144,161); b+=arr(270,161,280,161); b+=arr(406,161,416,161)
-    b+=poly([(561,80),(561,110),(344,110),(344,136)],color=ACC,dash=True,label="promote",lx=460,ly=104,fs=9)
+    b+=node(24,138,100,46,"Request",None,"soft",fs=10.5)
+    b+=node(144,138,116,46,"Feature lookup","same store","grn",fs=10.5)
+    b+=node(280,138,116,46,"Model","shadow + canary","grn",fs=10.5)
+    b+=node(416,138,200,46,"Prediction + explanation",None,"grn",fs=10.5)
+    b+=arr(124,161,142,161); b+=arr(260,161,278,161); b+=arr(396,161,414,161)
+    b+=poly([(566,80),(566,110),(338,110),(338,136)],color=ACC,dash=True,label="promote",lx=460,ly=104,fs=9)
     b+=node(24,208,592,44,"Monitor  ·  input drift · prediction drift · label lag · fairness — the trigger to retrain","and the reason the loop is a loop, not a pipeline","amb",fs=10.5)
-    b+=poly([(344,184),(344,206)],color=AMB)
+    b+=poly([(338,184),(338,206)],color=AMB)
     b+=txt(24,286,"The trap is the two feature paths: if training reads a warehouse table and serving computes the",10,MUTED)
     b+=txt(24,301,"same feature in application code, they will diverge, and the model will quietly get worse. One",10,MUTED)
     b+=txt(24,316,"feature store, used by both, is the architectural decision on this page.",10,MUTED)
@@ -2045,13 +2052,13 @@ def d_llmapp():
     b+=arr(340,126,284,126,"next tool call",lp=0.5,dy=13,fs=8.4,color=VIO)
     b+=poly([(213,136),(213,166),(404,166),(404,138)],color=AMB,dash=True,head=False)
     b+=lbl(308,182,"bounded — 6 turns max  ·  60 s  ·  $0.05  ·  then stop and say why",9,AMB,"600")
-    b+='<line x1="117" y1="204" x2="522" y2="204" stroke="%s" stroke-width="1.1" stroke-dasharray="5 4"/>'%MUTED
-    b+=poly([(213,166),(213,204)],color=MUTED,dash=True,head=False)
-    b+=node(24,216,186,38,"Tools","typed, allow-listed","plain",fs=9.6)
-    b+=node(226,216,186,38,"Retrieval","the RAG plate","plain",fs=9.6)
-    b+=node(428,216,188,38,"Memory","short-term + long-term","plain",fs=9.6)
+    b+='<line x1="117" y1="202" x2="522" y2="202" stroke="%s" stroke-width="1.1" stroke-dasharray="5 4"/>'%MUTED
+    b+=poly([(213,166),(213,202)],color=MUTED,dash=True,head=False)
+    b+=node(24,222,186,38,"Tools","typed, allow-listed","plain",fs=9.6)
+    b+=node(226,222,186,38,"Retrieval","the RAG plate","plain",fs=9.6)
+    b+=node(428,222,188,38,"Memory","short-term + long-term","plain",fs=9.6)
     for x in (117,319,522):
-        b+=arr(x,204,x,214,None,MUTED,dash=True)
+        b+=arr(x,202,x,220,None,MUTED,dash=True)
     b+=txt(24,290,"Draw the loop, and put numbers on it. An agent with no turn cap, no wall-clock cap and no cost",10,MUTED)
     b+=txt(24,305,"ceiling does not fail loudly — it fails at 3 a.m. with a five-figure bill and no answer. And treat",10,MUTED)
     b+=txt(24,320,"model output as untrusted input to everything downstream, because that is exactly what it is.",10,MUTED)
@@ -2090,7 +2097,7 @@ def d_edge():
     b+='<line x1="24" y1="146" x2="616" y2="146" stroke="%s" stroke-width="1"/>'%LINE
     b+=node(24,166,286,44,"Push outward","latency, bandwidth cost, data residency","grn",fs=10.5)
     b+=node(330,166,286,44,"Keep inward","consistency, expensive compute, state","acc",fs=10.5)
-    b+=arr(196,224,196,236,None,GRN); b+=arr(444,236,444,224,None,ACC)
+    b+=arr(196,212,196,236,None,GRN); b+=arr(444,236,444,212,None,ACC)
     b+=node(24,240,592,40,"The dividing line is the design: what can be decided with local knowledge, and what cannot",None,"amb",fs=10.5)
     b+=txt(24,314,"Every millisecond of the round trip is on this diagram, which is what makes it useful — a video",10,MUTED)
     b+=txt(24,329,"analytics rule at 100 ms is a different product from one at 5 ms. Push the decision to the tier",10,MUTED)
@@ -2415,24 +2422,25 @@ def d_finops():
 # ---------- 17. Evolution & migration ----------
 def d_migration():
     b=""
-    for t,x,c in [("AS-IS  ·  today",24,MUTED),("TRANSITION  ·  6–18 months",216,AMB),
-                  ("TO-BE  ·  target",408,GRN)]:
-        b+=band(x,20,184,192,t,c,fs=9.6)
-    b+=node(36,56,160,44,"Monolith","everything","soft",fs=10.5)
-    b+=cyl(36,112,160,50,"One database",None,"soft")
-    b+=arr(116,100,116,110)
-    b+=node(228,56,160,32,"Routing facade","by URL prefix","acc",fs=9.4)
-    b+=node(228,98,76,34,"Monolith",None,"soft",fs=9)
-    b+=node(312,98,76,34,"Orders",None,"grn",fs=9)
-    b+=cyl(228,144,160,46,"One database","still shared — split it last","amb")
-    b+=arr(266,88,266,96); b+=arr(350,88,350,96)
-    b+=node(420,56,160,32,"API gateway",None,"acc",fs=9.4)
-    b+=node(420,98,76,34,"Orders",None,"grn",fs=9)
-    b+=node(504,98,76,34,"Billing",None,"grn",fs=9)
-    b+=cyl(420,144,76,46,"DB",None,"grn"); b+=cyl(504,144,76,46,"DB",None,"grn")
-    b+=arr(458,88,458,96); b+=arr(542,88,542,96)
-    b+=arr(458,132,458,142); b+=arr(542,132,542,142)
-    b+=arr(204,116,214,116); b+=arr(396,116,406,116)
+    for t,x,c in [("AS-IS  ·  today",24,MUTED),("TRANSITION  ·  6–18 months",232,AMB),
+                  ("TO-BE  ·  target",440,GRN)]:
+        b+=band(x,20,176,196,t,c,fs=9.6)
+    b+=node(36,52,152,44,"Monolith","everything","soft",fs=10.5)
+    b+=cyl(36,116,152,50,"One database",None,"soft")
+    b+=arr(112,96,112,114)
+    b+=node(244,52,152,32,"Routing facade","by URL prefix","acc",fs=9.4)
+    b+=node(244,104,72,34,"Monolith",None,"soft",fs=9)
+    b+=node(324,104,72,34,"Orders",None,"grn",fs=9)
+    b+=cyl(244,158,152,46,"One database","still shared — split it last","amb")
+    b+=arr(280,84,280,102); b+=arr(360,84,360,102)
+    b+=node(452,52,152,32,"API gateway",None,"acc",fs=9.4)
+    b+=node(452,104,72,34,"Orders",None,"grn",fs=9)
+    b+=node(532,104,72,34,"Billing",None,"grn",fs=9)
+    b+=cyl(452,158,72,46,"DB",None,"grn"); b+=cyl(532,158,72,46,"DB",None,"grn")
+    b+=arr(488,84,488,102); b+=arr(568,84,568,102)
+    b+=arr(488,138,488,156); b+=arr(568,138,568,156)
+    b+=arr(320,138,320,156)
+    b+=arr(202,116,230,116); b+=arr(410,116,438,116)
     b+=node(24,232,286,46,"The transition state is an architecture","it runs in production for a year — design it, don’t tolerate it","flag",fs=9.4)
     b+=node(330,232,286,46,"Every step reversible on its own","route back at the facade, in one config change","grn",fs=9.4)
     b+=inode(24,294,592,46,"Strangler fig: the facade is what makes it incremental",

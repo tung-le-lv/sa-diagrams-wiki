@@ -251,6 +251,20 @@ ICONS = {
               "M12 12V8","M12 12l3.8 2.8","M12 12l-3.8 2.8"],
  "terminal": ["M3 4.5h18v15H3z","M6.5 9.5l3 2.5-3 2.5","M12.5 15h5"],
  "queue":    ["M3 8h13v8H3z","M3 11.5h13","M18 12h3","M18.7 9.7L21 12l-2.3 2.3"],
+ # a content-delivery network: one origin, four edge locations
+ "cdn":      ["M 12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8",
+              "M 12 2.8a2 2 0 1 0 0 4 2 2 0 0 0 0-4",
+              "M 12 17.2a2 2 0 1 0 0 4 2 2 0 0 0 0-4",
+              "M 4.8 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4",
+              "M 19.2 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4",
+              "M 12 6.8v1.8","M 12 15.4v1.8","M 6.8 12h1.8","M 15.4 12h1.8"],
+ # in-memory cache: a memory chip, deliberately unlike the disk cylinder
+ "cache":    ["M6 6h12v12H6z","M9.6 9.6h4.8v4.8H9.6z",
+              "M9.2 6V3.4","M14.8 6V3.4","M9.2 20.6V18","M14.8 20.6V18",
+              "M6 9.2H3.4","M6 14.8H3.4","M20.6 9.2H18","M20.6 14.8H18"],
+ # object storage
+ "bucket":   ["M 4 6l1.9 13.8a1.7 1.7 0 0 0 1.7 1.5h8.8a1.7 1.7 0 0 0 1.7-1.5L20 6",
+              "M 4 6a8 2.4 0 0 1 16 0","M 4 6a8 2.4 0 0 0 16 0"],
 }
 
 # Icons take the box's own accent so a drawing gains colour without gaining noise.

@@ -37,6 +37,8 @@ body.wide .topin{max-width:1400px}
 @media (max-width:1300px){body.wide .topin{max-width:1180px}}
 .brand{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.005em;margin:0}
 .brand a{text-decoration:none;color:var(--ink)}
+/* inline rather than a flex child, so the tagline still sits on the brand's baseline */
+.brand img.mark{width:22px;height:22px;vertical-align:-4px;margin-right:9px}
 .brand em{font-style:normal;color:var(--accent-ink)}
 .tagline{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.02em;margin:0}
 .search{margin-left:auto;display:flex;align-items:center;gap:9px}

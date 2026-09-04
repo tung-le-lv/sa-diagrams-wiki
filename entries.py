@@ -8,45 +8,45 @@ from diagrams import *
 
 # (number, name, slug, what the category is for)
 CATS = [
- (1,"Architecture & system-level","architecture-system-level",
-    "The whole-system views: what the system is, what it is made of, and how the pieces fit together. "
-    "Keep these current — they are the diagrams people actually read."),
- (2,"C4 model","c4-model",
+ (1,"C4 model","c4-model",
     "Four levels of zoom over one system — context, containers, components, code — "
     "plus the supplementary views the model defines. The most widely understood way to "
     "explain an architecture to someone who was not in the room."),
- (3,"UML","uml",
+ (2,"UML","uml",
     "The standard notations. A handful earn their keep in architecture work; the rest are worth "
     "recognising, so you know what you are looking at when someone hands you one."),
- (4,"Interaction & runtime","interaction-runtime",
-    "What happens at runtime rather than what exists: the order of messages, the path of a single "
-    "request, and where the time actually goes."),
- (5,"Data architecture","data-architecture",
-    "How data is structured, where it lives, how it moves between systems, and how you prove where "
-    "a number on a report came from."),
- (6,"Deployment & infrastructure","deployment-infrastructure",
+ (3,"Deployment & infrastructure","deployment-infrastructure",
     "Where the software actually runs. These settle availability, capacity and cost arguments, "
     "because they are the diagrams that carry numbers."),
- (7,"Security","security",
-    "Who can do what, how they prove who they are, and what protects data as it crosses each "
-    "boundary between zones of different trust."),
- (8,"Business & domain","business-domain",
+ (4,"Business & domain","business-domain",
     "The views that decide service boundaries before any technology is chosen. A wrong boundary "
     "costs more than any technology choice, and no amount of engineering recovers it."),
- (9,"Event-driven","event-driven",
-    "Asynchronous communication: what is published, who consumes it, what is ordered relative to "
-    "what, and how a transaction spanning several services unwinds when a step fails."),
- (10,"Integration & API","integration-api",
-    "How systems reach each other across team and company boundaries, and who owns each contract."),
- (11,"Process & workflow","process-workflow",
+ (5,"Process & workflow","process-workflow",
     "Business processes as they are actually executed, in notations that business stakeholders "
     "will read and correct."),
- (12,"DevOps & CI/CD","devops-cicd",
-    "How a change reaches production, and how it comes back out. Architecture that cannot be "
-    "deployed safely is not finished architecture."),
- (13,"Observability","observability",
+ (6,"Interaction & runtime","interaction-runtime",
+    "What happens at runtime rather than what exists: the order of messages, the path of a single "
+    "request, and where the time actually goes."),
+ (7,"Architecture & system-level","architecture-system-level",
+    "The whole-system views: what the system is, what it is made of, and how the pieces fit together. "
+    "Keep these current — they are the diagrams people actually read."),
+ (8,"Data architecture","data-architecture",
+    "How data is structured, where it lives, how it moves between systems, and how you prove where "
+    "a number on a report came from."),
+ (9,"Observability","observability",
     "How you find out something broke, and then why. Design these before go-live, not after the "
     "first incident."),
+ (10,"Security","security",
+    "Who can do what, how they prove who they are, and what protects data as it crosses each "
+    "boundary between zones of different trust."),
+ (11,"Event-driven","event-driven",
+    "Asynchronous communication: what is published, who consumes it, what is ordered relative to "
+    "what, and how a transaction spanning several services unwinds when a step fails."),
+ (12,"Integration & API","integration-api",
+    "How systems reach each other across team and company boundaries, and who owns each contract."),
+ (13,"DevOps & CI/CD","devops-cicd",
+    "How a change reaches production, and how it comes back out. Architecture that cannot be "
+    "deployed safely is not finished architecture."),
  (14,"Reliability & resilience","reliability-resilience",
     "How the system behaves when part of it fails, and whether the availability you promised is "
     "arithmetically possible in the first place."),
@@ -284,28 +284,28 @@ C4_SET = [
 # category pages listed here, at the given position in that category's order.
 #   entry name -> [(category, position in that category's list), ...]
 ALSO_IN = {
- "Sequence diagram":       [(3, 1), (10, 3), (2, 6)],
- "Deployment diagram":     [(3, 4), (2, 7)],
- "Activity diagram":       [(11, 3)],
- "State machine diagram":  [(11, 5)],
- "Decision tree":          [(11, 6)],
- "Data flow diagram":      [(5, 2), (7, 5)],
- "Swimlane diagram":       [(4, 5)],
- "Message flow diagram":   [(9, 4), (10, 4)],
- "Event storming board":   [(9, 8)],
+ "Sequence diagram":       [(2, 1), (12, 3), (1, 6)],
+ "Deployment diagram":     [(2, 4), (1, 7)],
+ "Activity diagram":       [(5, 3)],
+ "State machine diagram":  [(5, 5)],
+ "Decision tree":          [(5, 6)],
+ "Data flow diagram":      [(8, 2), (10, 5)],
+ "Swimlane diagram":       [(6, 5)],
+ "Message flow diagram":   [(11, 4), (12, 4)],
+ "Event storming board":   [(11, 8)],
  "Service mesh diagram":   [(16, 2)],
- "Multi-tenancy isolation model":             [(7, 6)],
- "Migration & transition-state architecture": [(1, 6)],
- "Schema evolution & compatibility":          [(9, 4)],
- "Caching architecture":                      [(4, 4)],
- "Backup & restore architecture":             [(5, 4)],
+ "Multi-tenancy isolation model":             [(10, 6)],
+ "Migration & transition-state architecture": [(7, 6)],
+ "Schema evolution & compatibility":          [(11, 4)],
+ "Caching architecture":                      [(6, 4)],
+ "Backup & restore architecture":             [(8, 4)],
  # Not UML. It shares the ports-and-interfaces vocabulary with the composite structure
  # and UML component diagrams, but it is an architectural pattern, not a notation — and
  # category 2 asserts it holds UML 2.5's canonical fourteen. The kinship is a see-also.
  # C4’s supplementary set: filed by the job each does, shown on the C4 page too
- "System landscape diagram":                  [(2, 5)],
- "System context diagram (C4 level 1)":       [(1, 1)],
- "Container diagram (C4 level 2)":            [(1, 2)],
+ "System landscape diagram":                  [(1, 5)],
+ "System context diagram (C4 level 1)":       [(7, 1)],
+ "Container diagram (C4 level 2)":            [(7, 2)],
 }
 
 E = []
@@ -314,7 +314,7 @@ def add(cat,name,defn,answers,when,must,fail,fn,cap,alias=None):
                   must=must,fail=fail,svg=fn(),cap=cap,alias=alias or []))
 
 # ================= 1. Architecture & system-level =================
-add(2,"System context diagram (C4 level 1)",
+add(1,"System context diagram (C4 level 1)",
  "The whole system as a single box, surrounded by every person and external system that touches it. C4 adopted it as level 1, but the context diagram is older than C4 and stands on its own — it is the only architecture diagram a non-technical audience should ever be shown.",
  "Who and what interacts with our system, and where does our responsibility end?",
  "Kickoff, scoping, executive briefings, and the first page of any architecture document.",
@@ -323,7 +323,7 @@ add(2,"System context diagram (C4 level 1)",
  d_context,"A context diagram for an order platform. Five external actors, one system, no internals.",
  ["Context diagram","Scope diagram","Level 1 diagram"])
 
-add(2,"Container diagram (C4 level 2)",
+add(1,"Container diagram (C4 level 2)",
  "The deployable units inside your system — applications, services, databases, brokers — and the technology each one is built on. This is the default answer to “explain the architecture”.",
  "What are the separately deployable pieces, and how do they talk?",
  "Almost every architecture conversation with engineers. Keep it current; this is the diagram people actually use.",
@@ -332,7 +332,7 @@ add(2,"Container diagram (C4 level 2)",
  d_container,"Containers for the same order platform. Note sync vs async arrows and the external system.",
  ["Application architecture diagram","Level 2 diagram"])
 
-add(2,"Component diagram (C4 level 3)",
+add(1,"Component diagram (C4 level 3)",
  "One container opened up: the major structural parts inside a single service and the responsibilities they hold. Worth drawing only for a service whose internals are genuinely non-obvious.",
  "What is inside this one service, and what depends on what?",
  "Onboarding someone to a complex service, or arguing about a refactor.",
@@ -341,7 +341,7 @@ add(2,"Component diagram (C4 level 3)",
  d_component,"Inside the Order Service. The aggregate root is the emphasised box.",
  ["Level 3 diagram"])
 
-add(1,"Cloud architecture diagram",
+add(7,"Cloud architecture diagram",
  "The system drawn in the provider's own vocabulary — named managed services, wired together as they will really be configured. The most requested diagram in a cloud estate, and the one most often drawn too vaguely.",
  "How do the AWS, Azure or GCP resources fit together, and what does each one guarantee?",
  "Any design on a public cloud, every cost review, and every well-architected-style review.",
@@ -350,7 +350,7 @@ add(1,"Cloud architecture diagram",
  d_cloud,"Named services, not categories. “Aurora Multi-AZ” answers questions “database” cannot.",
  ["Cloud infrastructure diagram","AWS architecture diagram","Azure architecture diagram","GCP architecture diagram"])
 
-add(1,"Hexagonal architecture (ports & adapters)",
+add(7,"Hexagonal architecture (ports & adapters)",
  "One service drawn as a core with a boundary: business logic in the middle, a named port for every way in and out, and an adapter outside the boundary for each real technology. The same idea travels as clean architecture and onion architecture.",
  "What is business logic here, what is plumbing, and what could we replace without touching the core?",
  "Any service expected to outlive its current database, broker or web framework — and any codebase where the tests need infrastructure to run.",
@@ -359,7 +359,7 @@ add(1,"Hexagonal architecture (ports & adapters)",
  d_hexagonal,"Driving adapters call in, driven adapters are called out — and the dependency points inward either way.",
  ["Ports and adapters","Clean architecture","Onion architecture","Hexagonal architecture"])
 
-add(1,"Solution architecture diagram",
+add(7,"Solution architecture diagram",
  "One page that puts business capability, applications, integration and data in the same frame — the diagram a steering committee approves before anything is built.",
  "How does the whole solution fit together, and what are we building versus buying?",
  "Programme initiation, funding decisions, vendor selection, and the front page of a solution design document.",
@@ -368,7 +368,7 @@ add(1,"Solution architecture diagram",
  d_solution,"Four bands on one sheet. The build/buy marks are the decisions the page carries.",
  ["Solution overview","Conceptual architecture","Solution blueprint"])
 
-add(1,"Logical architecture diagram",
+add(7,"Logical architecture diagram",
  "The major building blocks and their responsibilities, with every vendor, product and hostname deliberately removed. The view that survives a re-platforming.",
  "What are the logical building blocks, independent of how they are implemented?",
  "Early design, technology-neutral RFPs, and any conversation that must not become a product argument.",
@@ -377,7 +377,7 @@ add(1,"Logical architecture diagram",
  d_logical,"Five logical bands. Not one vendor name — that is the discipline the view depends on.",
  ["Logical view","Building block view","Technology-neutral architecture"])
 
-add(1,"System landscape diagram",
+add(7,"System landscape diagram",
  "Every system in the organisation on one page, grouped by domain, each marked with who owns it and whether it is being invested in, tolerated or retired.",
  "What systems exist across the organisation, and which ones are we still paying for?",
  "Portfolio review, M&A integration, decommissioning programmes, and your first month in a new organisation.",
@@ -386,7 +386,7 @@ add(1,"System landscape diagram",
  d_landscape,"Three domains, nine systems, one unowned nightly batch. That last one is the finding.",
  ["Organisation landscape","Application portfolio","Service landscape","Estate map","C4 system landscape"])
 
-add(1,"Physical architecture diagram",
+add(7,"Physical architecture diagram",
  "The same architecture expressed as hardware and capacity: instance types, core counts, IOPS, link speeds — the numbers that decide the bill.",
  "What infrastructure actually hosts this, and how much of it do we need?",
  "Capacity planning, cost modelling, procurement, and data-centre or landing-zone design.",
@@ -395,7 +395,7 @@ add(1,"Physical architecture diagram",
  d_physical,"Named instance classes and storage numbers — capacity arguments settle here.",
  ["Server architecture diagram","Infrastructure diagram","Physical view"])
 
-add(1,"Reference architecture",
+add(7,"Reference architecture",
  "A blueprint teams are expected to follow by default, published once, together with the rule for how to deviate from it.",
  "What architecture pattern should teams follow without asking?",
  "Once you are answering the same design question for the fourth team in a quarter.",
@@ -404,7 +404,7 @@ add(1,"Reference architecture",
  d_reference,"The standard, and the three honest ways to relate to it.",
  ["Architecture blueprint","Standard pattern","Golden path"])
 
-add(2,"Code diagram (C4 level 4)",
+add(1,"Code diagram (C4 level 4)",
  "The innermost C4 ring: the classes and interfaces inside one component. The level the C4 model itself tells you to skip most of the time.",
  "How is this one component actually put together?",
  "A component with a deliberate pattern worth explaining — and generated on demand, not maintained.",
@@ -415,7 +415,7 @@ add(2,"Code diagram (C4 level 4)",
 
 
 # ================= 2. UML =================
-add(3,"State machine diagram",
+add(2,"State machine diagram",
  "Every state an entity can occupy and every legal transition between them. The cheapest bug-finding tool in architecture: drawing one raises the questions nobody asked.",
  "What states exist, and which transitions are legal?",
  "Any entity with a lifecycle — order, payment, subscription, ticket, claim.",
@@ -424,7 +424,7 @@ add(3,"State machine diagram",
  d_state,"An order lifecycle. Can a shipped order be cancelled? The diagram forces the question.",
  ["State transition diagram","Statechart","UML state machine"])
 
-add(3,"Class diagram",
+add(2,"Class diagram",
  "UML's structural workhorse: types, their attributes and operations, and the relationships between them — with cardinality and ownership carried in the notation itself.",
  "How is the domain model structured, and what owns what?",
  "A domain model that is genuinely subtle. Not for CRUD entities, where an ERD says the same thing faster.",
@@ -433,7 +433,7 @@ add(3,"Class diagram",
  d_class,"Three classes and their relationships. Cardinality is the content, not decoration.",
  ["UML class diagram","Structural model"])
 
-add(3,"Activity diagram",
+add(2,"Activity diagram",
  "A flow with real concurrency notation: fork, join, and parallel branches that must all complete. A flowchart that can express “at the same time”.",
  "What are the steps, which run in parallel, and where do they have to synchronise?",
  "Any process with genuine concurrency, and as the behaviour spec behind an orchestration.",
@@ -442,7 +442,7 @@ add(3,"Activity diagram",
  d_activity,"Stock and payment run concurrently; the join says both must finish before the order proceeds.",
  ["UML activity diagram","Workflow diagram","Process flow diagram"])
 
-add(3,"Use case diagram",
+add(2,"Use case diagram",
  "Actors outside a boundary, goals inside it. A scoping tool that deliberately says nothing about how anything works.",
  "Who needs what from this system, and what is in this release?",
  "Requirements framing and scope negotiation — particularly with stakeholders who do not read technical diagrams.",
@@ -451,7 +451,7 @@ add(3,"Use case diagram",
  d_usecase,"Scope as a boundary. Every actor outside it is someone whose needs you owe.",
  ["UML use case diagram","Actor–goal diagram"])
 
-add(3,"Component diagram (UML)",
+add(2,"Component diagram (UML)",
  "Components with the interfaces they provide and require, fitted together ball into socket. UML's structural view of replaceable parts — and not the same diagram C4 means by the word.",
  "What does this component offer, what does it need, and what could I swap it for?",
  "Component-based and plug-in designs, and published libraries where the contract is the deliverable.",
@@ -460,7 +460,7 @@ add(3,"Component diagram (UML)",
  d_uml_component,"Balls are provided interfaces, sockets required. Where they meet is the contract you can swap either side of.",
  ["UML component diagram","Provided and required interfaces","Lollipop notation"])
 
-add(3,"Package diagram",
+add(2,"Package diagram",
  "Modules and the dependencies between them — the diagram that makes an architectural rule checkable.",
  "What may depend on what, and where has that been violated?",
  "Layered or hexagonal codebases, modular monoliths, and any rule you intend to enforce in a build test.",
@@ -469,7 +469,7 @@ add(3,"Package diagram",
  d_package,"Dependencies point inward; Domain depends on nothing. One reversed arrow is a build failure.",
  ["UML package diagram","Module dependency diagram","Layer diagram"])
 
-add(3,"Object diagram",
+add(2,"Object diagram",
  "A snapshot of specific instances at one moment, with their actual values — a class diagram frozen at runtime.",
  "What does the model look like for this particular case?",
  "Pinning down a confusing example: an edge case in a review, a bug nobody can describe, a test fixture.",
@@ -478,7 +478,7 @@ add(3,"Object diagram",
  d_object,"One order on one day. Concrete enough to argue about.",
  ["Instance diagram","UML object diagram","Snapshot diagram"])
 
-add(3,"Communication diagram",
+add(2,"Communication diagram",
  "The same interaction as a sequence diagram, arranged by topology instead of time, with numbered messages carrying the order.",
  "What is the shape of the call graph for this interaction?",
  "When the coupling between participants is the point — showing that one object talks to six others.",
@@ -487,7 +487,7 @@ add(3,"Communication diagram",
  d_communication,"Four participants and nested numbering — 1.1 and 1.2 both happen inside 1. Topology visible; timing not.",
  ["UML collaboration diagram","Object interaction diagram"])
 
-add(3,"Timing diagram",
+add(2,"Timing diagram",
  "State on the vertical axis, real time on the horizontal — the only UML diagram where duration is drawn to scale.",
  "How long does this stay in that state, and what is happening elsewhere while it does?",
  "Timeouts, cooldowns, protocol timing, hard real-time constraints, and embedded work.",
@@ -496,7 +496,7 @@ add(3,"Timing diagram",
  d_timing,"A breaker tripping, waiting out its cooldown, and closing only once the dependency is healthy again. The axis is linear, which is the whole point.",
  ["UML timing diagram","Protocol timing chart"])
 
-add(3,"Composite structure diagram",
+add(2,"Composite structure diagram",
  "The internals of one component expressed as parts, ports and connectors — what it contains and what it requires to run.",
  "What does this component need wired to it before it works?",
  "Reusable components, plug-in architectures, and embedded or automotive designs where this notation is standard.",
@@ -505,7 +505,7 @@ add(3,"Composite structure diagram",
  d_composite,"Ports on the boundary, parts inside, connectors between. Balls are provided, sockets required — the contract is the boundary.",
  ["Composite structure","Internal block diagram","Parts and ports"])
 
-add(3,"Interaction overview diagram",
+add(2,"Interaction overview diagram",
  "An activity diagram whose nodes are entire sequence diagrams — the index page for a flow too big for one sheet.",
  "Which of our twelve sequence diagrams applies here, and in what order?",
  "Large end-to-end flows already documented in pieces: onboarding, claims, settlement.",
@@ -514,7 +514,7 @@ add(3,"Interaction overview diagram",
  d_interaction_overview,"Four referenced interactions and the branch between them. No messages on this level.",
  ["Interaction overview","Sequence diagram index"])
 
-add(3,"Profile diagram",
+add(2,"Profile diagram",
  "The one UML diagram about UML: it defines the stereotypes and tagged values your other models are allowed to use.",
  "What modelling vocabulary is standard here, and what must every element carry?",
  "Organisations with a mandated modelling tool and a governance function that audits the models.",
@@ -525,7 +525,7 @@ add(3,"Profile diagram",
 
 
 # ================= 3. Interaction & runtime =================
-add(4,"Sequence diagram",
+add(6,"Sequence diagram",
  "Participants across the top, time running down, messages between them in order. For distributed systems this is the highest-value diagram there is — structure diagrams show what exists, this shows what happens.",
  "What calls what, in what order, and what happens when a step fails?",
  "Any flow with three or more participants. Auth, checkout, saga steps, retries, incident reconstruction.",
@@ -534,7 +534,7 @@ add(4,"Sequence diagram",
  d_sequence,"An order placement with three outcomes, each its own alt operand with a guard. The timeout branch returns 202, not 402.",
  ["UML sequence diagram","Interaction diagram","Call flow diagram","C4 dynamic diagram"])
 
-add(4,"Data flow diagram",
+add(6,"Data flow diagram",
  "Processes, data stores, external entities and the data moving between them — with trust boundaries drawn in. The foundation layer for threat modelling and for privacy review.",
  "How does data move through the system, and where does it cross a boundary?",
  "Privacy and compliance reviews, and as the first step of a STRIDE threat model.",
@@ -543,7 +543,7 @@ add(4,"Data flow diagram",
  d_dfd,"A level-1 DFD. Every arrow crossing the dashed boundary is a threat-model question.",
  ["DFD","Level-0 / level-1 data flow","Privacy flow diagram"])
 
-add(4,"Request flow diagram",
+add(6,"Request flow diagram",
  "One request traced across every hop, with a latency number on each — a sequence diagram optimised for the performance conversation.",
  "Where does the time actually go?",
  "Performance work, SLO design, and any argument that starts “the API feels slow”.",
@@ -552,7 +552,7 @@ add(4,"Request flow diagram",
  d_requestflow,"45 ms of server time inside a 255 ms experience. The budget is where the argument ends.",
  ["Call path diagram","Latency budget","Critical path diagram"])
 
-add(4,"Message flow diagram",
+add(6,"Message flow diagram",
  "Who sends what to whom: the wiring list of messages, formats and delivery guarantees between systems. No time axis, no request.",
  "What messages exist between these systems, and what does each one promise?",
  "Integration design between teams or companies, and the contract review before either side writes code.",
@@ -563,7 +563,7 @@ add(4,"Message flow diagram",
 
 
 # ================= 4. Data architecture =================
-add(5,"Entity relationship diagram",
+add(8,"Entity relationship diagram",
  "Entities, their attributes, and the cardinality of the relationships between them. The workhorse of data modelling, and the artefact where several consequential decisions get made almost silently.",
  "How is data structured, and what are the real business rules about quantity?",
  "Before any schema exists, and once per bounded context thereafter.",
@@ -572,7 +572,7 @@ add(5,"Entity relationship diagram",
  d_erd,"An order model. One-or-more line items means an order cannot be empty — a rule in two characters.",
  ["ER diagram","ERD","Schema diagram"])
 
-add(4,"Concurrency & process view",
+add(6,"Concurrency & process view",
  "What runs as a process, what runs as a thread inside it, what they share, and which of those pools runs out first. The 4+1 view that structure diagrams cannot express.",
  "What is running at once, and which limit do we hit before any of the others?",
  "Capacity work, connection-pool exhaustion, deadlocks, and any service where autoscaling made things worse rather than better.",
@@ -581,7 +581,7 @@ add(4,"Concurrency & process view",
  d_processview,"Two processes, four pools, and fifty connections against a limit of a hundred. Double the replicas and the arithmetic breaks.",
  ["Process view","4+1 process view","Concurrency model","Threading model"])
 
-add(5,"Data pipeline / ETL–ELT architecture",
+add(8,"Data pipeline / ETL–ELT architecture",
  "How data gets from where it is produced to where it is consumed: ingestion, landing, transformation, serving — and how it is reprocessed when something was wrong.",
  "How does data arrive, get shaped and reach a consumer, and what happens on a rerun?",
  "Every analytics platform, every reporting programme, every migration.",
@@ -590,7 +590,7 @@ add(5,"Data pipeline / ETL–ELT architecture",
  d_datapipeline,"Batch above, stream below, with the two paths that make it operable: contracts and backfill.",
  ["Data pipeline diagram","ETL architecture","ELT architecture","Ingestion architecture"])
 
-add(5,"Data lineage diagram",
+add(8,"Data lineage diagram",
  "The path a value takes from the system that produced it to the report someone is questioning, through every hop and transform along the way.",
  "Where did this number come from?",
  "The day the pipeline is designed — not the day the auditor asks.",
@@ -599,7 +599,7 @@ add(5,"Data lineage diagram",
  d_lineage,"Source to dashboard. Two consumers off one warehouse, which is where reconciliation disputes start.",
  ["Data provenance diagram","Impact analysis diagram"])
 
-add(5,"Conceptual, logical & physical data models",
+add(8,"Conceptual, logical & physical data models",
  "The same data at three altitudes: business concepts, a vendor-neutral normalised model, and the actual DDL with its types and indexes.",
  "Which version of the data model is this, and who is it for?",
  "Any modelling effort that involves both business stakeholders and a DBA — which is most of them.",
@@ -608,7 +608,7 @@ add(5,"Conceptual, logical & physical data models",
  d_datamodels,"One domain, three audiences. Mixing the levels is what makes data reviews go badly.",
  ["Conceptual data model","Logical data model","Physical data model"])
 
-add(5,"Data warehouse architecture",
+add(8,"Data warehouse architecture",
  "Staging, a dimensional core, and marts per consumer — the classic analytical stack and the grain decisions inside it.",
  "How is analytical data organised, and at what grain?",
  "Reporting platforms, financial reconciliation, and anywhere “the numbers disagree” is a recurring complaint.",
@@ -617,7 +617,7 @@ add(5,"Data warehouse architecture",
  d_warehouse,"A star schema with its grain stated. “One row per order line per day” ends most arguments.",
  ["Dimensional model","Star schema diagram","Kimball architecture"])
 
-add(5,"Streaming data architecture",
+add(8,"Streaming data architecture",
  "Continuous data through a partitioned log into stateful processing and out to serving stores — with windows, keys and late arrivals made explicit.",
  "How is data processed continuously, and what is ordered relative to what?",
  "Sub-minute freshness requirements: fraud, telemetry, pricing, personalisation.",
@@ -626,7 +626,7 @@ add(5,"Streaming data architecture",
  d_streaming,"Ingest, window, join, serve. The key and the window are the design.",
  ["Event streaming architecture","Real-time pipeline","Stream processing diagram"])
 
-add(5,"Data lake / lakehouse architecture",
+add(8,"Data lake / lakehouse architecture",
  "Raw, cleaned and business-ready tiers over one open-format storage layer, queried by SQL and ML alike.",
  "Where does raw data live, and how does it become trustworthy?",
  "Large or semi-structured estates, and anywhere a warehouse and a lake are drifting into two truths.",
@@ -635,7 +635,7 @@ add(5,"Data lake / lakehouse architecture",
  d_lakehouse,"Bronze, silver, gold over one transactional storage layer. The tier names are a promise.",
  ["Data lake architecture","Lakehouse","Medallion architecture"])
 
-add(5,"Data mesh architecture",
+add(8,"Data mesh architecture",
  "Analytical data owned by the domains that produce it, published as products with SLOs, on a self-serve platform under federated governance.",
  "Who owns this data, and to what standard?",
  "Large organisations where a central data team has become the bottleneck for every domain.",
@@ -646,7 +646,7 @@ add(5,"Data mesh architecture",
 
 
 # ================= 5. Deployment & infrastructure =================
-add(6,"Deployment diagram",
+add(3,"Deployment diagram",
  "Where the software actually runs: regions, availability zones, nodes, instance counts, and the replication between data stores. Where availability and cost arguments are finally settled.",
  "Where does everything run, and what survives when part of it dies?",
  "Every production design, and every conversation about an SLA.",
@@ -655,7 +655,7 @@ add(6,"Deployment diagram",
  d_deploy,"Multi-AZ with one primary. The picture admits that an AZ-A failure means a write pause.",
  ["Deployment view","Runtime infrastructure diagram","UML deployment diagram","C4 deployment diagram","Microservices deployment"])
 
-add(5,"Data partitioning & sharding strategy",
+add(8,"Data partitioning & sharding strategy",
  "How one logical dataset is split across many physical stores, chosen by a key — and what that key costs you at every query and every rebalance thereafter.",
  "How is this data split, and what happens when we outgrow the number of shards we picked?",
  "Any dataset that will not fit one node, any residency requirement, and every “the database is the bottleneck” conversation.",
@@ -664,7 +664,7 @@ add(5,"Data partitioning & sharding strategy",
  d_sharding,"Three strategies and their real trade-offs. The rebalance plan is what decides whether the choice survives growth.",
  ["Sharding diagram","Partitioning strategy","Horizontal partitioning","Shard key design"])
 
-add(6,"Network / VPC diagram",
+add(3,"Network / VPC diagram",
  "Subnets, routing and reachability: what can talk to what, on which port, across which boundary.",
  "What is reachable from where?",
  "Security review, connectivity debugging, and anything that has to satisfy an auditor.",
@@ -673,7 +673,7 @@ add(6,"Network / VPC diagram",
  d_vpc,"A three-tier VPC. CIDR per subnet, ports on the arrows and the egress path drawn — that is what makes it reviewable.",
  ["Network diagram","VPC diagram","Subnet diagram","Network security diagram"])
 
-add(6,"High availability architecture",
+add(3,"High availability architecture",
  "Redundancy inside one region, drawn with the arithmetic: how many instances, spread how, at what utilisation.",
  "What can fail here without users noticing?",
  "Any availability target above about 99.5 %, and every capacity review.",
@@ -682,7 +682,7 @@ add(6,"High availability architecture",
  d_ha,"Redundancy as arithmetic: 45 % per zone survives losing one, 70 % does not. Same topology, different number.",
  ["Redundancy diagram","Fault tolerance diagram"])
 
-add(6,"Multi-region architecture",
+add(3,"Multi-region architecture",
  "The system in more than one region, and the data decision that follows: partitioned by region, or replicated everywhere.",
  "How do we serve two continents, and what happens to data written in both?",
  "Latency requirements across geographies, data residency law, and region-level resilience.",
@@ -691,7 +691,7 @@ add(6,"Multi-region architecture",
  d_multiregion,"Two active regions, data partitioned by customer home. No synchronous cross-region hop.",
  ["Global architecture","Geo-distributed architecture"])
 
-add(6,"Kubernetes architecture diagram",
+add(3,"Kubernetes architecture diagram",
  "Control plane, nodes, pods and services — and the reconciliation loop that is the whole mental model.",
  "How does a workload actually get scheduled and reached in this cluster?",
  "Onboarding onto Kubernetes, cluster design, and debugging why something is not where you expected.",
@@ -700,7 +700,7 @@ add(6,"Kubernetes architecture diagram",
  d_k8s,"Control plane left, workers right. The arrow that matters is the watch, not the deploy.",
  ["Kubernetes cluster diagram","K8s architecture","Container orchestration diagram"])
 
-add(6,"Container architecture diagram",
+add(3,"Container architecture diagram",
  "Image build, registry and runtime, plus the layer structure and the base-image policy behind them.",
  "What is in the image we are running, and how does a fix reach every service?",
  "Supply-chain reviews, CVE response planning, and standardising build practice across teams.",
@@ -711,7 +711,7 @@ add(6,"Container architecture diagram",
 
 
 # ================= 6. Security =================
-add(7,"OAuth 2.0 / OIDC flow",
+add(10,"OAuth 2.0 / OIDC flow",
  "The exact sequence by which a caller obtains a token and a service decides to trust it. Being able to draw this from memory is a real differentiator.",
  "How does a caller prove who they are, and what does the token actually authorise?",
  "Any federated, delegated or multi-tenant access design.",
@@ -720,7 +720,7 @@ add(7,"OAuth 2.0 / OIDC flow",
  d_oauth,"Authorisation code flow with PKCE. The service still authorises after the gateway authenticates.",
  ["Authentication flow diagram","OAuth 2.0 flow","OIDC flow","SSO flow","Security / auth flow"])
 
-add(7,"Trust boundary diagram",
+add(10,"Trust boundary diagram",
  "Concentric zones of decreasing exposure, with the assets and controls in each. The canvas a threat model is drawn on.",
  "Where does data cross into a less-trusted zone, and what protects it there?",
  "Design review of anything internet-facing, and as the starting point for STRIDE.",
@@ -729,7 +729,7 @@ add(7,"Trust boundary diagram",
  d_trust,"Three nested boundaries. Each crossing is one round of spoofing, tampering and disclosure questions.",
  ["Security architecture diagram","Security zones diagram"])
 
-add(7,"Identity architecture",
+add(10,"Identity architecture",
  "Where identities come from, how they are provisioned and de-provisioned, and what issues the tokens everything else trusts.",
  "Who is the source of truth for identity, and what happens the hour someone leaves?",
  "Workforce and customer identity design, mergers, and any audit involving access control.",
@@ -738,7 +738,7 @@ add(7,"Identity architecture",
  d_identity,"Sign-in is the easy half. The bottom row is where audits are lost.",
  ["IAM architecture","Federation diagram","Directory architecture"])
 
-add(7,"Authorisation model diagram",
+add(10,"Authorisation model diagram",
  "How a permission decision is made and where: roles, attributes or relationships, with the decision point separated from enforcement.",
  "Who can do what to which record, and where is that decided?",
  "Multi-tenant systems, anything with delegated administration, and the first time “can they see this?” takes a day to answer.",
@@ -747,7 +747,7 @@ add(7,"Authorisation model diagram",
  d_authz,"Enforcement stays local, the decision is centralised — and the two are not the same thing.",
  ["Authorization flow diagram","RBAC diagram","ABAC model","Permission model"])
 
-add(7,"Threat model (STRIDE)",
+add(10,"Threat model (STRIDE)",
  "A data flow diagram with boundaries, walked flow by flow through six threat categories, each row ending in a named mitigation and an owner.",
  "What can go wrong here, and what are we doing about each one?",
  "Before build for anything internet-facing or handling regulated data — and again after a significant change.",
@@ -756,7 +756,7 @@ add(7,"Threat model (STRIDE)",
  d_threat,"Three flows walked through all six STRIDE categories, each row ending in a mitigation with a home. Unmitigated rows are accepted risk — in writing.",
  ["Threat model diagram","STRIDE analysis","Attack surface diagram"])
 
-add(7,"Zero trust architecture",
+add(10,"Zero trust architecture",
  "No implicit trust from network position: every request authenticated, authorised and encrypted, against live signals about user, device and resource.",
  "Why is a request from inside the network treated no differently from one outside it?",
  "Remote-first estates, contractor and partner access, and any programme retiring a flat internal network.",
@@ -765,7 +765,7 @@ add(7,"Zero trust architecture",
  d_zerotrust,"Enforcement inline, decision central, signals live. The TTL is the part people forget.",
  ["Zero trust network access","BeyondCorp architecture"])
 
-add(7,"Data classification diagram",
+add(10,"Data classification diagram",
  "The sensitivity tiers your data falls into, and the concrete handling rule for each: access, residency, retention.",
  "How sensitive is this, and what does that oblige us to do?",
  "Privacy programmes, regulated data, and any residency or retention commitment already in a contract.",
@@ -774,7 +774,7 @@ add(7,"Data classification diagram",
  d_classification,"Four classes, each with a control an engineer can implement without asking legal.",
  ["Sensitivity matrix","Data handling policy diagram"])
 
-add(7,"Encryption & key management diagram",
+add(10,"Encryption & key management diagram",
  "Envelope encryption drawn out: root key, key-encrypting keys, per-object data keys, and who can use which.",
  "Where are the keys, who can use them, and how do we rotate or destroy them?",
  "Regulated data, multi-tenant isolation, and any contract promising deletion or key separation.",
@@ -785,7 +785,7 @@ add(7,"Encryption & key management diagram",
 
 
 # ================= 7. Business & domain =================
-add(8,"Domain model",
+add(4,"Domain model",
  "Aggregates, entities and value objects with the invariants each aggregate enforces — the model the code should be shaped like, not a picture of tables.",
  "How is the domain structured, and where does consistency have to hold?",
  "Any non-trivial business domain, and before deciding transaction boundaries or service boundaries.",
@@ -794,7 +794,7 @@ add(8,"Domain model",
  d_domainmodel,"One aggregate, its invariants, and id-only references outward. One transaction, one aggregate.",
  ["DDD aggregate diagram","Domain map","Rich domain model"])
 
-add(8,"Bounded context map",
+add(4,"Bounded context map",
  "The distinct models in a domain and the relationships between the teams that own them. This is the diagram that decides your service boundaries — and a wrong boundary costs more than any technology choice.",
  "Where should the seams between systems and teams fall?",
  "Before deciding on services. Always before, never after.",
@@ -803,7 +803,7 @@ add(8,"Bounded context map",
  d_context_map,"Four contexts. The anti-corruption layer is what keeps a vendor's model out of yours.",
  ["Context mapping diagram","DDD context map","Domain boundary map"])
 
-add(8,"Team topologies map",
+add(4,"Team topologies map",
  "The organisation drawn as an architecture: four kinds of team, three ways they are allowed to interact, and the platform underneath. The socio-technical half of every boundary decision.",
  "Who owns what, and how are these teams allowed to talk to each other?",
  "Alongside the bounded context map, never after it — and before any reorganisation justified by an architecture goal.",
@@ -812,7 +812,7 @@ add(8,"Team topologies map",
  d_teamtopo,"Four team types, three interaction modes, one platform. If it disagrees with the context map, one of the two is wrong.",
  ["Team topologies","Socio-technical architecture","Inverse Conway diagram","Team interaction model"])
 
-add(8,"Event storming board",
+add(4,"Event storming board",
  "A wall of coloured stickies built with the business in the room: events in time order, the commands that cause them, the policies that react. A discovery technique whose real output is the boundaries you find.",
  "What actually happens in this business, in what order?",
  "Early discovery, with domain experts present. It does not work as a solo exercise.",
@@ -821,7 +821,7 @@ add(8,"Event storming board",
  d_storming,"Seven colours, no two alike, on a timeline — plus the hot spot the room could not agree on. Language shifts along the line are where contexts divide.",
  ["Event storming model","Big picture workshop","Process modelling workshop"])
 
-add(8,"Business capability map",
+add(4,"Business capability map",
  "What the business does, expressed as stable capabilities rather than teams or systems, shaded by how well each is served today.",
  "What does this organisation actually do, and where are we weakest?",
  "Portfolio planning, investment cases, and mapping systems to purpose during a reorganisation.",
@@ -830,7 +830,7 @@ add(8,"Business capability map",
  d_capability,"Colour by how well each capability is served and the funding conversation writes itself.",
  ["Capability model","Business architecture map"])
 
-add(8,"Value stream map",
+add(4,"Value stream map",
  "A process with the clock attached: work time and wait time on every step, and the ratio between them.",
  "Where does the time really go in this process?",
  "Process improvement, automation business cases, and lead-time complaints.",
@@ -841,7 +841,7 @@ add(8,"Value stream map",
 
 
 # ================= 8. Event-driven =================
-add(9,"Event topology diagram",
+add(11,"Event topology diagram",
  "Which services publish which events and which consume them — the map of an event-driven estate.",
  "If I change this event's schema, who breaks?",
  "The moment you have more than a handful of topics and more than one team.",
@@ -850,7 +850,7 @@ add(9,"Event topology diagram",
  d_topology,"Publishers, broker, consumers. The fan-out on the right is your blast radius for a schema change.",
  ["Event-driven architecture diagram","Event flow diagram","Publish/subscribe map"])
 
-add(8,"Wardley map",
+add(4,"Wardley map",
  "A value chain plotted against how evolved each part is, from a one-off invention to a metered commodity. The only diagram here that tells you what to stop building.",
  "Which parts of this are worth our engineers, and which are we about to be undercut on?",
  "Investment cases, build-versus-buy at portfolio scale, and any argument about a platform team’s remit.",
@@ -859,7 +859,7 @@ add(8,"Wardley map",
  d_wardley,"A value chain against evolution. Build to the left of the line, rent to the right — and everything drifts right.",
  ["Wardley mapping","Value chain map","Evolution map"])
 
-add(9,"Saga diagram",
+add(11,"Saga diagram",
  "A business transaction spanning several services, drawn with its compensating actions. There is no rollback across services — only a second transaction that undoes the first.",
  "How does a multi-service transaction complete, or unwind when a step fails?",
  "Any process that must stay consistent across service boundaries.",
@@ -868,7 +868,7 @@ add(9,"Saga diagram",
  d_saga,"Choreographed saga. Inventory rejects, so payment compensates — the forward path never completes.",
  ["Distributed transaction diagram","Compensation flow","Process manager diagram"])
 
-add(9,"CQRS diagram",
+add(11,"CQRS diagram",
  "Separate models for writing and for reading, connected by events or a projection. Sold as a scaling pattern; bought as a consistency problem.",
  "How do the write and read models differ, and how far apart can they drift?",
  "Read-heavy contexts where query shapes and write invariants genuinely conflict.",
@@ -877,7 +877,7 @@ add(9,"CQRS diagram",
  d_cqrs,"Command side, event, projection, query side — and the lag between them.",
  ["Command query responsibility segregation","Read model diagram"])
 
-add(9,"Outbox pattern diagram",
+add(11,"Outbox pattern diagram",
  "A local table written in the same transaction as the business change, drained afterwards by a relay — the standard answer to the dual-write problem.",
  "How do we change the database and publish an event without losing one of them?",
  "Every service that both owns data and publishes events. Which is most of them.",
@@ -886,7 +886,7 @@ add(9,"Outbox pattern diagram",
  d_outbox,"One transaction, two rows, a relay after the fact. Consumers must be idempotent.",
  ["Transactional outbox","Dual-write pattern"])
 
-add(9,"Kafka topic architecture",
+add(11,"Kafka topic architecture",
  "Topics, partitions, keys and consumer groups — the four facts that determine ordering and parallelism.",
  "What is ordered relative to what, and how far can this scale out?",
  "Any serious Kafka design, and every “why is this consumer lagging?” investigation.",
@@ -895,7 +895,7 @@ add(9,"Kafka topic architecture",
  d_kafka,"One topic, six partitions, two independent groups. Partition count caps parallelism.",
  ["Kafka topology","Partition diagram","Consumer group diagram"])
 
-add(9,"Event sourcing diagram",
+add(11,"Event sourcing diagram",
  "State stored as an append-only sequence of events, with current state derived by replaying them and snapshots as an optimisation.",
  "What is the system of record, and can we reconstruct any past state?",
  "Domains where the audit trail is the product: finance, trading, claims, regulated workflows.",
@@ -904,7 +904,7 @@ add(9,"Event sourcing diagram",
  d_eventsourcing,"Append, fold, project. Correcting data means a new event, never an update.",
  ["Event log architecture","Append-only store diagram"])
 
-add(9,"Pub/sub diagram",
+add(11,"Pub/sub diagram",
  "One topic, many independent subscriptions, each with its own filter and failure handling — publisher unaware of all of them.",
  "Who receives this, and what happens to the messages that cannot be processed?",
  "Notification fan-out, integration hubs, and anywhere new consumers are expected to appear.",
@@ -915,7 +915,7 @@ add(9,"Pub/sub diagram",
 
 
 # ================= 9. Integration & API =================
-add(10,"Integration architecture diagram",
+add(12,"Integration architecture diagram",
  "How systems are wired together across an estate: point-to-point or mediated, synchronous or asynchronous, and who owns each contract.",
  "How do these systems talk, and how many integrations are we really maintaining?",
  "Enterprise integration design, M&A, and the moment integration work starts dominating delivery.",
@@ -924,7 +924,7 @@ add(10,"Integration architecture diagram",
  d_integration,"The same estate wired both ways. The pairwise link count is the argument.",
  ["System integration diagram","API architecture diagram","Interface architecture"])
 
-add(10,"API gateway & BFF diagram",
+add(12,"API gateway & BFF diagram",
  "The edge of your system: what happens to a request before it reaches a service, and how each client gets an API shaped for it.",
  "How do clients reach the system, and who owns each contract?",
  "Any public or partner-facing API, and any estate with more than one kind of client.",
@@ -933,7 +933,7 @@ add(10,"API gateway & BFF diagram",
  d_bff,"Clients, gateway, per-client BFFs, services. One BFF per client team, not one for all.",
  ["API gateway diagram","BFF architecture","Edge architecture"])
 
-add(10,"Rate limiting & quota architecture",
+add(12,"Rate limiting & quota architecture",
  "Where a request is counted, against which key, what the caller is told when they exceed it, and how the tiers map onto what they pay.",
  "Who is allowed how much, where is that enforced, and what does the caller see when they hit it?",
  "Any public or partner API, any multi-tenant service, and the day one customer’s retry loop takes the platform down.",
@@ -942,7 +942,7 @@ add(10,"Rate limiting & quota architecture",
  d_ratelimit,"Counted per key in a shared store, with the tiers and the 429 contract written down.",
  ["Throttling architecture","Quota management","API rate limits","Token bucket diagram"])
 
-add(10,"Webhook flow diagram",
+add(12,"Webhook flow diagram",
  "Outbound HTTP callbacks drawn end to end: registration, signing, delivery, retries and replay.",
  "How do partners find out something happened, and what happens when their endpoint is down?",
  "Any partner or public integration where you are the event producer.",
@@ -951,7 +951,7 @@ add(10,"Webhook flow diagram",
  d_webhook,"Register, sign, deliver, retry, replay. Four properties separate this from a POST and a prayer.",
  ["Callback integration","Outbound event delivery"])
 
-add(10,"User flow & screen-to-API map",
+add(12,"User flow & screen-to-API map",
  "The path a user takes through the product, with the data each screen needs and the service that owns each field written underneath. Product will draw the top row without you; the row below it is the architect’s, and it is where API shape is actually decided.",
  "What does each screen need, who owns it, and how many calls does that cost the client?",
  "Before the endpoints are agreed — during discovery, and again whenever a new screen appears in a design review.",
@@ -960,7 +960,7 @@ add(10,"User flow & screen-to-API map",
  d_userflow,"Screens across the top, owners underneath. The screen that touches four services is the one that needs a BFF.",
  ["User flow diagram","Screen flow","Wireflow","Screen-to-API map","User journey diagram"])
 
-add(10,"Service mesh diagram",
+add(12,"Service mesh diagram",
  "Sidecar proxies and a control plane taking over service-to-service concerns — mTLS, retries, timeouts, traces — without application code changing.",
  "How is east-west traffic secured and controlled?",
  "Large Kubernetes estates where those concerns are being reimplemented per service.",
@@ -969,7 +969,7 @@ add(10,"Service mesh diagram",
  d_mesh,"Control plane above, sidecars beside each service. The proxies carry mTLS between pods.",
  ["Service mesh architecture","Sidecar diagram","Istio / Linkerd architecture"])
 
-add(10,"ESB / middleware architecture",
+add(12,"ESB / middleware architecture",
  "A mediating layer that adapts protocols, transforms to a canonical model, routes and orchestrates — the traditional enterprise integration shape.",
  "How do incompatible enterprise systems get connected without touching either of them?",
  "Estates full of packaged software and legacy protocols that cannot be changed.",
@@ -980,7 +980,7 @@ add(10,"ESB / middleware architecture",
 
 
 # ================= 10. Process & workflow =================
-add(11,"Swimlane diagram",
+add(5,"Swimlane diagram",
  "A process laid out with one lane per actor, so every handoff between people and systems is visible as a line crossing.",
  "What are the steps, and who owns each one?",
  "Any process crossing team or system boundaries. Your shared language with business stakeholders.",
@@ -989,7 +989,7 @@ add(11,"Swimlane diagram",
  d_swimlane,"A returns process. Each lane crossing is a queue and a delay — count them.",
  ["Cross-functional flowchart","Business process diagram","Workflow diagram"])
 
-add(11,"BPMN process model",
+add(5,"BPMN process model",
  "A precise, standardised process notation that a workflow engine can execute. Worth its formality only when the model really is the implementation.",
  "What is the exact, executable definition of this process?",
  "Enterprise processes running on Camunda, Temporal or similar.",
@@ -998,7 +998,7 @@ add(11,"BPMN process model",
  d_bpmn,"Six symbols carry most real models: start, task, gateway, timer boundary, end.",
  ["BPMN 2.0","Executable process model","Orchestration diagram"])
 
-add(11,"Flowchart",
+add(5,"Flowchart",
  "The oldest notation here and still the right one for a single actor working through sequential steps with branches.",
  "What are the steps and the decisions, in order?",
  "Runbooks, troubleshooting guides, and any procedure one person follows start to finish.",
@@ -1009,7 +1009,7 @@ add(11,"Flowchart",
 
 
 # ================= 11. DevOps & CI/CD =================
-add(12,"CI/CD pipeline diagram",
+add(13,"CI/CD pipeline diagram",
  "The path from a commit to running production software, and the gates along it. Architecture that cannot be deployed safely is not finished architecture.",
  "How does a change reach production, and how does it come back out?",
  "Every project. It is the delivery contract between teams.",
@@ -1018,7 +1018,7 @@ add(12,"CI/CD pipeline diagram",
  d_pipeline,"Build once, promote the same artefact, and roll back on an SLO signal rather than a human noticing.",
  ["CI/CD diagram","Deployment pipeline","Environment promotion diagram"])
 
-add(12,"Release strategy diagram",
+add(13,"Release strategy diagram",
  "How new code meets real traffic: rolling, blue/green, canary, or behind a flag — and how quickly you can undo it.",
  "What is the blast radius of this release, and how fast is the rollback?",
  "Whenever downtime or a bad release has a real cost.",
@@ -1027,7 +1027,7 @@ add(12,"Release strategy diagram",
  d_release,"Canary above, blue/green below. Both need backward-compatible migrations.",
  ["Blue/green deployment","Canary deployment","Rollout strategy"])
 
-add(12,"GitOps architecture",
+add(13,"GitOps architecture",
  "Desired state in git, pulled and continuously reconciled by an agent inside the cluster — deployment as convergence rather than a push.",
  "What should be running, who changed it, and how is drift corrected?",
  "Kubernetes estates, multi-cluster fleets, and anywhere pipeline credentials for production are a concern.",
@@ -1036,7 +1036,7 @@ add(12,"GitOps architecture",
  d_gitops,"The cluster pulls; git is the desired state; rollback is a revert. Drift is undone automatically.",
  ["Pull-based deployment","Argo CD architecture","Flux architecture"])
 
-add(12,"DevSecOps pipeline",
+add(13,"DevSecOps pipeline",
  "Security checks placed along the delivery pipeline, each with a threshold, an owner and an honest exception path.",
  "Where is security actually enforced between commit and production?",
  "Regulated environments, supply-chain hardening, and after any incident traced to a dependency.",
@@ -1047,7 +1047,7 @@ add(12,"DevSecOps pipeline",
 
 
 # ================= 12. Observability =================
-add(13,"Observability architecture",
+add(9,"Observability architecture",
  "How logs, metrics and traces get from services to the humans who need them at three in the morning, and what they cost to keep.",
  "How do we find out something broke, and then why?",
  "Before go-live, not after the first incident.",
@@ -1056,7 +1056,7 @@ add(13,"Observability architecture",
  d_observability,"Instrument once with OpenTelemetry, route anywhere. The collector is the architectural decision.",
  ["Telemetry architecture","Monitoring architecture","OpenTelemetry architecture"])
 
-add(13,"Metrics architecture",
+add(9,"Metrics architecture",
  "Numeric time series from collection to long-term storage, and the label discipline that keeps it affordable.",
  "Is it broken, how badly, and what is the trend?",
  "Every service. Metrics are the cheapest signal per answer and the basis for every SLO.",
@@ -1065,7 +1065,7 @@ add(13,"Metrics architecture",
  d_metrics,"RED for services, USE for resources — and cardinality as the cost function.",
  ["Monitoring architecture","Prometheus architecture","Time series architecture"])
 
-add(13,"Alerting & on-call routing",
+add(9,"Alerting & on-call routing",
  "How a breached objective becomes a page for a specific human — burn rate, grouping, routing and escalation.",
  "Who gets woken up, for what, and how quickly?",
  "Before go-live. Retrofitting alerting after the first incident is how alert fatigue starts.",
@@ -1074,7 +1074,7 @@ add(13,"Alerting & on-call routing",
  d_alerting,"Fast burn pages a human; slow burn opens a ticket. Everything else is a dashboard.",
  ["Alerting architecture","On-call escalation diagram","Incident routing"])
 
-add(13,"Distributed tracing diagram",
+add(9,"Distributed tracing diagram",
  "One request as a tree of timed spans across every service it touched, joined by a single propagated id.",
  "Which hop is slow, and what did this request actually do?",
  "Any estate above a handful of services, and every latency investigation that crosses a boundary.",
@@ -1083,7 +1083,7 @@ add(13,"Distributed tracing diagram",
  d_tracing,"A span waterfall drawn to scale at 1 px per millisecond. Over a third of the request sits inside one third-party call — visible in seconds.",
  ["Tracing architecture","Span waterfall","Request trace diagram"])
 
-add(13,"Logging architecture",
+add(9,"Logging architecture",
  "Structured events from services to an index, with redaction, sampling and tiered retention along the way.",
  "What exactly happened, in detail, and what does keeping that cost?",
  "Compliance and audit requirements, and debugging that metrics and traces cannot finish.",

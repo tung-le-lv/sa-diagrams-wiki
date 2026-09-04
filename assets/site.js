@@ -1,4 +1,17 @@
 
+/* --- pin the sidebars under the header, whatever height it renders at ---- */
+(function(){
+  var h=document.querySelector('header.top');
+  if(!h) return;
+  function set(){
+    document.documentElement.style.setProperty('--hdr', h.offsetHeight+'px');
+  }
+  set();
+  /* the header wraps on narrow widths and reflows once the webfont lands */
+  window.addEventListener('resize', set, {passive:true});
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(set);
+})();
+
 /* --- table of contents: highlight where you are on the page ------------- */
 (function(){
   var toc=document.querySelector('aside.toc');
@@ -23,9 +36,10 @@
   }
   /* the last entry whose top has passed under the sticky header wins */
   function pick(){
+    var hdr=(document.querySelector('header.top')||{offsetHeight:61}).offsetHeight+18;
     var best=arts[0].id, y=-1e9;
     for(var i=0;i<arts.length;i++){
-      var t=arts[i].getBoundingClientRect().top-96;
+      var t=arts[i].getBoundingClientRect().top-hdr;
       if(t<=0 && t>y){ y=t; best=arts[i].id; }
     }
     mark(best);
@@ -56,14 +70,13 @@
     /* every word must match, so "kafka ordering" narrows instead of finding nothing */
     var terms=t.split(/\s+/).filter(Boolean);
     var hits=window.IDX.filter(function(r){
-      return terms.every(function(w){return r[6].indexOf(w)>-1;});
+      return terms.every(function(w){return r[5].indexOf(w)>-1;});
     });
     res.innerHTML = hits.length
       ? hits.map(function(r){
           return '<a href="'+base+r[1]+'"><span class="rn">'+esc(r[0])+'</span>'
-               + '<span class="rm">'+esc(r[2])+' \u00b7 '+esc(r[3])
-               + ' \u00b7 for '+esc(r[5])+'</span>'
-               + '<span class="ra">'+esc(r[4])+'</span></a>';}).join('')
+               + '<span class="rm">'+esc(r[2])+' \u00b7 for '+esc(r[4])+'</span>'
+               + '<span class="ra">'+esc(r[3])+'</span></a>';}).join('')
       : '<p class="none">No diagram type matches every word of that. Try \u201cevent\u201d, '
         + '\u201cfailover\u201d, \u201ctenancy\u201d or \u201clineage\u201d.</p>';
     res.style.display='flex'; body.style.display='none';

@@ -2493,3 +2493,32 @@ def d_schemaevo():
     b+=txt(24,439,"production. Set the mode in the registry before the first event is published, and make the",10,MUTED)
     b+=txt(24,454,"build fail on an incompatible change rather than the consumer fail at 2 a.m.",10,MUTED)
     return svg(466,b)
+
+def d_userflow():
+    b=""
+    b+=txt(24,22,"SCREEN FLOW  ·  the half product already has",9,ACC,"600")
+    scr=[("Product","2 services",24),("Basket","3 services",176),
+         ("Checkout","4 services",328),("Confirmation","2 services",480)]
+    for i,(n,s2,x) in enumerate(scr):
+        b+=node(x,34,136,46,n,s2,"acc" if n=="Checkout" else "plain",fs=11)
+        if i<3: b+=arr(x+136,57,x+172,57)
+    b+=txt(24,104,"WHAT EACH SCREEN NEEDS, AND WHO OWNS IT  ·  the half only you can add",9,ACC,"600")
+    need=[["title · Catalogue","price · Pricing"],
+          ["lines · Basket","totals · Pricing","eta · Logistics"],
+          ["address · Customer","cards · Payments","total · Pricing","tax · Tax"],
+          ["order id · Orders","eta · Logistics"]]
+    for i,(n,s2,x) in enumerate(scr):
+        for j,f in enumerate(need[i]):
+            b+=node(x,116+j*26,136,22,f,None,"amb" if n=="Checkout" else "soft",fs=8.8)
+    b+='<line x1="24" y1="232" x2="616" y2="232" stroke="%s" stroke-width="1"/>'%LINE
+    b+=txt(24,256,"THE ARGUMENT THIS DIAGRAM EXISTS TO SETTLE",9,FLAG,"600")
+    b+=node(24,270,286,52,"Four round trips from the handset",
+            "one per service · 340 ms each · checkout takes 1.4 s","flag",fs=9.6)
+    b+=node(330,270,286,52,"Or one call shaped for this screen",
+            "the checkout BFF fans out server-side · 380 ms","grn",fs=9.6)
+    b+=arr(312,296,328,296)
+    b+=txt(24,352,"Product owns the top row and will draw it without you. The row underneath is the",10,MUTED)
+    b+=txt(24,367,"architect’s contribution, and it is what turns a screen flow into an API decision: count",10,MUTED)
+    b+=txt(24,382,"the services behind each screen, and the screen that touches four is the one that needs a",10,MUTED)
+    b+=txt(24,397,"BFF. Draw it before the endpoints are agreed, not after the app is slow on a train.",10,MUTED)
+    return svg(409,b)

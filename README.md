@@ -1,28 +1,25 @@
 # SA Diagrams Wiki
 
-A single-page diagram dictionary for software architects: **109 diagram types across 18
+A single-page diagram dictionary for software architects: **110 diagram types across 18
 categories**, each with a sample plate, the question it answers, when to reach for it,
 what it must show, and the mistake that shows up in review.
 
 Every named diagram type in `docs/` is covered — either as its own entry or as a listed
 alias on the entry that subsumes it, so alternative vocabulary stays searchable.
 
-The page also carries a **learning path**: 38 of the types arranged into three levels
-that build on one another — Foundation (describe any system), Core practice (design and
-operate a distributed one), Specialist (depth where the domain requires it) — plus a
-question → diagram lookup page. It is a nav filter of its own, alongside the levels and
-the 18 categories.
+The front page opens on `FREQUENCY`, which ranks the whole set by how often a software
+architect actually draws each one; a question → diagram lookup page is the other way in.
+Both are nav filters of their own, alongside the seven audiences and the 18 categories.
 
 ## Site structure
 
-The build emits **31 static pages** and three shared assets — one per category and per level, so no page carries
-the whole dictionary:
+The build emits **27 static pages** and three shared assets — one per category and per
+audience, so no page carries the whole dictionary:
 
 | Page | Contains |
 |---|---|
-| `index.html` | Overview: level cards, the question → diagram table, and the category index |
-| `pages/learning-path.html` | The three levels sequenced, plus the 34 path entries in order |
-| `pages/level-<slug>.html` | Every entry at one level (3 pages) |
+| `index.html` | Overview: the frequency panel, the question → diagram table, and the category index |
+| `pages/questions.html` | Question → diagram, and every type by the question it answers |
 | `pages/audience-<key>.html` | Every entry drawn primarily for one audience, plus the ones they also read (7 pages) |
 | `pages/<category-slug>.html` | Every entry in one category (18 pages) — an entry's canonical home |
 
@@ -30,10 +27,28 @@ the whole dictionary:
 lives in `pages/`. Links are generated through `P(target, root)`, which knows whether the
 page being written sits at the root or inside `pages/` — never hard-code a page link.
 
-Each entry appears on three axes: its category page (the canonical URL and anchor), its
-level page, and its audience page. Search is global — every page loads one shared index of
-all 109 types and links results to their canonical page and anchor, so searching from any
+Each entry appears on two axes: its category page (the canonical URL and anchor) and its
+audience page. Search is global — every page loads one shared index of
+all 110 types and links results to their canonical page and anchor, so searching from any
 page finds everything.
+
+## The overview's fourth axis
+
+`FREQUENCY` in `entries.py` is the panel on the front page that answers the question the
+other axes dodge: not what a diagram is or who it is for, but **how often a software
+architect actually draws it**. Five types carry most of the work; presenting all 110 as
+equals is not honest about that, and a newcomer deserves the shortlist.
+
+`FREQUENCY_LEAD` says whose chair the ranking is made from, because it is not a neutral
+ordering — a BA, a UX designer and an SRE would each sort the same 110 types differently,
+and each would be right about their own job. Stating the perspective is more useful than
+implying there isn't one.
+
+Each row is `(label, target, gloss)`. `target` is an entry name, `"cat:<slug>"` for a whole
+category (C4 points at its category, not at one of its four levels), a list of names
+rendered as several links, or `""` for something deliberately *not* in the dictionary.
+`label` of `None` reuses the target's own name. `check_frequency()` fails the build on a
+target that no longer resolves, so renaming an entry cannot leave the front page lying.
 
 ## Ordering within a category
 
@@ -42,15 +57,12 @@ most-used first**. It also sets the `NN.n` plate numbers and the order entries a
 a category page, so there is one source of truth — move the `add(...)` call to change the
 order.
 
-Order mostly tracks level (foundation before core practice before specialist) but does
-not have to. UML deliberately puts the class diagram (specialist) second, ahead of the
-activity diagram (core practice), because it is far more often reached for in practice.
-
-`python build.py` prints each category's level sequence at the end of the run, so an
-out-of-place entry is easy to spot:
+`python build.py` prints what each category holds at the end of the run — `.` for an
+entry filed there, `+` for one it only borrows — so an entry in the wrong place is easy
+to spot:
 
 ```
-   02 UML                            13233333333
+   03 UML                         +.+...........  14 types
 ```
 
 ## A diagram can be in more than one category
@@ -68,7 +80,7 @@ ALSO_IN = {
 ```
 
 There is nothing to gain from being strict here: entries already render on three axes
-(category, level, audience), so a fourth appearance costs only page weight. Several
+(category, audience), so a third appearance costs only page weight. Several
 diagrams genuinely belong in two places, and the source notes cross-list them too.
 
 A borrowed entry keeps its canonical plate number and links back to where it is filed, and
@@ -122,12 +134,12 @@ next" are different pieces of advice, so most pairs are listed both ways but not
 Keep it to three or four per entry; a see-also list of nine is a list nobody follows.
 
 No build step at serve time, no backend, no runtime dependencies. Only Google Fonts is
-loaded externally; everything else, including all 109 sample diagrams, is inline SVG.
+loaded externally; everything else, including all 110 sample diagrams, is inline SVG.
 
 ## Build
 
 ```bash
-python build.py       # writes all 31 pages
+python build.py       # writes all 27 pages
 ```
 
 No third-party packages. Python 3.8+.
@@ -138,9 +150,9 @@ No third-party packages. Python 3.8+.
 |---|---|
 | `svg_kit.py` | Palette, SVG primitives (`node`, `arr`, `poly`, `frame`, `cyl`, `pill`, `classbox`, `lifelines`, `msg`, `dia`, `stick`, `oval`, `note`, `grid`), the `ICONS` glyph set and its box variants (`icon`, `inode`, `ihead`, `ilifelines`), arrowhead defs |
 | `diagrams.py` | One `d_*()` function per diagram type, returning a complete `<svg>` string |
-| `entries.py` | The 18 categories, the `STAGES` level definitions, the ordered `PATH`, the `QUESTIONS` table, the `RELATED` see-also graph, and the 109 entries — all prose lives here |
-| `build.py` | CSS, page assembly, nav, the learning-path panel, client-side filter/search, plate validation |
-| `index.html`, `pages/*.html` | Generated output — 31 pages. Do not edit by hand; every build overwrites them |
+| `entries.py` | The 18 categories, the `QUESTIONS` table, `FREQUENCY`, the `RELATED` see-also graph, and the 110 entries — all prose lives here |
+| `build.py` | CSS, page assembly, nav, the frequency panel, the on-this-page TOC, client-side filter/search, plate validation |
+| `index.html`, `pages/*.html` | Generated output — 27 pages. Do not edit by hand; every build overwrites them |
 | `assets/` | Generated output — `site.css`, `search-index.js`, `site.js`. Written once, cached by the browser |
 | `sitemap.xml`, `robots.txt` | Generated output — needs an absolute base URL (see **Publishing**) |
 
@@ -152,18 +164,16 @@ No third-party packages. Python 3.8+.
 2. Add an `add(...)` call in `entries.py`:
 
 ```python
-add(cat, name, level, defn, answers, when, must, fail, d_yourthing, caption,
+add(cat, name, defn, answers, when, must, fail, d_yourthing, caption,
     ["Other name it travels under", "…"])
 ```
 
-   `cat` is 1–18 (see `CATS`), `level` is 1 (foundation), 2 (core practice) or
-   3 (specialist) — see `STAGES`. The trailing alias list is optional but is what
-   makes a synonym findable.
+   `cat` is 1–18 (see `CATS`). The trailing alias list is optional but is what makes a
+   synonym findable.
 3. Tag it in `AUDIENCE` — `(primary, [also useful to])`. The build fails loudly if an
    entry is missing from that dict or names an audience that does not exist.
-4. To put it on the learning path, add a row to `PATH` — `(level, step, label, entry
-   name)`. `step` orders it within its level; the entry name must match exactly, and
-   `build.py` resolves it to an anchor.
+4. If it belongs on the front page, add a row to `FREQUENCY` in the group that matches
+   how often it is really drawn.
 5. `python build.py`
 
 ## House style for the plates
@@ -229,7 +239,7 @@ as a prompt to look, not a verdict.
 
 `check_related()` fails the build on a `RELATED` entry pointing at a name that does not
 exist, or at itself. A see-also is rendered on every page an entry appears on, so one
-typo is a dead link in thirty places.
+typo is a dead link on every page it appears.
 
 `check_audiences()` fails the build if an entry is untagged or names an audience that
 does not exist.
@@ -252,7 +262,7 @@ Condensed; metadata is IBM Plex Mono.
 
 CSS, the search index and the search script are written once to `assets/` rather than
 inlined into every page. That matters more than it sounds: the boilerplate is ~117 KB,
-and inlining it into thirty-one pages cost about 3.4 MB of duplicated bytes and re-downloaded
+and inlining it into twenty-seven pages cost about 3.4 MB of duplicated bytes and re-downloaded
 it on every navigation. The pages themselves carry only their own plates.
 
 ## Publishing
@@ -271,7 +281,7 @@ SITE_URL=https://diagrams.example.com python build.py
 With no remote and no `SITE_URL`, the build still succeeds — it just skips `sitemap.xml`,
 `robots.txt` and the absolute-URL tags, and says so.
 
-Renaming a category or level changes its filename; the old page is not deleted
+Renaming a category changes its filename; the old page is not deleted
 automatically, so remove stale `.html` files by hand after a rename.
 
 ## The right-hand column
@@ -289,8 +299,8 @@ start scrolling sideways. Below 1300px the column is dropped and the shell rever
 two columns. It is also hidden while search results are showing, since the results have
 replaced the page the contents list describes.
 
-`index.html`, the learning path and the question page have no entries, so they have no
-TOC and stay at the narrower two-column width.
+`index.html` and the question page have no entries, so they have no TOC and stay at the
+narrower two-column width.
 
 ## Accessibility and print
 

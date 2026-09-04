@@ -5,6 +5,7 @@
   --accent-ink:#134568; --accent-soft:#E1EBF3; --flag:#9C4034; --flag-soft:#F4E7E4;
   --amb:#7A5C1F; --amb-soft:#F4EEDF; --grn:#33604A; --grn-soft:#E4EEE8;
   --plate:#FFFFFF; --plate-line:#DEE3E7; --shadow:0 1px 2px rgba(20,30,40,.06),0 8px 24px -14px rgba(20,30,40,.28);
+  --hdr:61px;   /* height of the sticky header; site.js measures the real one */
   --disp:'IBM Plex Sans Condensed',system-ui,-apple-system,'Segoe UI',sans-serif;
   --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -30,6 +31,10 @@ a{color:var(--accent-ink)}
 header.top{position:sticky;top:0;z-index:20;background:var(--surface);
   border-bottom:1px solid var(--line);padding:14px 26px}
 .topin{max-width:1180px;margin:0 auto;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
+/* the shell widens on pages that carry a TOC, so the header has to widen with it or
+   the brand stops lining up with the nav underneath it */
+body.wide .topin{max-width:1400px}
+@media (max-width:1300px){body.wide .topin{max-width:1180px}}
 .brand{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.005em;margin:0}
 .brand a{text-decoration:none;color:var(--ink)}
 .brand em{font-style:normal;color:var(--accent-ink)}
@@ -46,8 +51,11 @@ header.top{position:sticky;top:0;z-index:20;background:var(--surface);
    in it. The shell widens rather than squeezing the plates, which have a min-width. */
 .shell.has-toc{max-width:1400px;grid-template-columns:224px minmax(0,1fr) 208px;gap:40px}
 
-aside.toc{position:sticky;top:78px;max-height:calc(100vh - 96px);overflow-y:auto;
-  padding:30px 0 20px;scrollbar-width:thin}
+/* Pinned directly under the header and exactly one viewport tall, so it never moves
+   while the main column scrolls. `height` rather than `max-height`: a max-height only
+   engages once the content is long enough, which is what makes a sticky column drift. */
+aside.toc{position:sticky;top:var(--hdr);align-self:start;height:calc(100vh - var(--hdr));
+  overflow-y:auto;overscroll-behavior:contain;padding:26px 0 24px;scrollbar-width:thin}
 .toclabel{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--muted);margin:0 0 10px 10px}
 aside.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
@@ -66,8 +74,9 @@ aside.toc a.sec{font-family:var(--disp);font-weight:600;margin-top:9px;padding-t
   aside.toc{display:none}
 }
 
-nav.cats{position:sticky;top:78px;max-height:calc(100vh - 96px);overflow-y:auto;
-  padding:30px 0 20px;display:flex;flex-direction:column;gap:2px;scrollbar-width:thin}
+nav.cats{position:sticky;top:var(--hdr);align-self:start;height:calc(100vh - var(--hdr));
+  overflow-y:auto;overscroll-behavior:contain;
+  padding:26px 0 24px;display:flex;flex-direction:column;gap:2px;scrollbar-width:thin}
 .navlabel{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--muted);margin:0 0 10px 8px}
 .navlabel.second{margin-top:20px;padding-top:16px;border-top:1px solid var(--hair)}
@@ -105,39 +114,9 @@ a.card h3{font-family:var(--disp);font-weight:700;font-size:16.5px;margin:3px 0 
 a.card:hover h3{color:var(--accent-ink)}
 a.card p{margin:0;font-size:12.8px;color:var(--muted);line-height:1.5}
 a.card .k{font-family:var(--mono);font-size:10px;color:var(--accent-ink);margin-top:9px;display:block}
-a.lcard{border-left:3px solid var(--line)}
-a.lcard.l1{border-left-color:var(--flag)} a.lcard.l2{border-left-color:var(--amb)}
-a.lcard.l3{border-left-color:var(--grn)}
-a.lcard.l1 h3{color:var(--flag)} a.lcard.l2 h3{color:var(--amb)} a.lcard.l3 h3{color:var(--grn)}
 .sect{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--muted);margin:20px 0 2px}
 
-ol.path{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:1px;
-  background:var(--hair);border:1px solid var(--hair);border-radius:4px;overflow:hidden}
-li.stage{background:var(--surface);display:grid;grid-template-columns:250px minmax(0,1fr);
-  gap:26px;padding:20px 20px 21px;position:relative}
-li.stage::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
-li.stage.s1::before{background:var(--flag)}
-li.stage.s2::before{background:var(--amb)}
-li.stage.s3::before{background:var(--grn)}
-.stage-head .sn{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted);display:block;margin-bottom:4px}
-.stage-head h2{font-family:var(--disp);font-weight:700;font-size:19px;margin:0 0 3px;line-height:1.2}
-.stage.s1 .stage-head h2{color:var(--flag)}
-.stage.s2 .stage-head h2{color:var(--amb)}
-.stage.s3 .stage-head h2{color:var(--grn)}
-.stage-head .outcome{margin:0 0 7px;font-size:13.4px;font-weight:600;color:var(--ink)}
-.stage-head p{margin:0 0 11px;font-size:12.4px;color:var(--muted);line-height:1.5}
-.stage-head .more{font-family:var(--mono);font-size:10.5px;text-decoration:none}
-ol.steps{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px;
-  align-content:flex-start;counter-reset:st}
-ol.steps li{counter-increment:st}
-ol.steps a{display:inline-flex;gap:7px;align-items:baseline;text-decoration:none;color:var(--ink2);
-  font-size:13px;border:1px solid var(--line);background:var(--paper);border-radius:3px;
-  padding:4px 10px;line-height:1.35}
-ol.steps a::before{content:counter(st);font-family:var(--mono);font-size:9.5px;color:var(--muted)}
-ol.steps a:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
-ol.steps a:hover::before{color:var(--accent-ink)}
 
 .qwrap{background:var(--surface);border:1px solid var(--line);border-radius:4px;
   padding:18px 20px 16px;box-shadow:var(--shadow)}
@@ -151,21 +130,36 @@ ol.steps a:hover::before{color:var(--accent-ink)}
 .qgrid .d{font-family:var(--disp);font-weight:600;font-size:12.5px;color:var(--accent-ink);
   white-space:nowrap}
 
+.freq{background:var(--surface);border:1px solid var(--line);border-radius:4px;
+  box-shadow:var(--shadow);overflow:hidden}
+.freq p.flead{margin:0;padding:14px 20px;font-size:13.4px;color:var(--ink2);line-height:1.55;
+  border-bottom:1px solid var(--line);background:var(--paper)}
+.freq section{padding:15px 20px 17px;border-top:1px solid var(--hair)}
+.freq section:first-of-type{border-top:0}
+.freq h3{font-family:var(--disp);font-weight:700;font-size:15px;margin:0;color:var(--ink);
+  line-height:1.25}
+.freq .gsub{margin:2px 0 11px;font-size:12.6px;color:var(--muted);max-width:80ch;line-height:1.5}
+.freq ul{list-style:none;margin:0;padding:0;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0 24px}
+.freq li{padding:6px 0;border-top:1px solid var(--hair);font-size:13px;line-height:1.5;
+  color:var(--ink2)}
+.freq li a{font-family:var(--disp);font-weight:600;font-size:13.4px;text-decoration:none;
+  color:var(--accent-ink)}
+.freq li a:hover{text-decoration:underline}
+.freq li b.off{font-family:var(--disp);font-weight:600;font-size:13.4px;color:var(--ink2)}
+.freq li .d{color:var(--muted);font-size:12.5px}
+.freq p.bar{margin:0;padding:14px 20px;background:var(--accent-soft);
+  border-top:1px solid var(--line);font-size:13.4px;color:var(--ink2);line-height:1.55}
+.freq p.bar b{color:var(--accent-ink);font-weight:700}
+
 article.entry{background:var(--surface);border:1px solid var(--line);border-radius:4px;
-  padding:24px 26px 26px;box-shadow:var(--shadow);scroll-margin-top:88px}
+  padding:24px 26px 26px;box-shadow:var(--shadow);scroll-margin-top:calc(var(--hdr) + 16px)}
 article.entry.flash{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft),var(--shadow)}
 .ehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:3px}
 .plateno{font-family:var(--mono);font-size:11px;color:var(--accent-ink);letter-spacing:.06em;
   background:var(--accent-soft);padding:2px 7px;border-radius:2px}
 h2.name{font-family:var(--disp);font-weight:700;font-size:23px;letter-spacing:.004em;margin:0;
   text-wrap:balance;line-height:1.15}
-.badges{margin-left:auto;display:flex;gap:7px;align-items:baseline;flex-wrap:wrap}
-.tier{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
-  padding:2px 7px;border-radius:2px;border:1px solid var(--line);color:var(--muted);text-decoration:none}
-.tier.t1{color:var(--flag);border-color:var(--flag);background:var(--flag-soft)}
-.onpath{font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:2px 7px;
-  border-radius:2px;border:1px solid var(--accent);color:var(--accent-ink);
-  background:var(--accent-soft);text-decoration:none}
 .catline{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
   color:var(--muted);margin:0 0 12px}
 .catline a{color:var(--muted);text-decoration:none}
@@ -259,7 +253,8 @@ footer a{color:var(--muted)}
 
 @media (max-width:900px){
   .shell,.shell.has-toc{grid-template-columns:1fr;gap:0;padding:0 18px 60px}
-  nav.cats{position:static;max-height:none;flex-direction:row;overflow-x:auto;padding:18px 0 4px;
+  nav.cats{position:static;height:auto;max-height:none;overscroll-behavior:auto;
+    flex-direction:row;overflow-x:auto;padding:18px 0 4px;
     gap:6px;border-bottom:1px solid var(--line);align-items:center}
   .navlabel{display:none}
   .cat{white-space:nowrap;border-left:0;border-bottom:2px solid transparent;border-radius:3px;padding:6px 10px}
@@ -267,7 +262,6 @@ footer a{color:var(--muted)}
   .cat .k{display:none}
   article.entry{padding:20px 18px}
   dl.facts{grid-template-columns:1fr}
-  li.stage{grid-template-columns:1fr;gap:12px}
   .qgrid{grid-template-columns:1fr}
   ol.listing a{grid-template-columns:26px 1fr;gap:6px 10px}
   ol.listing .an{grid-column:2}
@@ -277,7 +271,6 @@ footer a{color:var(--muted)}
   .search{margin-left:0;width:100%}
   .search input{flex:1;width:auto}
   h2.name{font-size:20px}
-  .badges{margin-left:0;width:100%}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -298,6 +291,7 @@ ul.rel a:hover{color:var(--accent-ink);border-color:var(--accent);background:var
   main{padding:0}
   article.entry{break-inside:avoid;page-break-inside:avoid;border:1px solid #bbb;
     box-shadow:none;margin-bottom:14px}
+  .freq section,.freq p.bar{break-inside:avoid;page-break-inside:avoid}
   figure.fig,.sheet{break-inside:avoid;page-break-inside:avoid;overflow:visible}
   svg.plate{min-width:0}
   dl.facts{break-inside:avoid;page-break-inside:avoid}

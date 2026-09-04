@@ -45,30 +45,37 @@ def d_container():
     b+=inode(424,296,192,40,"Stripe","external system","soft","lock",fs=10.5)
     b+=arr(392,196,422,196,"events",dy=-5,fs=9,color=AMB,dash=True)
     b+=arr(520,224,520,238,None,AMB,dash=True)
-    b+=arr(392,258,422,290,"sync, 3 s",lp=0.62,dy=-4,fs=9)
+    # Payment Service — not its database — is what calls the provider
+    b+=poly([(392,214),(410,214),(410,316),(422,316)],color=MUTED)
+    b+=lbl(352,312,"HTTPS  ·  sync, 3 s timeout",9)
     b+=txt(24,362,"Technology in brackets on every box, protocol on every arrow, solid for synchronous calls and",10,MUTED)
     b+=txt(24,377,"dashed for events. Boxes with no technology on them are a picture of nouns, not an architecture.",10,MUTED)
     return svg(388,b)
 
 def d_component():
-    b=frame(24,20,592,232,"Order Service  ·  one container",ACC,dash=False)
-    b+=band(44,44,168,60,"API layer",ACC)
-    b+=inode(52,72,152,26,"OrdersController",None,"plain","network",fs=9.5,isize=12,pad=5)
-    b+=band(236,44,168,60,"Application",ACC)
-    b+=inode(244,72,152,26,"PlaceOrderHandler",None,"plain","gear",fs=9.5,isize=12,pad=5)
-    b+=band(428,44,168,60,"Infrastructure",ACC)
-    b+=inode(436,72,152,26,"OrderRepository",None,"plain","db",fs=9.5,isize=12,pad=5)
-    b+=frame(44,124,552,110,"domain  ·  no outward dependencies",GRN,dash=False)
-    b+=inode(62,150,182,44,"Order","aggregate root","grn","container",fs=11)
-    b+=inode(262,150,164,44,"OrderValidator","policy","grn","check",fs=10.5)
-    b+=inode(444,150,134,44,"OutboxPublisher","events","grn","queue",fs=10.5)
-    b+=txt(62,214,"Dependencies point inward. The domain box knows nothing about EF Core, HTTP or Kafka.",9.5,MUTED)
-    b+=arr(212,84,234,84); b+=arr(404,84,426,84)
-    b+=arr(320,104,320,148,"mutates",lp=0.5,dy=-4,fs=9)
-    b+=arr(244,172,258,172); b+=arr(426,172,442,172)
-    b+=txt(24,282,"Worth drawing only for a service whose internals are genuinely non-obvious. Draw the container",10,MUTED)
-    b+=txt(24,297,"boundary explicitly, or the level of zoom is ambiguous and the diagram starts an argument.",10,MUTED)
-    return svg(308,b)
+    b=frame(24,20,592,240,"Order Service  ·  one container",ACC,dash=False)
+    b+=band(44,44,168,66,"API layer",ACC)
+    b+=inode(52,74,152,28,"OrdersController",None,"plain","network",fs=9.5,isize=12,pad=5)
+    b+=band(236,44,168,66,"Application",ACC)
+    b+=inode(244,74,152,28,"PlaceOrderHandler",None,"plain","gear",fs=9.5,isize=12,pad=5)
+    b+=band(428,44,168,66,"Infrastructure",ACC)
+    b+=inode(436,74,152,28,"SqlOrderRepository",None,"soft","db",fs=9.5,isize=12,pad=5)
+    b+=frame(44,130,552,112,"domain  ·  depends on nothing outside itself",GRN,dash=False)
+    b+=inode(62,156,182,44,"Order","aggregate root","grn","container",fs=11)
+    b+=inode(262,156,164,44,"OrderValidator","policy","grn","check",fs=10.5)
+    b+=inode(444,156,134,44,"OrderPlaced","domain event","grn","bolt",fs=10.5)
+    b+=txt(62,222,"No EF Core, no HTTP, no Kafka in here — which is what lets the arrows above point inward.",9.5,MUTED)
+    b+=arr(212,84,234,84)
+    # the adapter depends on the port, never the reverse — so this arrow points back at
+    # Application, matching the rule the package diagram states
+    b+=arr(426,84,406,84,None,ACC)
+    b+=lbl(416,74,"port",8.4,ACC,"600")
+    b+=arr(320,110,320,154,"mutates",lp=0.5,dy=-4,fs=9)
+    b+=arr(244,178,258,178); b+=arr(426,178,442,178)
+    b+=txt(24,290,"Worth drawing only for a service whose internals are genuinely non-obvious. Draw the container",10,MUTED)
+    b+=txt(24,305,"boundary explicitly, or the level of zoom is ambiguous and the diagram starts an argument.",10,MUTED)
+    b+=txt(24,320,"Both outer bands point at Application: the adapter depends on the port, not the other way round.",10,MUTED)
+    return svg(332,b)
 
 def d_class():
     b=""
@@ -77,12 +84,13 @@ def d_class():
     b+=classbox(456,44,152,["+ productId","+ quantity : int","+ unitPrice : Money"],"OrderLine")
     b+=arr(200,80,238,80,None)
     b+=lbl(219,72,"places"); b+=lbl(206,94,"1",9.5); b+=lbl(232,94,"0..*",9.5)
-    b+='<path d="M 424 80 l 10 -7 l 10 7 l -10 7 z" fill="%s" stroke="%s" stroke-width="1.3"/>'%(ACC_S,ACC)
+    b+='<path d="M 424 80 l 10 -7 l 10 7 l -10 7 z" fill="%s" stroke="%s" stroke-width="1.3"/>'%(ACC,ACC)
     b+=arr(444,80,454,80,None,head=False)
     b+=lbl(438,66,"contains"); b+=lbl(420,98,"1",9.5); b+=lbl(452,98,"1..*",9.5)
-    b+=txt(36,190,"Filled diamond = composition: order lines cannot exist without the order,",10,MUTED)
-    b+=txt(36,205,"which is what makes Order the aggregate root.",10,MUTED)
-    return svg(222,b)
+    b+=txt(36,190,"The diamond is solid, and that is the content: composition — order lines cannot exist",10,MUTED)
+    b+=txt(36,205,"without the order, which is what makes Order the aggregate root. A hollow diamond would",10,MUTED)
+    b+=txt(36,220,"be aggregation, where the part outlives the whole. One fill decides which you meant.",10,MUTED)
+    return svg(236,b)
 
 def d_state():
     b=""
@@ -99,34 +107,47 @@ def d_state():
     b+=arr(284,126,310,126,"authorised",dy=-5,fs=9,color=GRN)
     b+=arr(408,126,434,126,"dispatch()",dy=-5,fs=9)
     b+=poly([(232,144),(232,198)],color=MUTED,label="cancel()",lx=232,ly=176,fs=9)
-    b+=poly([(360,108),(360,68)],color=FLAG,label="declined",lx=360,ly=94,fs=9)
-    b+=poly([(312,49),(256,49),(256,106)],color=MUTED,label="retry",lx=280,ly=43,fs=9)
+    # a payment is declined out of Pending — an order that reached Paid never can be
+    b+=poly([(266,108),(266,42),(310,42)],color=FLAG,label="declined",lx=288,ly=36,fs=9)
+    b+=poly([(312,58),(244,58),(244,106)],color=MUTED,label="retry",lx=278,ly=52,fs=9)
     b+=poly([(488,144),(488,198)],color=GRN,label="delivered",lx=488,ly=176,fs=9)
     b+='<circle cx="568" cy="217" r="8" fill="none" stroke="%s" stroke-width="1.5"/><circle cx="568" cy="217" r="4.5" fill="%s"/>'%(INK,INK)
     b+=arr(540,217,558,217)
-    b+=note(24,268,592,["Can a shipped order be cancelled? The diagram forces the question, and the answer is a business","rule someone has to own. A state with no exit is an entity stuck forever and a ticket nobody closes."],AMB)
-    return svg(318,b)
+    # Cancelled is an ending, so it is drawn as one
+    b+='<circle cx="140" cy="217" r="8" fill="none" stroke="%s" stroke-width="1.5"/><circle cx="140" cy="217" r="4.5" fill="%s"/>'%(INK,INK)
+    b+=arr(178,217,156,217)
+    b+=note(24,268,592,["Can a shipped order be cancelled? The diagram forces the question, and the answer is a business","rule someone has to own. Every state here either has an exit or is drawn as a final state — one","with neither is an entity stuck forever and a support ticket nobody can close."],AMB)
+    return svg(340,b)
 
 def d_sequence():
     items=[(24,108,"Client","globe","soft"),(150,108,"Gateway","shield","acc"),
            (272,116,"Order Svc","server","acc"),(410,116,"Payment","lock","vio"),
            (550,66,"Kafka","queue","amb")]
-    s,x=ilifelines(items,16,318,hh=46)
+    s,x=ilifelines(items,16,372,hh=46)
     b=s
     b+=msg(x[0],x[1],92,"POST /orders")
     b+=msg(x[1],x[2],118,"CreateOrder + idempotency-key")
     b+=selfmsg(x[2],132,"persist, status = Pending")
     b+=msg(x[2],x[3],178,"Authorise  (3 s timeout)",VIO)
-    b+='<rect x="236" y="194" width="342" height="96" rx="4" fill="%s" stroke="%s" stroke-width="1.1" stroke-dasharray="5 4"/>'%(TINT[MUTED],LINE)
+    # a real alt: three operands, each with its guard, divided by dashed separators.
+    # One undivided box with three messages in it says nothing about which is which.
+    b+='<rect x="236" y="194" width="368" height="150" rx="4" fill="%s" stroke="%s" stroke-width="1.1" stroke-dasharray="5 4"/>'%(TINT[MUTED],LINE)
     b+='<rect x="236" y="194" width="42" height="15" rx="3" fill="%s"/>'%MUTED
     b+=txt(257,205,"alt",9,"#FFFFFF","600","middle")
-    b+=msg(x[3],x[2],224,"Approved",GRN,dash=True)
+    b+=txt(288,206,"[approved]",8.8,MUTED,"600")
+    b+=msg(x[3],x[2],226,"Approved",GRN,dash=True)
     b+=msg(x[2],x[4],250,"OrderConfirmed",AMB)
-    b+=msg(x[3],x[2],278,"Declined / no response",FLAG,dash=True)
-    b+=msg(x[2],x[0],310,"201 Created  ·  or 202 if uncertain",MUTED,dash=True)
-    b+=txt(24,344,"Timeouts and retries on every network hop, an idempotency key, and at least the declined and",10,MUTED)
-    b+=txt(24,359,"timed-out branches. A timeout is not a decline — on a timeout you do not know whether it happened.",10,MUTED)
-    return svg(370,b)
+    b+='<line x1="236" y1="262" x2="604" y2="262" stroke="%s" stroke-width="1" stroke-dasharray="5 4"/>'%LINE
+    b+=txt(244,276,"[declined]",8.8,MUTED,"600")
+    b+=msg(x[3],x[2],292,"Declined  ·  order stays Pending",FLAG,dash=True)
+    b+='<line x1="236" y1="304" x2="604" y2="304" stroke="%s" stroke-width="1" stroke-dasharray="5 4"/>'%LINE
+    b+=txt(244,318,"[no response within 3 s]",8.8,MUTED,"600")
+    b+=selfmsg(x[2],322,"timer fires — outcome unknown",FLAG)
+    b+=msg(x[2],x[0],364,"201 Created  ·  402 declined  ·  202 Accepted if unknown",MUTED,dash=True)
+    b+=txt(24,398,"Timeouts and retries on every network hop, an idempotency key, and every branch drawn as its own",10,MUTED)
+    b+=txt(24,413,"operand with a guard. A timeout is not a decline — on a timeout you do not know whether it happened,",10,MUTED)
+    b+=txt(24,428,"which is why the third branch returns 202 and not 402.",10,MUTED)
+    return svg(440,b)
 
 def d_dfd():
     b=""
@@ -158,7 +179,7 @@ def d_erd():
     b+=arr(404,78,450,78,None,head=False)
     b+=lbl(427,72,"contains"); b+=lbl(410,92,"1",9.5); b+=lbl(444,92,"1..N",9.5)
     b+=arr(320,148,320,174,None,head=False)
-    b+=lbl(352,164,"settled by"); b+=lbl(310,160,"0..1",9.5)
+    b+=lbl(352,164,"settled by"); b+=lbl(308,156,"1",9.5); b+=lbl(308,172,"0..1",9.5)
     b+=note(24,248,592,["unit_price is stored on the line, not read from the product — a price change must not rewrite","history. Snapshot or reference is the decision an ERD forces you to make, quietly, once."])
     b+=txt(24,330,"Keys, cardinality on both ends, and — in a service estate — which service owns each entity. One",10,MUTED)
     b+=txt(24,345,"diagram of eighty tables helps nobody: split by bounded context and link at the boundaries.",10,MUTED)
@@ -198,39 +219,50 @@ def d_deploy():
     return svg(302,b)
 
 def d_vpc():
-    b=frame(24,26,592,238,"VPC  ·  10.0.0.0/16",ACC)
-    b+=frame(44,52,552,66,"public subnet")
-    b+=inode(60,68,168,36,"NAT gateway",None,"plain","network",fs=10.5)
-    b+=inode(240,68,168,36,"Application LB",None,"acc","balancer",fs=10.5)
-    b+=inode(420,68,160,36,"Bastion / SSM",None,"soft","terminal",fs=10.5)
-    b+=frame(44,132,552,60,"private app subnet")
-    b+=inode(60,146,258,36,"Order Service  :8080",None,"plain","server",fs=10.5)
-    b+=inode(330,146,250,36,"Payment Service  :8080",None,"plain","server",fs=10.5)
-    b+=frame(44,206,552,48,"private data subnet")
-    b+=inode(60,216,168,30,"RDS  :5432",None,"plain","db",fs=10,isize=14,pad=8)
-    b+=inode(240,216,168,30,"Redis  :6379",None,"plain","bolt",fs=10,isize=14,pad=8)
-    b+=inode(420,216,160,30,"S3 endpoint",None,"soft","archive",fs=10,isize=14,pad=8)
-    b+=arr(305,104,305,144,"443",lp=0.5,dy=-2,fs=9)
-    b+=arr(190,182,190,214,"5432",lp=0.5,dy=-2,fs=9)
-    b+=inode(250,0,142,24,"Internet gateway",None,"soft","globe",fs=9.5,isize=13,pad=6)
-    b+=arr(321,24,321,66,None)
-    return svg(276,b)
+    b=frame(24,44,592,238,"VPC  ·  10.0.0.0/16",ACC)
+    b+=frame(44,70,552,66,"public subnet  ·  10.0.0.0/20")
+    b+=inode(60,86,168,36,"NAT gateway",None,"plain","network",fs=10.5)
+    b+=inode(240,86,168,36,"Application LB",None,"acc","balancer",fs=10.5)
+    b+=inode(420,86,160,36,"Bastion / SSM",None,"soft","terminal",fs=10.5)
+    b+=frame(44,150,552,60,"private app subnet  ·  10.0.16.0/20")
+    b+=inode(60,164,258,36,"Order Service  :8080",None,"plain","server",fs=10.5)
+    b+=inode(330,164,250,36,"Payment Service  :8080",None,"plain","server",fs=10.5)
+    b+=frame(44,224,552,48,"private data subnet  ·  10.0.32.0/20")
+    b+=inode(60,234,168,30,"RDS  :5432",None,"plain","db",fs=10,isize=14,pad=8)
+    b+=inode(240,234,168,30,"Redis  :6379",None,"plain","bolt",fs=10,isize=14,pad=8)
+    b+=inode(420,234,160,30,"S3 endpoint",None,"soft","archive",fs=10,isize=14,pad=8)
+    b+=arr(305,122,305,162,"443",lp=0.5,dy=-2,fs=9)
+    b+=arr(190,200,190,232,"5432",lp=0.5,dy=-2,fs=9)
+    b+=inode(250,10,142,24,"Internet gateway",None,"soft","globe",fs=9.5,isize=13,pad=6)
+    b+=arr(321,34,321,84,None)
+    # the egress path, which is the half of a VPC diagram people leave out
+    b+=poly([(100,164),(100,124)],color=AMB,label="0.0.0.0/0",lx=100,ly=144,fs=8.6)
+    b+=poly([(144,86),(144,58),(280,58),(280,36)],color=AMB,label="egress via NAT",lx=212,ly=54,fs=8.6)
+    b+=txt(24,300,"CIDR on every subnet, ports on every arrow, and the egress path drawn — a private subnet with",10,MUTED)
+    b+=txt(24,315,"no NAT route is a service that cannot reach an OS mirror, and you find out at build time.",10,MUTED)
+    b+=txt(24,330,"Draw actual reachability, not intended: generate it from your IaC wherever you can.",10,MUTED)
+    return svg(342,b)
 
 def d_oauth():
     items=[(24,116,"Browser / SPA","globe","plain"),(180,116,"Auth server","key","acc"),
            (346,116,"API gateway","shield","plain"),(500,116,"Order Svc","server","plain")]
-    s,x=ilifelines(items,16,286,hh=48)
+    s,x=ilifelines(items,16,344,hh=48)
     b=s
-    b+=selfmsg(x[0],90,"generate code_verifier + challenge")
-    b+=msg(x[0],x[1],132,"/authorize  (code_challenge, scope)")
-    b+=msg(x[1],x[0],154,"redirect with authorization_code",MUTED,dash=True)
-    b+=msg(x[0],x[1],180,"/token  (code, code_verifier)",ACC)
-    b+=msg(x[1],x[0],202,"id_token + access_token",ACC,dash=True)
-    b+=msg(x[0],x[2],230,"GET /orders   Bearer …")
-    b+=selfmsg(x[2],244,"verify sig, iss, aud, exp, scope")
-    b+=msg(x[2],x[3],282,"forward + propagated identity")
-    b+=txt(24,312,"The gateway authenticates. The service still authorises — trusting the edge alone is how tenant-isolation bugs happen.",10,MUTED)
-    return svg(324,b)
+    b+=selfmsg(x[0],90,"generate code_verifier, challenge, state")
+    b+=msg(x[0],x[1],132,"/authorize  (code_challenge, state, scope)")
+    b+=msg(x[1],x[0],154,"redirect  (authorization_code, state)",MUTED,dash=True)
+    b+=selfmsg(x[0],168,"state matches? — CSRF check")
+    b+=msg(x[0],x[1],206,"/token  (code, code_verifier)",ACC)
+    b+=msg(x[1],x[0],228,"access 15 min + refresh 8 h + id_token",ACC,dash=True)
+    b+=msg(x[0],x[2],256,"GET /orders   Bearer …")
+    b+=selfmsg(x[2],270,"verify sig, iss, aud, exp, scope")
+    b+=msg(x[2],x[3],308,"forward + propagated identity")
+    b+=msg(x[0],x[1],336,"/token  (grant_type=refresh_token)  at 15 min",AMB)
+    b+=txt(24,374,"PKCE because the SPA is a public client and cannot keep a secret; state because the redirect",10,MUTED)
+    b+=txt(24,389,"is attacker-reachable; short access tokens with a longer refresh because revocation has to mean",10,MUTED)
+    b+=txt(24,404,"something. The gateway authenticates — the service still authorises, or one compromised edge",10,MUTED)
+    b+=txt(24,419,"rule becomes a cross-tenant read.",10,MUTED)
+    return svg(431,b)
 
 def d_trust():
     b=frame(24,20,592,214,"untrusted  ·  internet",FLAG)
@@ -268,25 +300,36 @@ def d_context_map():
 
 def d_storming():
     b=""
-    cols=[("Actor","amb",24),("Command","acc",128),("Aggregate","soft",232),("Event","amb",336),("Policy","vio",440),("Read model",  "grn",544)]
+    # one colour per sticky type and no two the same — the colour vocabulary IS the notation,
+    # so an actor that looks like an event defeats the whole exercise
+    cols=[("Actor","soft",24),("Command","acc",128),("Aggregate","plain",232),
+          ("Event","amb",336),("Policy","vio",440),("Read model","grn",544)]
     names=["Customer","Place order","Order","OrderPlaced","When placed,\nreserve stock","Order summary"]
     for i,(cap,st,x) in enumerate(cols):
-        b+=node(x,60,92,64,names[i].split("\n")[0],(names[i].split("\n")[1] if "\n" in names[i] else None),st,fs=10.5)
-        b+=txt(x+46,50,cap.upper(),8.6,MUTED,"600","middle")
-        if i<len(cols)-1: b+=arr(x+92,92,x+102,92)
-    b+=txt(24,158,"Orange = domain event (past tense). Blue = command. Purple = policy (“whenever X, then Y”).",10,MUTED)
-    b+=txt(24,173,"Run it on a wall with the business present. The output isn’t the wall — it’s the contexts you spot",10,MUTED)
-    b+=txt(24,188,"where the language changes.",10,MUTED)
-    return svg(200,b)
+        b+=node(x,74,92,64,names[i].split("\n")[0],(names[i].split("\n")[1] if "\n" in names[i] else None),st,fs=10.5)
+        b+=txt(x+46,64,cap.upper(),8.6,MUTED,"600","middle")
+        if i<len(cols)-1: b+=arr(x+92,106,x+102,106)
+    # the hot spot — the sticky that records that the room could not agree
+    b+=node(336,20,196,30,"Does stock reserve before payment?",None,"flag",fs=8.6)
+    b+=txt(300,38,"HOT SPOT",8.6,FLAG,"600","end")
+    b+=poly([(392,50),(392,72)],color=FLAG,dash=True)
+    # the timeline the wall is built along
+    b+='<line x1="24" y1="162" x2="612" y2="162" stroke="%s" stroke-width="1.4" marker-end="url(#mkm)"/>'%MUTED
+    b+=txt(24,178,"time — events in the past tense, left to right, before anyone is allowed to discuss a solution",9,MUTED)
+    b+=txt(24,208,"Seven colours and they are the whole notation: grey actor, blue command, white aggregate, orange",10,MUTED)
+    b+=txt(24,223,"event, purple policy, green read model, red hot spot. No two the same, or the wall stops meaning",10,MUTED)
+    b+=txt(24,238,"anything. Run it with the business in the room — the output isn’t the wall, it’s the contexts you",10,MUTED)
+    b+=txt(24,253,"spot where the language changes.",10,MUTED)
+    return svg(265,b)
 
 def d_topology():
     b=""
     b+=band(24,20,180,236,"publishers",ACC,fs=10)
-    pubs=[("Order Service","OrderPlaced",56),("Payment Service","PaymentAuthorised",120),
-          ("Inventory","StockReserved",184)]
+    pubs=[("Order Service","OrderPlaced v3",56),("Payment Service","PaymentAuthorised v2",120),
+          ("Inventory","StockReserved v1",184)]
     for n,ev,y in pubs:
         b+=inode(36,y,156,52,n,ev,"acc","server",fs=10)
-    b+=inode(238,110,164,58,"Kafka","3 brokers · registry","amb","queue",fs=11.5)
+    b+=inode(238,110,164,58,"Kafka","3 brokers + registry","amb","queue",fs=11.5)
     b+=band(436,20,180,236,"consumers",GRN,fs=10)
     cons=[("Shipping Service","OrderPlaced v3",56),("Notification Service","OrderPlaced v3",120),
           ("Analytics sink","all events",184)]
@@ -294,8 +337,8 @@ def d_topology():
         b+=inode(448,y,156,52,n,ev,"grn","server",fs=10)
     for y in (82,146,210): b+=arr(204,y,236,y-(y-139)*0.35,None,AMB)
     for y in (82,146,210): b+=arr(404,139+(y-139)*0.35,434,y,None,AMB)
-    b+=txt(320,186,"one publish,",9,MUTED,anchor="middle")
-    b+=txt(320,198,"three consumers",9,MUTED,anchor="middle")
+    b+=txt(320,186,"key = orderId",9,MUTED,anchor="middle")
+    b+=txt(320,198,"one publish → three consumers",9,MUTED,anchor="middle")
     b+=note(24,272,592,["The question it answers: if I change this event’s schema, who breaks? The fan-out on the right","is the blast radius, and the registry is what stops a breaking change reaching it."])
     b+=txt(24,354,"Name events as facts, in the past tense. OrderPlaced is a fact; ShipOrder is an instruction to one",10,MUTED)
     b+=txt(24,369,"handler, and the moment you name it that way you have built a queue with extra steps.",10,MUTED)
@@ -303,7 +346,7 @@ def d_topology():
 
 def d_saga():
     b=""
-    b+=band(24,20,592,110,"forward path",GRN,fs=10)
+    b+=band(24,20,592,110,"forward path  ·  choreographed: each step reacts to the last event",GRN,fs=10)
     steps=[("Order","placed",40,"grn","check"),("Payment","authorised",188,"grn","check"),
            ("Inventory","rejected",336,"flag","warn"),("Shipping","never reached",484,"soft","clock")]
     for n,s2,x,st,ic in steps:
@@ -314,10 +357,13 @@ def d_saga():
     b+=inode(240,188,206,48,"Refund payment","PaymentRefunded","flag","sync",fs=10.5)
     b+=arr(238,212,212,212,None,FLAG)
     b+=poly([(394,106),(394,132),(343,132),(343,186)],color=FLAG,label="StockRejected",lx=430,ly=128,fs=9)
+    # the branch for a step that simply never answers — not the same as one that fails
+    b+=poly([(246,106),(246,126),(120,126),(120,186)],color=AMB,label="no answer in 30 s",lx=180,ly=120,fs=8.8)
     b+=note(486,150,130,["There is no","rollback across","services — only a","second business","transaction that","undoes the first."],FLAG)
-    b+=txt(24,296,"A compensation for every forward step, and a timeout branch for any step that may never answer.",10,MUTED)
-    b+=txt(24,311,"A saga diagram with no compensation arrows is not a saga, it is a wish.",10,MUTED)
-    return svg(322,b)
+    b+=txt(24,296,"A compensation for every forward step, and a timeout branch for any step that may never answer —",10,MUTED)
+    b+=txt(24,311,"silence is not failure, and a saga that waits forever for one is an order stuck in limbo. A saga",10,MUTED)
+    b+=txt(24,326,"diagram with no compensation arrows is not a saga, it is a wish.",10,MUTED)
+    return svg(338,b)
 
 def d_cqrs():
     b=""
@@ -327,13 +373,17 @@ def d_cqrs():
     b+=cyl(40,182,254,48,"Write store","normalised","acc")
     b+=arr(167,112,167,122); b+=arr(167,168,167,180)
     b+=frame(330,44,286,196,"read side  ·  one model per query shape",GRN,dash=False)
+    # events feed the projector, the projector writes the store, the API reads it.
+    # Stacked bottom-up so the chain reads in the direction the data actually flows.
     b+=inode(346,72,254,40,"Query API","GET /orders?…","grn","search",fs=10.5)
-    b+=inode(346,124,254,44,"Projector","denormalises on event","grn","sync",fs=10.5)
-    b+=cyl(346,182,254,48,"Read store","query-shaped","grn")
-    b+=arr(473,168,473,180); b+=arr(473,112,473,122,None,GRN,head=True)
+    b+=cyl(346,128,254,48,"Read store","query-shaped","grn")
+    b+=inode(346,190,254,44,"Projector","denormalises on event","grn","sync",fs=10.5)
+    b+=arr(473,188,473,178,None,GRN)
+    b+=arr(473,126,473,114,None,GRN)
     b+=inode(226,258,188,40,"Kafka  ·  domain events",None,"amb","queue",fs=10.5)
     b+=poly([(167,230),(167,278),(224,278)],color=AMB)
-    b+=poly([(416,278),(473,278),(473,232)],color=AMB)
+    b+=poly([(416,278),(473,278),(473,238)],color=AMB)
+    b+=lbl(545,268,"p99 lag 1.4 s",9,AMB,"600")
     b+=note(24,314,592,["The read model is eventually consistent. Put a number on it — “under 2 s at p99” — or the","product team will assume zero and design a UI that lies to the customer."],FLAG)
     b+=txt(24,396,"Sold as a scaling pattern; bought as a consistency problem. Adopt it per context, never estate-wide.",10,MUTED)
     return svg(408,b)
@@ -363,11 +413,18 @@ def d_mesh():
         b+=node(x+14,120,132,32,n,None,"plain",fs=10.5)
         b+=node(x+14,160,132,24,"sidecar proxy",None,"soft",fs=9.5)
         b+=arr(x+80,62,x+80,102,None,ACC,dash=True)
+    b+=lbl(320,84,"policy + certs pushed — never on the request path",8.6,ACC,"600")
     b+=arr(190,172,238,172,"mTLS",dy=-5,fs=9)
     b+=arr(400,172,448,172,"mTLS",dy=-5,fs=9)
-    b+=txt(30,222,"The mesh gives you mTLS, retries, timeouts and traces without touching application code —",10,MUTED)
-    b+=txt(30,237,"at the price of a second control plane to operate and debug.",10,MUTED)
-    return svg(250,b)
+    # which policies are enforced where — the stated must-show, and the thing that
+    # decides whether a control-plane outage takes traffic down with it
+    b+=node(24,212,286,44,"Enforced in the sidecar","mTLS, retries, timeouts, outlier ejection","grn",fs=10)
+    b+=node(330,212,286,44,"Decided in the control plane","who may call whom, cert issue and rotation","acc",fs=10)
+    b+=txt(30,290,"The mesh gives you mTLS, retries, timeouts and traces without touching application code — at",10,MUTED)
+    b+=txt(30,305,"the price of a second control plane to operate and debug. Say which policies live where: the",10,MUTED)
+    b+=txt(30,320,"decision is central, the enforcement is in every sidecar, and nothing sits on the request path",10,MUTED)
+    b+=txt(30,335,"that a control-plane outage can break. Adopting this for three services is all cost, no benefit.",10,MUTED)
+    return svg(347,b)
 
 def d_swimlane():
     b=""
@@ -387,7 +444,10 @@ def d_swimlane():
     b+=poly([(360,134),(360,168),(203,168),(203,184)],color=MUTED,label="no",lx=280,ly=163,fs=9)
     b+=arr(426,112,476,103,"yes",dy=-5,fs=9)
     b+=poly([(278,204),(544,204),(544,154)],color=AMB,label="approved",lx=420,ly=199,fs=9)
-    b+=poly([(544,128),(544,96),(385,96),(385,254)],color=MUTED)
+    # Issue label → Inspect item, routed round the outside of both boxes rather than
+    # straight through them
+    b+=poly([(478,103),(430,103),(430,238),(385,238),(385,252)],color=MUTED,
+            label="item comes back",lx=430,ly=250,fs=8.8)
     b+=poly([(460,274),(566,274),(566,154)],color=GRN,label="item OK",lx=512,ly=269,fs=9)
     b+=txt(24,330,"Every lane crossing is a handoff — a queue, a delay, a place work gets lost. Count them, then",10,MUTED)
     b+=txt(24,345,"label the diagram as-is or to-be, or everyone will read your to-be as a description of today.",10,MUTED)
@@ -396,27 +456,36 @@ def d_swimlane():
 def d_bpmn():
     b=""
     b+='<circle cx="44" cy="86" r="15" fill="#FFFFFF" stroke="%s" stroke-width="1.5"/>'%MUTED
-    b+=txt(44,120,"start",9,MUTED,anchor="middle")
+    b+=txt(44,118,"start",9,MUTED,anchor="middle")
     b+=node(94,64,124,44,"Receive claim",None,"plain",fs=11)
-    b+='<path d="M 296 86 l 30 -30 l 30 30 l -30 30 z" fill="%s" stroke="%s" stroke-width="1.4"/>'%(ACC_S,ACC)
-    b+=txt(326,91,"×",16,ACC,"600",anchor="middle")
-    b+=txt(326,138,"exclusive gateway",9,MUTED,anchor="middle")
-    b+=node(238,20,116,32,"Auto-assess",None,"plain",fs=10.5)
-    b+=node(392,64,124,44,"Manual review",None,"amb",fs=11)
-    b+='<circle cx="404" cy="108" r="9" fill="#FFFFFF" stroke="%s" stroke-width="1.3"/>'%AMB
-    b+='<path d="M 404 103 v 5 l 3 3" stroke="%s" stroke-width="1.2" fill="none"/>'%AMB
-    b+=txt(404,132,"timer: escalate after 3 days",9,AMB,anchor="middle")
-    b+='<circle cx="576" cy="86" r="15" fill="#FFFFFF" stroke="%s" stroke-width="3"/>'%INK
-    b+=txt(576,120,"end",9,MUTED,anchor="middle")
+    b+='<path d="M 250 86 l 30 -30 l 30 30 l -30 30 z" fill="%s" stroke="%s" stroke-width="1.4"/>'%(ACC_S,ACC)
+    b+=txt(280,91,"×",16,ACC,"600",anchor="middle")
+    b+=txt(280,134,"exclusive gateway",9,MUTED,anchor="middle")
+    b+=node(346,16,130,36,"Auto-assess",None,"plain",fs=10.5)
+    b+=node(346,96,130,44,"Manual review",None,"amb",fs=11)
+    # interrupting timer boundary event — a double circle sitting on the task border,
+    # and it has to lead somewhere or it is decoration
+    b+='<circle cx="366" cy="140" r="9.5" fill="#FFFFFF" stroke="%s" stroke-width="1.3"/>'%AMB
+    b+='<circle cx="366" cy="140" r="6.5" fill="none" stroke="%s" stroke-width="1"/>'%AMB
+    b+='<path d="M 366 136 v 4.5 l 3 2" stroke="%s" stroke-width="1.1" fill="none"/>'%AMB
+    b+=txt(382,158,"timer · escalate after 3 days",8.8,AMB,"600")
+    b+=node(250,194,150,36,"Escalate to senior",None,"plain",fs=10.5)
+    b+='<circle cx="452" cy="212" r="15" fill="#FFFFFF" stroke="%s" stroke-width="3"/>'%INK
+    b+=txt(452,244,"end · escalated",9,MUTED,anchor="middle")
+    b+='<circle cx="576" cy="70" r="15" fill="#FFFFFF" stroke="%s" stroke-width="3"/>'%INK
+    b+=txt(576,102,"end · settled",9,MUTED,anchor="middle")
     b+=arr(59,86,92,86)
-    b+=arr(218,86,294,86)
-    b+=poly([(326,56),(326,36),(360,36)],color=MUTED,label="simple",lx=340,ly=30,fs=9)
-    b+=arr(356,86,390,86,"complex",dy=-5,fs=9)
-    b+=poly([(354,36),(546,36),(546,80)],color=MUTED)
-    b+=arr(516,86,559,86)
-    b+=txt(24,182,"BPMN earns its cost when the diagram is executable — handed to Camunda or Temporal,",10,MUTED)
-    b+=txt(24,197,"not printed.",10,MUTED)
-    return svg(210,b)
+    b+=arr(218,86,248,86)
+    b+=poly([(280,56),(280,34),(344,34)],color=MUTED,label="simple",lx=306,ly=28,fs=9)
+    b+=poly([(310,86),(324,86),(324,118),(344,118)],color=MUTED,label="complex",lx=322,ly=106,fs=9)
+    b+=poly([(476,34),(576,34),(576,53)],color=MUTED)
+    b+=poly([(476,118),(540,118),(540,70),(559,70)],color=MUTED)
+    b+=poly([(366,149),(366,192)],color=AMB)
+    b+=arr(400,212,435,212)
+    b+=txt(24,290,"BPMN earns its formality only when the model is executable — handed to Camunda or Temporal,",10,MUTED)
+    b+=txt(24,305,"not printed. Six symbols carry most real models: start, task, exclusive gateway, boundary timer",10,MUTED)
+    b+=txt(24,320,"and an end event per distinct outcome — and every path has to reach one of them.",10,MUTED)
+    return svg(332,b)
 
 def d_pipeline():
     b=""
@@ -461,17 +530,19 @@ def d_release():
     b+=inode(190,198,180,30,"Green  ·  idle, warmed",None,"soft","container",fs=10,isize=13,pad=6)
     b+=arr(164,180,188,172)
     b+=arr(164,194,188,212,None,MUTED,dash=True)
-    b+=poly([(370,213),(450,213),(450,173),(372,173)],color=ACC,label="cut over",lx=488,ly=196,fs=9)
-    b+=txt(24,268,"Both strategies run two app versions against one schema — so migrations must expand,",10,MUTED)
-    b+=txt(24,283,"backfill, then contract in a later release. That is the step teams forget.",10,MUTED)
-    return svg(294,b)
+    # cut over moves traffic TO green, so the arrowhead belongs on green
+    b+=poly([(372,173),(450,173),(450,213),(370,213)],color=ACC,label="cut over — one router change",lx=430,ly=248,fs=9)
+    b+=txt(24,272,"Both strategies run two app versions against one schema — so migrations must expand,",10,MUTED)
+    b+=txt(24,287,"backfill, then contract in a later release. That is the step teams forget, and it is the one",10,MUTED)
+    b+=txt(24,302,"that makes the rollback in either strategy actually work.",10,MUTED)
+    return svg(314,b)
 
 def d_observability():
     b=""
     b+=inode(24,86,140,52,"Services","OTel SDK","acc","server",fs=11)
     b+=inode(180,86,140,52,"Collector","agent + gateway","plain","funnel",fs=11)
-    b+=inode(356,20,150,40,"Loki","30 d hot","plain","log",fs=10.5)
-    b+=inode(356,92,150,40,"Prometheus","15 s, 13 mo","plain","chart",fs=10.5)
+    b+=inode(356,20,150,40,"Loki","30 d · 1 TB/day cap","plain","log",fs=10.5)
+    b+=inode(356,92,150,40,"Prometheus","15 s · 13 mo · 50 k","plain","chart",fs=10.5)
     b+=inode(356,164,150,40,"Tempo","10 % tail sample","plain","search",fs=10.5)
     b+=inode(536,52,80,40,"Grafana",None,"plain","eye",fs=10,isize=12,pad=5)
     b+=inode(536,132,80,40,"PagerDuty",None,"flag","bell",fs=10,isize=12,pad=5)
@@ -482,9 +553,11 @@ def d_observability():
     b+='<line x1="514" y1="40" x2="514" y2="184" stroke="%s" stroke-width="1.2"/>'%LINE
     for yy in (40,112,184): b+=arr(506,yy,513,yy,None,MUTED,head=False)
     b+=arr(514,72,534,72); b+=arr(514,152,534,152)
-    b+=txt(24,240,"Metrics alert you → traces localise it → logs explain it. A pipeline that doesn’t connect all",10,MUTED)
-    b+=txt(24,255,"three leaves a gap someone falls into mid-incident. Propagate one trace_id everywhere.",10,MUTED)
-    return svg(266,b)
+    b+=txt(24,240,"One trace_id, set at the edge and propagated through every hop including the broker — it is the",10,MUTED)
+    b+=txt(24,255,"only thing that joins the three signals into one investigation. Metrics alert you → traces localise",10,MUTED)
+    b+=txt(24,270,"it → logs explain it. Retention and the cardinality cap are on the boxes because they are what",10,MUTED)
+    b+=txt(24,285,"this costs; the collector is the architectural decision, because it lets you change the rest.",10,MUTED)
+    return svg(297,b)
 
 def d_breaker():
     b=""
@@ -537,60 +610,74 @@ def d_tree():
 
 def d_matrix():
     b=""
-    cols=["Option","Delivery speed","Op cost","Team fit","Scale ceiling","Reversibility"]
-    xs=[24,164,286,378,470,566]
-    b+='<rect x="24" y="30" width="592" height="30" fill="%s" stroke="%s" stroke-width="1.2"/>'%(ACC_S,ACC)
-    for i,c in enumerate(cols):
-        b+=txt(xs[i]+8,50,c,9.6,"#123F5C","600")
-    rows=[["Monolith","Fast","Low","High","Medium","High"],
-          ["Modular monolith","Fast","Low","High","High","High"],
-          ["Microservices","Slow at first","High","Needs platform","Very high","Low"]]
-    fills={"High":GRN,"Fast":GRN,"Very high":GRN,"Low":FLAG,"Slow at first":FLAG,"Needs platform":AMB,"Medium":AMB}
+    # weights above the columns, scores inside, total on the right — a comparison table
+    # with neither weights nor scores is not a decision matrix
+    cols=[("Option",None),("Delivery speed","weight 3"),("Op cost","weight 2"),("Team fit","weight 3"),
+          ("Scale ceiling","weight 1"),("Reversibility","weight 3"),("Total","/ 60")]
+    xs=[24,150,252,332,414,498,570]
+    b+=txt(24,22,"WEIGHTS AGREED BEFORE ANY OPTION WAS SCORED",9,ACC,"600")
+    b+='<rect x="24" y="30" width="592" height="42" fill="%s" stroke="%s" stroke-width="1.2"/>'%(ACC_S,ACC)
+    for i,(c,w) in enumerate(cols):
+        b+=txt(xs[i]+8,48,c,9.4,"#123F5C","600")
+        if w: b+=txt(xs[i]+8,63,w,8.6,ACC,"500")
+    rows=[["Monolith","5","5","5","2","4","54"],
+          ["Modular monolith","4","5","5","4","5","56"],
+          ["Microservices","2","2","2","5","1","24"]]
     for r,row in enumerate(rows):
-        y=60+r*34
-        b+='<rect x="24" y="%g" width="592" height="34" fill="%s" stroke="%s" stroke-width="1.1"/>'%(y,"#FFFFFF" if r%2 else "#F7F8F9",LINE)
+        y=72+r*32; win=(r==1)
+        b+='<rect x="24" y="%g" width="592" height="32" fill="%s" stroke="%s" stroke-width="1.1"/>'%(
+            y,(GRN_S if win else ("#FFFFFF" if r%2 else "#F7F8F9")),(GRN if win else LINE))
         for i,v in enumerate(row):
-            col=INK if i==0 else fills.get(v,MUTED)
-            w="600" if i==0 else "500"
-            if i>0 and (i==2 or i==5):
-                col = {"Low":(GRN if i==2 else FLAG),"High":(FLAG if i==2 else GRN)}.get(v,col)
-            b+=txt(xs[i]+8,y+21,v,10,col,w)
-    b+=txt(24,190,"Two rules keep it honest: weight the criteria before scoring the options, and include",10,MUTED)
-    b+=txt(24,205,"reversibility — cheap-to-reverse decisions should be made fast and alone.",10,MUTED)
-    return svg(216,b)
+            if i==0:   colr,wt=INK,("700" if win else "600")
+            elif i==6: colr,wt=(GRN if win else MUTED),"700"
+            else:      colr,wt={"5":GRN,"4":GRN,"3":MUTED,"2":AMB,"1":FLAG}.get(v,MUTED),"600"
+            b+=txt(xs[i]+8,y+20,v,10,colr,wt)
+    b+=txt(24,192,"Scores are 1–5, multiplied by the weight above each column. The weights were fixed first, which",10,MUTED)
+    b+=txt(24,207,"is the only rule that keeps this honest — weight after scoring and the matrix documents a decision",10,MUTED)
+    b+=txt(24,222,"you had already made. Reversibility is carried as a criterion and weighted as heavily as delivery",10,MUTED)
+    b+=txt(24,237,"speed: a cheap-to-reverse choice should be made fast, alone, and revisited rather than debated.",10,MUTED)
+    return svg(249,b)
 
 def d_rag():
     b=""
     b+=txt(24,26,"INGESTION",9.5,ACC,"600")
     b+=node(24,38,110,42,"Source docs",None,"plain",fs=10.5)
-    b+=node(158,38,110,42,"Chunk + metadata",None,"plain",fs=10.5)
+    b+=node(158,38,110,42,"Chunk + metadata","+ ACL per chunk","plain",fs=10)
     b+=node(292,38,110,42,"Embed",None,"plain",fs=10.5)
-    b+=cyl(426,32,140,52,"Vector store","+ ACL filters","acc")
+    b+=cyl(426,32,140,52,"Vector store","chunks + ACL","acc")
     b+=arr(134,59,156,59); b+=arr(268,59,290,59); b+=arr(402,59,424,59)
-    b+='<line x1="24" y1="106" x2="616" y2="106" stroke="%s" stroke-width="1"/>'%LINE
-    b+=txt(24,132,"QUERY",9.5,ACC,"600")
-    b+=node(24,144,104,42,"Question",None,"plain",fs=10.5)
-    b+=node(152,144,104,42,"Embed query",None,"plain",fs=10.5)
-    b+=node(280,144,96,42,"Re-rank",None,"plain",fs=10.5)
-    b+=node(400,144,110,42,"Prompt + cites",None,"plain",fs=10.5)
-    b+=node(534,144,82,42,"LLM",None,"vio",fs=11)
-    b+=arr(128,165,150,165); b+=arr(256,165,278,165); b+=arr(376,165,398,165); b+=arr(510,165,532,165)
-    b+=poly([(496,84),(496,116),(328,116),(328,142)],color=ACC,label="top-k, filtered by user",lx=412,ly=110,fs=9)
-    b+=node(400,214,216,36,"Guardrails + grounding check",None,"amb",fs=10.5)
-    b+=poly([(575,186),(575,212)],color=MUTED)
-    b+=txt(24,240,"Apply access control at retrieval,",10,MUTED)
-    b+=txt(24,255,"never in the prompt.",10,MUTED)
-    return svg(268,b)
+    b+=txt(24,100,"refresh: nightly full, 5-minute delta on change",9,MUTED,style="i")
+    b+='<line x1="24" y1="112" x2="616" y2="112" stroke="%s" stroke-width="1"/>'%LINE
+    b+=txt(24,152,"QUERY",9.5,ACC,"600")
+    b+=node(24,164,104,42,"Question",None,"plain",fs=10.5)
+    b+=node(152,164,104,42,"Embed query",None,"plain",fs=10.5)
+    b+=node(280,164,96,42,"Re-rank",None,"plain",fs=10.5)
+    b+=node(400,164,110,42,"Prompt + cites",None,"plain",fs=10.5)
+    b+=node(534,164,82,42,"LLM",None,"vio",fs=11)
+    b+=arr(128,185,150,185); b+=arr(256,185,278,185); b+=arr(376,185,398,185); b+=arr(510,185,532,185)
+    # the round trip that makes it retrieval-augmented: the query has to reach the store,
+    # and the permission filter is applied there — not in the prompt
+    b+=poly([(204,164),(204,128),(470,128),(470,88)],color=ACC,
+            label="k-NN search, filtered by this user’s ACL",lx=330,ly=124,fs=9)
+    b+=poly([(524,88),(524,150),(328,150),(328,162)],color=ACC,label="top-k chunks",lx=390,ly=146,fs=9)
+    b+=node(24,240,246,38,"No relevant hit → say so","never let the model fill the gap","flag",fs=10)
+    b+=node(290,240,326,38,"Guardrails + grounding check","every claim traceable to a cited chunk","amb",fs=10)
+    b+=poly([(328,206),(328,222),(147,222),(147,238)],color=FLAG)
+    b+=poly([(575,206),(575,222),(453,222),(453,238)],color=AMB)
+    b+=txt(24,306,"Two paths, one store. Apply access control at retrieval, per user, against the chunk’s own",10,MUTED)
+    b+=txt(24,321,"ACL — never in the prompt, where the model will happily quote a document the asker cannot",10,MUTED)
+    b+=txt(24,336,"open. And decide up front what happens when nothing relevant comes back.",10,MUTED)
+    return svg(348,b)
 
 def d_serverless():
     b=""
     b+=node(24,60,110,44,"API Gateway",None,"acc",fs=10.5)
-    b+=node(160,60,120,44,"createOrder","λ · 512 MB",fs=10.5)
+    b+=node(160,60,120,44,"createOrder","λ · 512 MB · max 50",fs=10.5)
     b+=cyl(306,54,124,52,"DynamoDB","orders")
-    b+=node(456,20,160,40,"projectReadModel","λ · stream trigger",fs=10.5)
+    b+=node(456,20,160,40,"projectReadModel","λ · stream · max 2",fs=10.5)
     b+=node(456,86,160,40,"EventBridge",None,"amb",fs=10.5)
     b+=node(306,152,124,40,"SQS",None,"amb",fs=10.5)
-    b+=node(160,152,120,40,"fulfil","λ · batch 10",fs=10.5)
+    b+=node(160,152,120,40,"fulfil","λ · batch 10 · max 5",fs=10.5)
     b+=node(24,152,110,40,"DLQ","alarmed","flag",fs=10.5)
     b+=arr(134,82,158,82,"HTTP",dy=-5,fs=9)
     b+=arr(280,82,304,82)
@@ -599,9 +686,10 @@ def d_serverless():
     b+=poly([(536,126),(536,172),(432,172)],color=AMB,label="events",lx=520,ly=166,fs=9)
     b+=arr(304,172,282,172)
     b+=arr(158,172,136,172,"after 3 retries",lp=0.5,dy=-5,fs=9,color=FLAG)
-    b+=txt(24,226,"Label the trigger on every arrow — HTTP, stream, schedule, event — plus concurrency limits",10,MUTED)
-    b+=txt(24,241,"and the dead-letter queue. Those are the parts a serverless diagram exists to show.",10,MUTED)
-    return svg(252,b)
+    b+=txt(24,226,"Label the trigger on every arrow — HTTP, stream, schedule, event — plus the reserved",10,MUTED)
+    b+=txt(24,241,"concurrency cap and the dead-letter queue. Those are the parts a serverless diagram exists to",10,MUTED)
+    b+=txt(24,256,"show: without the cap, one traffic spike opens 3 000 connections to a database sized for 200.",10,MUTED)
+    return svg(268,b)
 
 
 # ==================================================================
@@ -813,10 +901,12 @@ def d_package():
     b+='<path d="M 318 186 v 34" stroke="%s" stroke-width="1.3" stroke-dasharray="5 4" fill="none" marker-end="url(#mkm)"/>'%MUTED
     b+='<path d="M 452 160 h -40" stroke="%s" stroke-width="1.3" stroke-dasharray="5 4" fill="none" marker-end="url(#mkm)"/>'%MUTED
     b+='<path d="M 188 152 h 36" stroke="%s" stroke-width="1.3" stroke-dasharray="5 4" fill="none" marker-end="url(#mkm)"/>'%MUTED
-    b+=poly([(534,186),(534,256),(412,256)],color=FLAG,dash=True,label="reads Domain directly — allowed",lx=470,ly=272,fs=9)
-    b+=txt(24,306,"Dependencies point inward and Domain depends on nothing. One arrow the other way is an",10,MUTED)
-    b+=txt(24,321,"architecture violation you can see from across the room — and can assert in a build test.",10,MUTED)
-    return svg(332,b)
+    # green, because it is a legal edge — red here would say the opposite of the label
+    b+=poly([(534,186),(534,256),(412,256)],color=GRN,dash=True,label="allowed — it points inward",lx=500,ly=272,fs=9)
+    b+=txt(24,306,"Dependencies point inward and Domain depends on nothing. Green is a legal edge; one arrow the",10,MUTED)
+    b+=txt(24,321,"other way — Domain reaching out to Infrastructure — is an architecture violation you can see",10,MUTED)
+    b+=txt(24,336,"from across the room, and can assert in a build test so it never lands twice.",10,MUTED)
+    return svg(348,b)
 
 def d_object():
     b=""
@@ -841,23 +931,27 @@ def d_object():
     return svg(240,b)
 
 def d_composite():
-    b=frame(24,24,592,182,"« component »  Order Service",ACC,dash=False)
-    b+=node(72,64,150,50,"orders : Handler","part",fs=10.5)
-    b+=node(262,64,150,50,"pricing : Engine","part","acc",fs=10.5)
-    b+=node(262,140,150,46,"cache : Redis","part","soft",fs=10.5)
-    b+=node(452,64,140,50,"repo : Store","part",fs=10.5)
-    for x,y,lab in [(24,84,"IOrders"),(24,160,"IEvents")]:
-        b+='<rect x="%g" y="%g" width="16" height="16" fill="#FFFFFF" stroke="%s" stroke-width="1.4"/>'%(x-8,y-8,ACC)
-        b+=txt(x-6,y+26,lab,9.5,ACC,"600")
-    b+='<rect x="608" y="81" width="16" height="16" fill="#FFFFFF" stroke="%s" stroke-width="1.4"/>'%MUTED
-    b+=txt(604,130,"IPayments",9.5,MUTED,"600","end")
-    b+=arr(32,84,70,84); b+=arr(222,89,260,89); b+=arr(412,89,450,89)
-    b+=poly([(337,114),(337,138)],color=MUTED)
-    b+=poly([(32,160),(147,160),(147,116)],color=MUTED)
-    b+=arr(592,89,606,89)
-    b+=txt(24,240,"Ports are the small squares on the boundary; parts are the instances inside; connectors are the",10,MUTED)
-    b+=txt(24,255,"wiring between them. It answers “what does this component require in order to run?”.",10,MUTED)
-    return svg(266,b)
+    b=frame(56,24,528,182,"« component »  Order Service",ACC,dash=False)
+    b+=node(86,64,140,50,"orders : Handler","part",fs=10.5)
+    b+=node(250,64,140,50,"pricing : Engine","part","acc",fs=10.5)
+    b+=node(250,140,140,46,"cache : Redis","part","soft",fs=10.5)
+    b+=node(414,64,140,50,"repo : Store","part",fs=10.5)
+    # ports are the squares on the boundary; the ball/socket on each says which way
+    # the contract points, so provided and required are not the same drawing
+    for y,lab in [(84,"IOrders"),(160,"IEvents")]:
+        b+='<rect x="48" y="%g" width="16" height="16" fill="#FFFFFF" stroke="%s" stroke-width="1.4"/>'%(y-8,ACC)
+        b+=lolli(48,y,lab,ACC,"left",14)
+    b+='<rect x="576" y="80" width="16" height="16" fill="#FFFFFF" stroke="%s" stroke-width="1.4"/>'%MUTED
+    b+=socket(592,88,"IPayments",MUTED,"right",22)
+    b+=arr(64,84,84,84); b+=arr(226,89,248,89); b+=arr(390,89,412,89)
+    b+=poly([(320,114),(320,138)],color=MUTED)
+    b+=poly([(64,160),(156,160),(156,116)],color=MUTED)
+    b+=arr(554,89,574,89)
+    b+=txt(24,240,"Ports are the squares on the boundary, parts are the instances inside, connectors are the wiring",10,MUTED)
+    b+=txt(24,255,"between them. A ball is an interface this component provides; a socket is one it requires — so",10,MUTED)
+    b+=txt(24,270,"the whole contract is readable from outside, which is the only reason to draw this instead of a",10,MUTED)
+    b+=txt(24,285,"component diagram.",10,MUTED)
+    return svg(298,b)
 
 def d_communication():
     b=""
@@ -868,64 +962,88 @@ def d_communication():
     b+='<line x1="154" y1="126" x2="240" y2="72" stroke="%s" stroke-width="1.4"/>'%LINE
     b+='<line x1="310" y1="84" x2="310" y2="178" stroke="%s" stroke-width="1.4"/>'%LINE
     b+='<line x1="380" y1="72" x2="462" y2="126" stroke="%s" stroke-width="1.4"/>'%LINE
-    for x,y,dx,dy2,t in [(178,108,20,-4,"1 : place(cmd)"),(320,110,26,0,"2 : authorise()"),
-                         (320,150,26,0,"3 : approved"),(410,104,22,-4,"4 : save(order)")]:
-        b+='<path d="M %g %g l %g %g" stroke="%s" stroke-width="1.6" marker-end="url(#mka)"/>'%(x,y,dx,dy2,ACC)
-        b+=lbl(x+dx/2.0,y+dy2-9,t,9.2,ACC)
-    b+=txt(24,262,"Same information as a sequence diagram, arranged by topology rather than by time — the numbers",10,MUTED)
-    b+=txt(24,277,"carry the order. Better than a sequence when the shape of the call graph is the point; worse",10,MUTED)
-    b+=txt(24,292,"whenever timing, timeouts or alt branches matter, which is most of the time.",10,MUTED)
-    return svg(302,b)
+    # Each message runs alongside its own link, in the direction it travels, and the
+    # numbering nests: 1.1 happens inside 1, which is what carries the call depth.
+    msgs=[(176,106, 22,-14,"1 : place(cmd)",      206, 78,False),
+          (322,100,  0, 30,"1.1 : authorise()",   382,120,False),
+          (298,160,  0,-30,"1.1 : ⟵ approved",    232,148,True),
+          (398, 92, 26, 18,"1.2 : save(order)",   442, 86,False)]
+    for x,y,dx,dy2,t,lx,ly,dash in msgs:
+        b+=('<path d="M %g %g l %g %g" stroke="%s" stroke-width="1.6" fill="none"%s '
+            'marker-end="url(#mka)"/>')%(x,y,dx,dy2,ACC,' stroke-dasharray="5 4"' if dash else '')
+        b+=lbl(lx,ly,t,9.2,ACC)
+    b+=txt(24,262,"Same information as a sequence diagram, arranged by topology rather than by time. Nesting in the",10,MUTED)
+    b+=txt(24,277,"numbers is what carries the order: 1.1 and 1.2 both happen inside 1, and the dashed arrow is a",10,MUTED)
+    b+=txt(24,292,"reply, not a new call. Better than a sequence when the shape of the call graph is the point;",10,MUTED)
+    b+=txt(24,307,"worse whenever timing, timeouts or alt branches matter, which is most of the time.",10,MUTED)
+    return svg(318,b)
 
 def d_timing():
     b=""
-    lanes=[("Circuit breaker",["Closed","Open","Half-open"],40),("Downstream API",["Healthy","Failing"],168)]
-    x0=150; x1=608
+    # A timing diagram whose axis is not linear is just an awkward state machine, so the
+    # axis is computed: 150 px = t0-10 s, 608 px = t0+70 s, and every event is placed by X().
+    T0=150.0; PPS=458.0/80.0
+    def X(t): return T0+(t+10)*PPS
+    lanes=[("Circuit breaker",["Closed","Open","Half-open"],48),
+           ("Downstream API",["Healthy","Failing"],176)]
     for name,states,y0 in lanes:
         b+=txt(24,y0+18,name,10.5,INK,"600")
         for i,s in enumerate(states):
             yy=y0+i*30
             b+=txt(140,yy+16,s,9.2,MUTED,anchor="end")
-            b+='<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="1" stroke-dasharray="3 4"/>'%(x0,yy+12,x1,yy+12,LINE)
-    def seg(y,xa,xb,color=ACC):
-        return '<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="2.6"/>'%(xa,y,xb,y,color)
-    def step(x,ya,yb,color=ACC):
-        return '<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="2.6"/>'%(x,ya,x,yb,color)
-    b+=seg(52,150,272); b+=step(272,52,82); b+=seg(82,272,430); b+=step(430,82,112)
-    b+=seg(112,430,500); b+=step(500,112,52); b+=seg(52,500,608)
-    b+=seg(180,150,240,FLAG); b+=step(240,180,210,FLAG); b+=seg(210,240,470,FLAG)
-    b+=step(470,210,180,FLAG); b+=seg(180,470,608,FLAG)
-    for x,t in [(240,"t0  errors start"),(272,"t0+20s  trip"),(430,"t0+50s  probe"),(500,"t0+56s  close")]:
-        b+='<line x1="%g" y1="34" x2="%g" y2="240" stroke="%s" stroke-width="1" stroke-dasharray="2 4"/>'%(x,x,LINE)
-        b+=txt(x,256,t,8.8,MUTED,anchor="middle")
-    b+='<line x1="150" y1="240" x2="608" y2="240" stroke="%s" stroke-width="1.2"/>'%LINE
-    b+=txt(24,288,"The only UML diagram with a real time axis. Use it when the question is how long something sits in",10,MUTED)
-    b+=txt(24,303,"a state — a 30-second cooldown, a 3-second timeout, an SLA measured in milliseconds.",10,MUTED)
-    return svg(314,b)
+            b+='<line x1="%g" y1="%g" x2="608" y2="%g" stroke="%s" stroke-width="1" stroke-dasharray="3 4"/>'%(T0,yy+12,yy+12,LINE)
+    def seg(y,ta,tb,color=ACC):
+        return '<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="2.6"/>'%(X(ta),y,X(tb),y,color)
+    def step(t,ya,yb,color=ACC):
+        return '<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="2.6"/>'%(X(t),ya,X(t),yb,color)
+    CL,OP,HO = 60,90,120
+    HE,FA    = 188,218
+    b+=seg(CL,-10,20)+step(20,CL,OP)+seg(OP,20,50)+step(50,OP,HO)
+    b+=seg(HO,50,56)+step(56,HO,CL)+seg(CL,56,70)
+    b+=seg(HE,-10,0,FLAG)+step(0,HE,FA,FLAG)+seg(FA,0,52,FLAG)
+    b+=step(52,FA,HE,FLAG)+seg(HE,52,70,FLAG)
+    for t,lab,ty in [(0,"errors start",30),(20,"trip",30),(50,"probe",18),
+                     (52,"dependency recovers",30),(56,"close",18)]:
+        b+='<line x1="%g" y1="36" x2="%g" y2="240" stroke="%s" stroke-width="1" stroke-dasharray="2 4"/>'%(X(t),X(t),LINE)
+        b+=txt(X(t),ty,lab,8.4,MUTED,anchor="middle")
+    b+='<line x1="%g" y1="240" x2="608" y2="240" stroke="%s" stroke-width="1.2"/>'%(T0,LINE)
+    for k in range(-10,71,10):
+        b+='<line x1="%g" y1="240" x2="%g" y2="246" stroke="%s" stroke-width="1"/>'%(X(k),X(k),LINE)
+        b+=txt(X(k),260,("t0" if k==0 else "%+d s"%k),8.4,MUTED,anchor="middle")
+    b+=txt(24,260,"seconds",9,ACC,"600")
+    b+=txt(24,294,"The only UML diagram with a real time axis — and the axis has to be linear, or the drawing lies:",10,MUTED)
+    b+=txt(24,309,"20 seconds must occupy twice the width of 10. Note the breaker closes only after the dependency",10,MUTED)
+    b+=txt(24,324,"recovers; a probe that fails in half-open sends it straight back to open.",10,MUTED)
+    return svg(336,b)
 
 def d_interaction_overview():
     b=""
+    # branches placed either side of the decision so nothing overlaps the diamond
     b+='<circle cx="46" cy="70" r="8" fill="%s"/>'%INK
     for x,y,w,h,t,st in [(84,44,146,52,"ref  Authenticate","plain"),(276,44,150,52,"ref  Place order","acc"),
-                         (276,158,150,52,"ref  Compensate","flag"),(470,44,146,52,"ref  Confirm & notify","plain")]:
+                         (100,196,150,52,"ref  Compensate","flag"),(452,196,150,52,"ref  Confirm & notify","plain")]:
         b+=node(x,y,w,h,t,None,st,fs=11)
         b+='<path d="M %g %g h 34 v 14" fill="none" stroke="%s" stroke-width="1.2"/>'%(x,y+14,STYLES[st][1])
-    b+=dia(250,180,66,48,"ok?","acc",fs=10)
+    b+=dia(351,140,76,48,"ok?","acc",fs=10)
     b+=arr(54,70,82,70); b+=arr(230,70,274,70)
-    b+=poly([(351,96),(351,132),(250,132),(250,156)],color=MUTED)
-    b+=arr(283,180,274,180,None,head=False)
-    b+=poly([(283,180),(400,180)],color=FLAG,label="no",lx=340,ly=174,fs=9)
-    b+=poly([(250,204),(250,238),(543,238),(543,98)],color=MUTED,label="yes",lx=300,ly=232,fs=9)
-    b+=txt(24,286,"An activity diagram whose nodes are whole sequence diagrams. Worth drawing exactly once per",10,MUTED)
-    b+=txt(24,301,"large flow — as the index page that says which of your twelve sequence diagrams to open.",10,MUTED)
-    return svg(312,b)
+    b+=arr(351,96,351,114)
+    b+=poly([(313,140),(175,140),(175,194)],color=FLAG,label="no",lx=240,ly=134,fs=9)
+    b+=poly([(389,140),(527,140),(527,194)],color=GRN,label="yes",lx=462,ly=134,fs=9)
+    for cx in (175,527):
+        b+=arr(cx,248,cx,266)
+        b+='<circle cx="%g" cy="280" r="11" fill="none" stroke="%s" stroke-width="1.5"/>'%(cx,INK)
+        b+='<circle cx="%g" cy="280" r="6" fill="%s"/>'%(cx,INK)
+    b+=txt(24,320,"An activity diagram whose nodes are whole sequence diagrams. Worth drawing exactly once per",10,MUTED)
+    b+=txt(24,335,"large flow — as the index page that says which of your twelve sequence diagrams to open, and",10,MUTED)
+    b+=txt(24,350,"in what order. The moment a message appears on it you have drawn a bad sequence diagram.",10,MUTED)
+    return svg(362,b)
 
 def d_profile():
     b=""
     b+=classbox(60,44,150,["(UML metaclass)"],"Component","soft")
     b+=classbox(300,44,164,["+ sla : Duration","+ tier : {1,2,3}","+ owner : Team"],"«stereotype»  Service","acc")
-    b+='<path d="M 300 76 h -66" stroke="%s" stroke-width="1.3" fill="none"/>'%ACC
-    b+='<path d="M 234 76 l 14 -8 v 16 z" fill="%s" stroke="%s" stroke-width="1.3"/>'%(ACC_S,ACC)
+    b+='<path d="M 300 76 h -76" stroke="%s" stroke-width="1.3" fill="none"/>'%ACC
+    b+='<path d="M 210 76 l 14 -8 v 16 z" fill="%s" stroke="%s" stroke-width="1.3"/>'%(ACC,ACC)
     b+=lbl(268,66,"«extension»",9,ACC)
     b+=node(300,168,164,54,"«Service»  Order Svc","sla = 300 ms · tier = 1","acc",fs=11)
     b+='<path d="M 382 148 v -12" stroke="%s" stroke-width="1.3" stroke-dasharray="5 4" fill="none" marker-end="url(#mka)"/>'%ACC
@@ -984,11 +1102,11 @@ def d_datamodels():
     b+=frame(228,22,186,214,"logical  ·  normalised",MUTED)
     b+=classbox(248,52,146,["customer_id","email","tier"],"Customer")
     b+=classbox(248,140,146,["order_id","customer_id","placed_at"],"Order","acc")
-    b+=arr(321,120,321,138,None,head=False); b+=lbl(348,132,"1 : N",8.8)
+    b+=arr(321,131,321,138,None,head=False); b+=lbl(348,132,"1 : N",8.8)
     b+=frame(432,22,184,214,"physical  ·  PostgreSQL",ACC)
     b+=classbox(452,52,146,["id  bigint PK","email  citext UK","tier  smallint"],"customer")
     b+=classbox(452,140,146,["id  bigint PK","customer_id  FK idx","placed_at  timestamptz"],"orders","acc")
-    b+=arr(525,120,525,138,None,head=False)
+    b+=arr(525,131,525,138,None,head=False)
     b+=txt(432,232,"partitioned monthly",8.8,MUTED)
     b+=txt(24,268,"Same domain, three audiences. Conceptual is for the business and fits on a napkin; logical is",10,MUTED)
     b+=txt(24,283,"vendor-neutral and is where normalisation arguments happen; physical carries types, indexes and",10,MUTED)
@@ -1031,7 +1149,7 @@ def d_warehouse():
     b+=inode(34,100,90,32,"SaaS",None,"soft","cloud",fs=9.5,isize=12,pad=5)
     b+=inode(34,140,90,32,"Files",None,"soft","log",fs=9.5,isize=12,pad=5)
     b+=inode(158,90,84,42,"1:1","no logic","plain","archive",fs=9.5,isize=12,pad=5)
-    b+=inode(322,58,122,36,"DimProduct",None,"plain","container",fs=9.5,isize=12,pad=5)
+    b+=inode(322,58,122,36,"DimProduct","SCD type 2","plain","container",fs=9.5,isize=12,pad=5)
     b+=inode(322,104,122,44,"FactOrders","grain: 1 line","acc","chart",fs=10)
     b+=inode(288,160,94,32,"DimCustomer",None,"plain","user",fs=9,isize=11,pad=4)
     b+=inode(392,160,94,32,"DimDate",None,"plain","clock",fs=9,isize=11,pad=4)
@@ -1039,10 +1157,10 @@ def d_warehouse():
     b+=inode(514,104,92,34,"Ops",None,"grn","chart",fs=9.5,isize=12,pad=5)
     b+=inode(514,148,92,34,"Product",None,"grn","chart",fs=9.5,isize=12,pad=5)
     b+=arr(124,116,156,112); b+=arr(242,111,286,116)
-    b+=arr(383,148,383,152,None,head=False)
+    b+=arr(383,94,383,102,None,head=False)
     b+=arr(335,160,360,148,None,head=False); b+=arr(439,160,414,148,None,head=False)
     b+=arr(444,122,512,110)
-    b+=note(24,236,592,["State the grain of the fact table in words, on the diagram — “one row per order line per day”.","Nearly every warehouse dispute is two people assuming different grains, and both being right."])
+    b+=note(24,236,592,["State the grain of the fact table in words, on the diagram — “one row per order line per day”.","Nearly every warehouse dispute is two people assuming different grains, and both being right.","Mark how each dimension handles change too: type 1 overwrites, type 2 keeps a row per version."])
     b+=txt(24,318,"Staging holds the data exactly as it arrived. Business logic starts in core, never before it.",10,MUTED)
     return svg(330,b)
 
@@ -1087,10 +1205,10 @@ def d_datamesh():
 def d_streaming():
     b=""
     b+=node(24,60,110,46,"Producers","apps, CDC, IoT","soft",fs=10.5)
-    b+=node(154,60,132,46,"Kafka","partitioned log","amb",fs=11)
+    b+=node(154,60,132,46,"Kafka","key = deviceId · 12 parts","amb",fs=11)
     b+=frame(306,26,310,150,"stream processing  ·  Flink",ACC,dash=False)
     b+=node(324,54,124,38,"Filter / map","stateless",fs=10)
-    b+=node(468,54,132,38,"Window","5 min tumbling","acc",fs=10)
+    b+=node(468,54,132,38,"Window","5 min tumbling + grace","acc",fs=10)
     b+=node(324,110,124,38,"Join","stream ⋈ table",fs=10)
     b+=node(468,110,132,38,"State store","RocksDB + ckpt",fs=10)
     b+=arr(448,73,466,73); b+=arr(386,92,386,108); b+=arr(448,129,466,129)
@@ -1101,9 +1219,10 @@ def d_streaming():
     b+=poly([(386,176),(386,190),(114,190),(114,198)],color=MUTED)
     b+=poly([(386,190),(318,190),(318,198)],color=MUTED)
     b+=poly([(386,190),(524,190),(524,198)],color=MUTED)
-    b+=txt(24,272,"Three things make it a design rather than a picture: the partition key (which fixes what is ordered",10,MUTED)
-    b+=txt(24,287,"and what parallelises), the window definition, and how late-arriving events are handled. “Kafka”",10,MUTED)
-    b+=txt(24,302,"on a box says none of them.",10,MUTED)
+    b+=note(24,116,262,["late arrivals: 2 min grace, then routed","to a side output and reconciled in the","batch path — never silently dropped"],AMB)
+    b+=txt(24,272,"Three things make it a design rather than a picture, and all three are on the plate: the partition",10,MUTED)
+    b+=txt(24,287,"key (which fixes what is ordered and what parallelises), the window definition, and what happens",10,MUTED)
+    b+=txt(24,302,"to an event that arrives late. A box labelled “Kafka” states none of them.",10,MUTED)
     return svg(314,b)
 
 # ---------- 5. Deployment & infrastructure ----------
@@ -1124,13 +1243,17 @@ def d_k8s():
     b+=inode(472,128,120,26,"payment",None,"plain","container",fs=9,isize=12,pad=5)
     b+=inode(472,160,120,26,"order-svc",None,"plain","container",fs=9,isize=12,pad=5)
     b+=inode(312,210,290,38,"Service  ·  stable VIP","selector app=order-svc","grn","balancer",fs=9.8)
-    b+=arr(276,86,310,86,"watch",dy=-5,fs=8.8)
+    # the kubelet watches the API server, not the other way round — and reports back.
+    # Those two arrows are the reconciliation loop.
+    b+=arr(310,86,278,86,"watches",dy=-6,fs=8.4)
+    b+=arr(278,104,310,104,"status",dy=11,fs=8.4)
     b+=arr(382,198,382,208,None,GRN); b+=arr(532,198,532,208,None,GRN)
     b+=inode(180,0,142,22,"Ingress",None,"soft","globe",fs=9.5,isize=12,pad=5)
     b+=poly([(251,22),(251,36),(457,36),(457,206)],color=MUTED,dash=True)
-    b+=txt(24,296,"The mental model worth carrying: you write desired state to the API server, controllers reconcile",10,MUTED)
-    b+=txt(24,311,"reality toward it, forever. Nothing is “deployed” — it is declared, and drift is corrected.",10,MUTED)
-    return svg(322,b)
+    b+=txt(24,296,"The mental model worth carrying is a loop, and both of its arrows are drawn: you write desired",10,MUTED)
+    b+=txt(24,311,"state to the API server, the kubelet watches for what it has been assigned and reports back what",10,MUTED)
+    b+=txt(24,326,"is really running. Nothing is “deployed” — it is declared, and the gap is closed continuously.",10,MUTED)
+    return svg(338,b)
 
 def d_multiregion():
     b=""
@@ -1158,18 +1281,20 @@ def d_ha():
     b+=frame(24,80,190,124,"AZ a",MUTED)
     b+=frame(226,80,190,124,"AZ b",MUTED)
     b+=frame(428,80,188,124,"AZ c",MUTED)
-    for x,st,cap,ic in [(44,"grn","2 of 3 needed","server"),(246,"grn","2 of 3 needed","server"),
-                        (448,"amb","spare capacity","server")]:
+    # the utilisation number is the whole argument, so it goes on the plate
+    for x,st,cap,ic in [(44,"grn","45 % utilised","server"),(246,"grn","45 % utilised","server"),
+                        (448,"grn","45 % utilised","server")]:
         b+=inode(x,106,150,40,"App × 2",None,st,ic,fs=10.5)
         b+=node(x,158,150,32,cap,None,"soft",fs=9.2)
     b+=poly([(280,56),(119,56),(119,104)],color=MUTED)
     b+=arr(320,56,320,104)
     b+=poly([(360,56),(521,56),(521,104)],color=MUTED)
-    b+=inode(24,226,286,44,"N + 1 sizing","each AZ can absorb one AZ failing","grn","check",fs=10.5)
+    b+=inode(24,226,286,44,"Lose one AZ → 68 %","3 × 45 % over 2 AZs — still serving","grn","check",fs=10.5)
     b+=inode(330,226,286,44,"Quorum data  ·  3 nodes","survives one loss, still writable","grn","db",fs=10.5)
-    b+=txt(24,304,"High availability is arithmetic, not a topology: if three AZs each run at 70 % you cannot lose one.",10,MUTED)
-    b+=txt(24,319,"Put the utilisation number on the diagram and the sizing argument settles itself.",10,MUTED)
-    return svg(330,b)
+    b+=note(24,286,592,["Redraw this at 70 % per AZ and the identical topology fails: losing one leaves the two","survivors needing 105 %. Same boxes, same arrows, different outcome — which is exactly why","the utilisation number belongs on the diagram and not in the paragraph underneath it."],FLAG)
+    b+=txt(24,366,"High availability is arithmetic, not a topology. Put the number on the plate and the sizing",10,MUTED)
+    b+=txt(24,381,"argument settles itself before anyone opens a spreadsheet.",10,MUTED)
+    return svg(393,b)
 
 def d_containerarch():
     b=""
@@ -1201,18 +1326,20 @@ def d_threat():
     b+=arr(148,66,194,66,"1",dy=-5,fs=9,color=FLAG)
     b+=arr(336,66,374,66,"2",dy=-5,fs=9,color=FLAG)
     b+=arr(508,66,538,66,"3",dy=-5,fs=9,color=FLAG)
+    # all six letters — a STRIDE table missing one is a STRIDE table that skipped a question
     rows=[["1","Spoofing","Forged JWT","Verify sig + iss + aud"],
           ["2","Tampering","Header injection","Strip and re-issue identity"],
-          ["3","Info disclosure","Cross-tenant read","Tenant filter in the query"],
           ["2","Repudiation","No audit of who acted","Signed audit log"],
-          ["1","DoS","Unbounded page size","Cap + rate limit per key"]]
-    ico=[("id",FLAG),("warn",FLAG),("eye",FLAG),("log",FLAG),("bolt",FLAG)]
+          ["3","Info disclosure","Cross-tenant read","Tenant filter in the query"],
+          ["1","Denial of service","Unbounded page size","Cap + rate limit per key"],
+          ["3","Elevation of privilege","Service account is db_owner","Per-service role, least privilege"]]
+    ico=[("id",FLAG),("warn",FLAG),("log",FLAG),("eye",FLAG),("bolt",FLAG),("key",FLAG)]
     b+=grid(24,130,592,["Flow","STRIDE category","Threat","Mitigation — and where it lives"],rows,
-            [0,0.13,0.33,0.60],rh=26,hh=27,rowicons=ico)
-    b+=txt(24,308,"The diagram is only the canvas. The work is walking each numbered flow through the six STRIDE",10,MUTED)
-    b+=txt(24,323,"categories and writing a mitigation with an owner. An unmitigated row is an accepted risk —",10,MUTED)
-    b+=txt(24,338,"which is fine, as long as somebody senior has actually accepted it in writing.",10,MUTED)
-    return svg(350,b)
+            [0,0.13,0.35,0.60],rh=26,hh=27,rowicons=ico)
+    b+=txt(24,336,"The diagram is only the canvas. The work is walking each numbered flow through all six STRIDE",10,MUTED)
+    b+=txt(24,351,"categories and writing a mitigation with an owner. An unmitigated row is an accepted risk —",10,MUTED)
+    b+=txt(24,366,"which is fine, as long as somebody senior has actually accepted it in writing.",10,MUTED)
+    return svg(378,b)
 
 def d_zerotrust():
     b=""
@@ -1325,7 +1452,7 @@ def d_domainmodel():
     b+=classbox(48,196,180,["+ street / city / post"],"Address  «VO»","soft")
     b+=arr(228,86,250,86,None,head=False); b+=lbl(239,80,"1..*",8.8)
     b+=poly([(138,196),(138,165)],color=MUTED,head=False)
-    b+=poly([(312,140),(312,162)],color=MUTED,head=False)
+    b+=poly([(312,118),(312,162)],color=MUTED,head=False)
     b+=node(430,54,186,50,"Customer  «root»","different aggregate",fs=10.5)
     b+=node(430,124,186,50,"Product  «root»","different aggregate",fs=10.5)
     b+=arr(388,79,428,79,"by id only",lp=0.5,dy=-5,fs=8.8)
@@ -1402,29 +1529,32 @@ def d_eventsourcing():
 def d_kafka():
     b=""
     b+=inode(24,48,120,44,"Producer","key = orderId","acc","server",fs=10.5)
-    b+=band(166,20,450,150,"topic  orders.v1  ·  6 partitions  ·  RF 3",AMB,fs=10)
-    for p,y,c in [("P0",56,AMB),("P1",92,AMB),("P2",128,AMB)]:
-        b+=node(180,y,50,26,p,None,"amb",fs=9.5)
-        b+='<rect x="238" y="%g" width="364" height="26" rx="3" fill="#FFFFFF" stroke="%s" stroke-width="1.2"/>'%(y,LINE)
+    # six partitions claimed, six partitions drawn — the count is the whole argument
+    b+=band(166,20,450,186,"topic  orders.v1  ·  6 partitions  ·  RF 3",AMB,fs=10)
+    for j in range(6):
+        y=46+j*24
+        b+=node(180,y,44,20,"P%d"%j,None,"amb",fs=8.6)
+        b+='<rect x="232" y="%g" width="372" height="20" rx="3" fill="#FFFFFF" stroke="%s" stroke-width="1.2"/>'%(y,LINE)
         for i in range(8):
-            b+='<rect x="%g" y="%g" width="36" height="16" rx="2" fill="%s" stroke="%s" stroke-width="1"/>'%(
-                246+i*44, y+5, AMB_S, AMB)
-            b+=txt(264+i*44, y+16, str(i), 8.4, AMB, "600", "middle")
-    b+=txt(420,182,"offsets — ordered within a partition, never across them",9,MUTED,anchor="middle")
-    b+=arr(144,70,164,66,"hash(key)",lp=0.5,dy=-7,fs=8.4)
-    b+=band(24,206,286,96,"consumer group  billing",GRN,fs=10)
-    b+=inode(36,238,124,30,"instance 1","P0, P1","grn","server",fs=9.2,isize=12,pad=5)
-    b+=inode(172,238,126,30,"instance 2","P2","grn","server",fs=9.2,isize=12,pad=5)
-    b+=txt(167,288,"own offset per partition · scales to 6",8.8,MUTED,anchor="middle")
-    b+=band(330,206,286,96,"consumer group  analytics",VIO,fs=10)
-    b+=inode(342,238,262,30,"instance 1","all partitions, own offsets","vio","server",fs=9.2,isize=12,pad=5)
-    b+=txt(473,288,"reads the same events, independently",8.8,MUTED,anchor="middle")
-    b+=poly([(300,170),(300,196),(167,196),(167,204)],color=AMB)
-    b+=poly([(300,196),(473,196),(473,204)],color=AMB)
-    b+=txt(24,326,"Three facts do all the work: ordering is per partition, the key chooses the partition, and one",10,MUTED)
-    b+=txt(24,341,"partition goes to one consumer per group. Partition count is therefore your maximum parallelism,",10,MUTED)
-    b+=txt(24,356,"and any two events that must stay in order have to share a key. Choose the key deliberately.",10,MUTED)
-    return svg(368,b)
+            b+='<rect x="%g" y="%g" width="38" height="12" rx="2" fill="%s" stroke="%s" stroke-width="1"/>'%(
+                238+i*45, y+4, AMB_S, AMB)
+            b+=txt(257+i*45, y+13, str(i), 7.6, AMB, "600", "middle")
+    b+=txt(420,200,"offsets — ordered within a partition, never across them",8.6,MUTED,anchor="middle")
+    b+=arr(144,70,164,64,"hash(key)",lp=0.5,dy=-7,fs=8.4)
+    b+=band(24,234,286,96,"consumer group  billing",GRN,fs=10)
+    b+=inode(36,266,124,30,"instance 1","P0, P1, P2","grn","server",fs=9.2,isize=12,pad=5)
+    b+=inode(172,266,126,30,"instance 2","P3, P4, P5","grn","server",fs=9.2,isize=12,pad=5)
+    b+=txt(167,316,"own offset per partition · scales to 6 instances",8.8,MUTED,anchor="middle")
+    b+=band(330,234,286,96,"consumer group  analytics",VIO,fs=10)
+    b+=inode(342,266,262,30,"instance 1","all 6 partitions, own offsets","vio","server",fs=9.2,isize=12,pad=5)
+    b+=txt(473,316,"reads the same events, independently",8.8,MUTED,anchor="middle")
+    b+=poly([(300,206),(300,222),(167,222),(167,232)],color=AMB)
+    b+=poly([(300,222),(473,222),(473,232)],color=AMB)
+    b+=txt(24,356,"Three facts do all the work: ordering is per partition, the key chooses the partition, and one",10,MUTED)
+    b+=txt(24,371,"partition goes to one consumer per group. Partition count is therefore your maximum parallelism —",10,MUTED)
+    b+=txt(24,386,"six here, so a seventh billing instance would sit idle. Any two events that must stay in order",10,MUTED)
+    b+=txt(24,401,"have to share a key. Choose the key deliberately; it is the hardest thing here to change later.",10,MUTED)
+    return svg(413,b)
 
 def d_outbox():
     b=frame(24,24,318,148,"one local transaction",ACC,dash=False)
@@ -1445,21 +1575,27 @@ def d_outbox():
 
 def d_pubsub():
     b=""
+    # the subscription sits BETWEEN topic and consumer — it is the thing that owns the
+    # filter, the delivery guarantee and the dead-letter destination
     b+=node(24,84,130,48,"Publisher","knows no subscribers","acc",fs=10.5)
-    b+=node(196,84,124,48,"Topic","orders.events","amb",fs=11)
-    b+=arr(154,108,194,108)
-    subs=[("Billing","filter: type = Placed",20),("Search index","all events",92),("Fraud","filter: amount > 1k",164)]
-    for n,f,y in subs:
-        b+=node(378,y,150,44,n,f,"plain",fs=10)
-        b+=arr(320,108,376,y+22,None,AMB)
-        b+=node(548,y+6,68,32,"sub",None,"soft",fs=9)
-        b+=arr(528,y+22,546,y+22,None)
-    b+=node(196,168,124,44,"DLQ","after 5 attempts","flag",fs=10)
-    b+=poly([(378,186),(322,190)],color=FLAG,dash=True,label="poison",lx=350,ly=210,fs=8.8)
-    b+=txt(24,254,"The difference from a queue is the fan-out: a queue delivers each message to one consumer, a",10,MUTED)
-    b+=txt(24,269,"topic delivers to every subscription. Adding a fourth subscriber must cost the publisher nothing —",10,MUTED)
-    b+=txt(24,284,"the moment the publisher needs changing, you have point-to-point integration wearing a topic.",10,MUTED)
-    return svg(296,b)
+    b+=node(178,84,116,48,"Topic","orders.events","amb",fs=11)
+    b+=arr(154,108,176,108)
+    subs=[("billing-sub","filter: type = Placed",20,"Billing"),
+          ("search-sub","no filter",92,"Search index"),
+          ("fraud-sub","filter: amount > 1k",164,"Fraud")]
+    for sname,f,y,cons in subs:
+        b+=node(330,y,150,44,sname,f,"soft",fs=9.6)
+        b+=node(506,y+2,110,40,cons,None,"plain",fs=10)
+        b+=arr(294,108,328,y+22,None,AMB)
+        b+=arr(480,y+22,504,y+22)
+    b+=node(178,176,116,44,"DLQ","after 5 attempts","flag",fs=10)
+    b+=poly([(330,196),(296,198)],color=FLAG,dash=True,label="poison",lx=320,ly=218,fs=8.8)
+    b+=txt(330,236,"each subscription: its own filter, guarantee and DLQ",9,MUTED)
+    b+=txt(24,266,"The difference from a queue is the fan-out: a queue delivers each message to one consumer, a",10,MUTED)
+    b+=txt(24,281,"topic delivers to every subscription. Drawing the subscription as its own box is what makes the",10,MUTED)
+    b+=txt(24,296,"filter and the dead-letter route visible. Adding a fourth must cost the publisher nothing — the",10,MUTED)
+    b+=txt(24,311,"moment the publisher needs changing, you have point-to-point integration wearing a topic.",10,MUTED)
+    return svg(323,b)
 
 # ---------- 9. Integration & API ----------
 def d_integration():
@@ -1471,22 +1607,25 @@ def d_integration():
             if j>i: b+='<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="1"/>'%(x+30,y+13,x2+30,y2+13,FLAG)
     for i,(x,y) in enumerate(pts):
         b+=node(x,y,60,26,chr(65+i),None,"soft",fs=10)
-    b+=txt(24,164,"10 bespoke integrations, 10 formats, 10 owners",9,MUTED)
-    b+='<line x1="352" y1="20" x2="352" y2="178" stroke="%s" stroke-width="1"/>'%LINE
+    b+='<line x1="352" y1="20" x2="352" y2="186" stroke="%s" stroke-width="1"/>'%LINE
     b+=txt(384,22,"MEDIATED  ·  one contract each",9,GRN,"600")
     b+=node(460,74,120,40,"Integration hub","canonical events","grn",fs=10)
+    # five spokes, not four — the comparison is only an argument if both sides
+    # are the same estate
     hub=[(390,34,425,62,492,72),(560,34,595,62,548,72),
-         (390,128,425,128,492,116),(560,128,595,128,548,116)]
+         (390,128,425,128,492,116),(560,128,595,128,548,116),
+         (485,150,520,148,520,116)]
     for i,(x,y,sx,sy,tx,ty) in enumerate(hub):
         b+=node(x,y,70,28,chr(65+i),None,"soft",fs=10)
         b+=arr(sx,sy,tx,ty,None,GRN)
-    b+=txt(384,164,"5 contracts, one format, one team owning the middle",9,MUTED)
-    b+=node(24,196,286,44,"Buy vs build vs point-to-point","the actual decision on this page","acc",fs=10.5)
-    b+=node(330,196,286,44,"Sync or async per link","and the retry story for each","acc",fs=10.5)
-    b+=txt(24,276,"The hub is not automatically right — it centralises change, so it becomes a queue of other teams’",10,MUTED)
-    b+=txt(24,291,"work. Below roughly six systems, point-to-point with good contracts wins. Above it, the count of",10,MUTED)
-    b+=txt(24,306,"pairwise links is what kills you, and that is the number to put on the diagram.",10,MUTED)
-    return svg(318,b)
+    b+=txt(24,196,"the same 5 systems — 10 links, 10 formats, 10 owners",9,MUTED)
+    b+=txt(384,196,"5 contracts, one format, one owner",9,MUTED)
+    b+=node(24,212,286,44,"Buy vs build vs point-to-point","the actual decision on this page","acc",fs=10.5)
+    b+=node(330,212,286,44,"Sync or async per link","and the retry story for each","acc",fs=10.5)
+    b+=txt(24,292,"The hub is not automatically right — it centralises change, so it becomes a queue of other teams’",10,MUTED)
+    b+=txt(24,307,"work. Below roughly six systems, point-to-point with good contracts wins. Above it, the count of",10,MUTED)
+    b+=txt(24,322,"pairwise links is what kills you, and that is the number to put on the diagram.",10,MUTED)
+    return svg(334,b)
 
 def d_esb():
     b=""
@@ -1511,7 +1650,7 @@ def d_esb():
 
 def d_webhook():
     items=[(24,120,"Partner"),(190,130,"Our platform"),(376,120,"Signer"),(520,96,"Retry queue")]
-    s,x=lifelines(items,16,240,["soft","acc","plain","amb"])
+    s,x=lifelines(items,16,288,["soft","acc","plain","amb"])
     b=s
     b+=msg(x[0],x[1],76,"POST /webhooks  {url, events}")
     b+=msg(x[1],x[0],98,"201  + shared secret (shown once)",MUTED,dash=True)
@@ -1520,10 +1659,14 @@ def d_webhook():
     b+=msg(x[0],x[1],182,"2xx within 5 s → done",GRN,dash=True)
     b+=msg(x[0],x[1],206,"5xx / timeout",FLAG,dash=True)
     b+=msg(x[1],x[3],230,"retry 1m, 5m, 30m, 2h, 12h",AMB)
-    b+=txt(24,268,"Four things separate a webhook that works from one that pages you: a signature with a timestamp",10,MUTED)
-    b+=txt(24,283,"(so replays are rejected), a stable event id (so the receiver can dedupe), bounded retries with",10,MUTED)
-    b+=txt(24,298,"backoff, and a way for the partner to re-request what they missed. Fire-and-forget is not delivery.",10,MUTED)
-    return svg(310,b)
+    # the replay path — the fourth property, and the one that is always missing
+    b+=msg(x[0],x[1],262,"GET /events?since=…   ·  replay what was missed",ACC)
+    b+=msg(x[1],x[0],284,"same events, same ids — dedupe by id",MUTED,dash=True)
+    b+=txt(24,318,"Four things separate a webhook that works from one that pages you, and all four are drawn here:",10,MUTED)
+    b+=txt(24,333,"a signature with a timestamp (so replays are rejected), a stable event id (so the receiver can",10,MUTED)
+    b+=txt(24,348,"dedupe), bounded retries with backoff, and a pull endpoint so a partner who was down for a day",10,MUTED)
+    b+=txt(24,363,"can catch up without you rerunning anything. Fire-and-forget is not a delivery guarantee.",10,MUTED)
+    return svg(375,b)
 
 # ---------- 10. Process & workflow ----------
 def d_flowchart():
@@ -1625,7 +1768,8 @@ def d_metrics():
 
 def d_tracing():
     b=""
-    b+=txt(24,24,"ONE REQUEST  ·  trace 9f2c…  ·  total 412 ms",9.5,ACC,"600")
+    # bars are drawn at 1 px = 1 ms, so the root span's width IS the stated total
+    b+=txt(24,24,"ONE REQUEST  ·  trace 9f2c…  ·  total 592 ms  ·  1 px = 1 ms",9.5,ACC,"600")
     spans=[("gateway",24,0,592,GRN),("  order-svc  handler",44,30,500,ACC),
            ("    auth check",64,42,55,MUTED),("    db  SELECT order",84,105,80,MUTED),
            ("    payment-svc  POST /auth",104,195,300,FLAG),("      db  SELECT card",124,210,40,MUTED),
@@ -1636,13 +1780,18 @@ def d_tracing():
         b+='<rect x="%g" y="%g" width="%g" height="13" rx="2" fill="%s" opacity="0.22"/>'%(24+x0,y,max(w,6),c)
         b+='<rect x="%g" y="%g" width="%g" height="13" rx="2" fill="none" stroke="%s" stroke-width="1.1"/>'%(24+x0,y,max(w,6),c)
         b+=txt(28+x0,y+10,name,8.8,INK if c!=MUTED else MUTED,"600")
-    b+='<line x1="284" y1="40" x2="284" y2="230" stroke="%s" stroke-width="1" stroke-dasharray="3 4"/>'%FLAG
-    b+='<line x1="504" y1="40" x2="504" y2="230" stroke="%s" stroke-width="1" stroke-dasharray="3 4"/>'%FLAG
-    b+=txt(394,244,"220 ms — 53 % of the request — in one third-party call",9.5,FLAG,"600","middle")
-    b+=txt(24,278,"A trace is a tree of spans joined by one id propagated across every hop, including through the",10,MUTED)
-    b+=txt(24,293,"broker. Head sampling is cheap and loses the rare slow request; tail sampling keeps the",10,MUTED)
-    b+=txt(24,308,"interesting ones and costs more. Decide which, and write it on the diagram.",10,MUTED)
-    return svg(320,b)
+    b+='<line x1="284" y1="40" x2="284" y2="232" stroke="%s" stroke-width="1" stroke-dasharray="3 4"/>'%FLAG
+    b+='<line x1="504" y1="40" x2="504" y2="232" stroke="%s" stroke-width="1" stroke-dasharray="3 4"/>'%FLAG
+    b+='<line x1="24" y1="236" x2="616" y2="236" stroke="%s" stroke-width="1"/>'%LINE
+    for k in range(0,6):
+        xx=24+k*100
+        b+='<line x1="%g" y1="236" x2="%g" y2="242" stroke="%s" stroke-width="1"/>'%(xx,xx,LINE)
+        b+=txt(xx,256,"%d ms"%(k*100),8.4,MUTED,anchor="middle")
+    b+=txt(394,278,"220 ms — 37 % of the request — in one third-party call",9.5,FLAG,"600","middle")
+    b+=txt(24,308,"A trace is a tree of spans joined by one id propagated across every hop, including through the",10,MUTED)
+    b+=txt(24,323,"broker. Head sampling is cheap and loses the rare slow request; tail sampling keeps the",10,MUTED)
+    b+=txt(24,338,"interesting ones and costs more. Decide which, and write it on the diagram.",10,MUTED)
+    return svg(350,b)
 
 def d_alerting():
     b=""
@@ -1784,7 +1933,9 @@ def d_activeactive():
     b+=poly([(280,56),(121,56),(121,104)],color=GRN)
     b+=poly([(360,56),(431,56),(431,104)],color=GRN)
     b+=arr(121,144,121,156); b+=arr(431,144,431,156)
-    b+=arr(196,196,354,196,"bidirectional replication",color=AMB,dash=True,dy=-6,fs=9)
+    b+=arr(196,192,354,192,None,AMB,dash=True)
+    b+=arr(354,200,196,200,None,AMB,dash=True)
+    b+=lbl(275,186,"bidirectional replication",9,AMB)
     b+=node(24,254,286,44,"Conflicts are guaranteed","last-write-wins loses data silently","flag",fs=10.5)
     b+=node(330,254,286,44,"So partition ownership","each row has exactly one home region","grn",fs=10.5)
     b+=txt(24,330,"Active/active doubles your capacity and removes the failover step — and buys you the hardest",10,MUTED)
@@ -1795,26 +1946,31 @@ def d_activeactive():
 # ---------- 14. Decision ----------
 def d_adr():
     b=""
-    b+=pill(24,30,116,32,"Proposed","soft")
-    b+=pill(180,30,116,32,"Accepted","grn")
-    b+=pill(336,30,116,32,"Superseded","amb")
-    b+=pill(492,30,124,32,"Deprecated","flag")
-    b+=arr(140,46,178,46,"review",dy=-5,fs=9)
-    b+=arr(296,46,334,46,"ADR-051",dy=-5,fs=9)
-    b+=arr(452,46,490,46)
-    b+=frame(24,88,592,166,"ADR-042  ·  Use Kafka for order events",ACC,dash=False)
-    secs=[("Context","Three services need order state; nightly batch is too slow.",118),
-          ("Decision","Publish domain events to Kafka, keyed by orderId.",156),
-          ("Alternatives","Shared database (rejected: coupling). REST fan-out (rejected: n² links).",194),
-          ("Consequences","+ decoupled  + replayable   − ops burden  − eventual consistency in the UI",232)]
+    # Superseded and Deprecated are two different endings off Accepted, not a queue
+    b+=pill(24,38,116,32,"Proposed","soft")
+    b+=pill(180,38,116,32,"Accepted","grn")
+    b+=pill(392,10,124,30,"Superseded","amb")
+    b+=pill(392,74,124,30,"Deprecated","flag")
+    b+=arr(140,54,178,54,"review",dy=-5,fs=9)
+    b+=poly([(296,54),(344,54),(344,25),(390,25)],color=MUTED)
+    b+=poly([(344,54),(344,89),(390,89)],color=MUTED)
+    b+=lbl(348,18,"ADR-051 replaces it",8.8)
+    b+=lbl(348,104,"nothing replaces it",8.8)
+    b+=txt(24,132,"Two endings, not a queue: an ADR is superseded when a later one replaces it, deprecated when the "
+                  "thing it decided is simply gone.",9.5,MUTED,style="i")
+    b+=frame(24,148,592,166,"ADR-042  ·  Use Kafka for order events",ACC,dash=False)
+    secs=[("Context","Three services need order state; nightly batch is too slow.",178),
+          ("Decision","Publish domain events to Kafka, keyed by orderId.",216),
+          ("Alternatives","Shared database (rejected: coupling). REST fan-out (rejected: n² links).",254),
+          ("Consequences","+ decoupled  + replayable   − ops burden  − eventual consistency in the UI",292)]
     for h,t,y in secs:
         b+=txt(44,y,h.upper(),8.8,ACC,"600")
         b+=txt(150,y,t,10,INK if h=="Decision" else MUTED)
-    b+='<line x1="140" y1="102" x2="140" y2="244" stroke="%s" stroke-width="1"/>'%LINE
-    b+=txt(24,290,"Never edited, only superseded — the record of a decision you later reversed is more valuable than",10,MUTED)
-    b+=txt(24,305,"the reversal. Keep them in the repo beside the code, numbered, one page each. If the consequences",10,MUTED)
-    b+=txt(24,320,"section lists no downside, no trade-off was made and the ADR is marketing.",10,MUTED)
-    return svg(332,b)
+    b+='<line x1="140" y1="162" x2="140" y2="304" stroke="%s" stroke-width="1"/>'%LINE
+    b+=txt(24,350,"Never edited, only superseded — the record of a decision you later reversed is more valuable than",10,MUTED)
+    b+=txt(24,365,"the reversal. Keep them in the repo beside the code, numbered, one page each. If the consequences",10,MUTED)
+    b+=txt(24,380,"section lists no downside, no trade-off was made and the ADR is marketing.",10,MUTED)
+    return svg(392,b)
 
 # ---------- 15. Specialised ----------
 def d_servicedep():
@@ -1829,9 +1985,19 @@ def d_servicedep():
     b+=arr(308,62,200,94); b+=arr(348,62,440,94)
     b+=arr(150,138,110,178); b+=arr(190,138,230,178)
     b+=arr(458,138,458,178)
+    # finding 1 — the cycle, which needs both edges drawn to be a cycle at all
+    b+=arr(246,108,394,108,None,FLAG)
+    b+=arr(394,128,246,128,None,FLAG)
+    b+=lbl(320,122,"cycle — each calls the other",8.8,FLAG,"600")
+    # finding 2 — six inbound edges on one node, collected onto a rail so they can be counted
+    b+=poly([(388,43),(578,43),(578,246)],color=FLAG,dash=True,head=False)
+    b+=poly([(164,138),(164,246)],color=FLAG,dash=True,head=False)
+    b+=poly([(520,110),(548,110),(548,246)],color=FLAG,dash=True,head=False)
     for x in (86,242,458):
-        b+=poly([(x,222),(x,242),(350,242),(350,260)],color=FLAG,dash=True)
-    b+=arr(396,117,246,117,"sync call — a cycle",lp=0.5,dy=-6,fs=8.8,color=FLAG)
+        b+=poly([(x,222),(x,246)],color=FLAG,dash=True,head=False)
+    b+='<line x1="86" y1="246" x2="578" y2="246" stroke="%s" stroke-width="1.2" stroke-dasharray="5 4"/>'%FLAG
+    b+=arr(350,246,350,258,None,FLAG,dash=True)
+    b+=lbl(350,240,"6 inbound",8.8,FLAG,"600")
     b+=txt(24,340,"Two things to look for and nothing else. Cycles — Order calls Catalogue and Catalogue calls back —",10,MUTED)
     b+=txt(24,355,"which make deployment order undefined and failures circular. And the node with the most inbound",10,MUTED)
     b+=txt(24,370,"edges, your real availability ceiling. Generate it from traces; the hand-drawn version flatters you.",10,MUTED)
@@ -1863,23 +2029,33 @@ def d_mlops():
 
 def d_llmapp():
     b=""
-    b+=node(24,70,110,46,"User",None,"soft",fs=10.5)
-    b+=node(150,70,132,46,"Orchestrator","plan · act · observe","acc",fs=10.5)
-    b+=node(316,20,132,40,"Model","tool-calling","vio",fs=10.5)
-    b+=node(316,76,132,34,"Tools","typed, allow-listed",fs=10)
-    b+=node(316,122,132,34,"Retrieval","the RAG plate",fs=10)
-    b+=node(316,168,132,34,"Memory","short + long term",fs=10)
-    b+=node(490,70,126,46,"Response","cited, checked","grn",fs=10.5)
-    b+=arr(134,93,148,93); b+=arr(448,93,488,93)
-    b+=arr(282,86,314,42); b+=arr(282,93,314,93); b+=arr(282,100,314,136); b+=arr(282,107,314,182)
-    b+=node(24,224,286,44,"Guardrails  ·  in and out","injection, PII, policy, cost cap","flag",fs=10.5)
-    b+=node(330,224,286,44,"Evals + traces","every step logged and replayable","grn",fs=10.5)
-    b+=poly([(216,116),(216,222)],color=FLAG,dash=True)
-    b+=poly([(473,116),(473,222)],color=GRN,dash=True)
-    b+=txt(24,300,"Draw the loop, because the loop is what breaks: how many times may it call a tool, what is the",10,MUTED)
-    b+=txt(24,315,"token and money ceiling per request, and what happens when the model asks for a tool it should",10,MUTED)
-    b+=txt(24,330,"not have? Treat model output as untrusted input to everything downstream — it is.",10,MUTED)
-    return svg(342,b)
+    b+=node(24,20,286,40,"Guardrails on both sides","injection + PII in  ·  policy + PII out","flag",fs=10)
+    b+=node(330,20,286,40,"Evals + traces","every turn logged, replayable, costed","grn",fs=10)
+    b+=node(24,92,96,44,"User",None,"soft",fs=10.5)
+    b+=node(142,92,142,44,"Orchestrator","plan · act · observe","acc",fs=10.5)
+    b+=node(342,92,124,44,"Model","tool-calling","vio",fs=10.5)
+    b+=node(508,92,108,44,"Response","cited, checked","grn",fs=10.5)
+    b+=arr(167,60,167,90,None,FLAG,dash=True)
+    b+=arr(473,60,473,90,None,GRN,dash=True)
+    b+=arr(120,114,140,114)
+    b+=arr(466,108,506,108,"loop exits",lp=0.5,dy=-6,fs=8.4,color=GRN)
+    # the loop is drawn, because the loop is the thing that breaks — and it is bounded,
+    # because an unbounded one does not fail loudly
+    b+=arr(284,104,340,104,"prompt + tool results",lp=0.5,dy=-16,fs=8.4,color=ACC)
+    b+=arr(340,126,284,126,"next tool call",lp=0.5,dy=13,fs=8.4,color=VIO)
+    b+=poly([(213,136),(213,166),(404,166),(404,138)],color=AMB,dash=True,head=False)
+    b+=lbl(308,182,"bounded — 6 turns max  ·  60 s  ·  $0.05  ·  then stop and say why",9,AMB,"600")
+    b+='<line x1="117" y1="204" x2="522" y2="204" stroke="%s" stroke-width="1.1" stroke-dasharray="5 4"/>'%MUTED
+    b+=poly([(213,166),(213,204)],color=MUTED,dash=True,head=False)
+    b+=node(24,216,186,38,"Tools","typed, allow-listed","plain",fs=9.6)
+    b+=node(226,216,186,38,"Retrieval","the RAG plate","plain",fs=9.6)
+    b+=node(428,216,188,38,"Memory","short-term + long-term","plain",fs=9.6)
+    for x in (117,319,522):
+        b+=arr(x,204,x,214,None,MUTED,dash=True)
+    b+=txt(24,290,"Draw the loop, and put numbers on it. An agent with no turn cap, no wall-clock cap and no cost",10,MUTED)
+    b+=txt(24,305,"ceiling does not fail loudly — it fails at 3 a.m. with a five-figure bill and no answer. And treat",10,MUTED)
+    b+=txt(24,320,"model output as untrusted input to everything downstream, because that is exactly what it is.",10,MUTED)
+    return svg(332,b)
 
 def d_iot():
     b=""
@@ -1908,9 +2084,9 @@ def d_edge():
     tiers=[("Device","0 ms","on the thing itself",24,"soft"),("Edge / PoP","2–10 ms","cache, auth, filter",172,"acc"),
            ("Regional","20–40 ms","stateful services",320,"plain"),("Core cloud","80–150 ms","training, warehouse",468,"plain")]
     for n,lat,role,x,st in tiers:
-        b+=node(x,50,148,60,n,role,st,fs=11)
-        b+=txt(x+74,132,lat,10,ACC,"600","middle")
-        if x<468: b+=arr(x+148,80,x+170,80)
+        b+=node(x,50,128,60,n,role,st,fs=11)
+        b+=txt(x+64,132,lat,10,ACC,"600","middle")
+        if x<468: b+=arr(x+128,80,x+146,80)
     b+='<line x1="24" y1="146" x2="616" y2="146" stroke="%s" stroke-width="1"/>'%LINE
     b+=node(24,166,286,44,"Push outward","latency, bandwidth cost, data residency","grn",fs=10.5)
     b+=node(330,166,286,44,"Keep inward","consistency, expensive compute, state","acc",fs=10.5)
@@ -1948,3 +2124,372 @@ def d_uml_component():
     b+=txt(24,330,"swap either side of. C4 borrowed the word and means something else by it — what is inside",10,MUTED)
     b+=txt(24,345,"one container — so say which you mean before anyone starts drawing.",10,MUTED)
     return svg(358,b)
+
+# ==================================================================
+# Additions — the gaps a working architect hits that the first pass missed.
+# ==================================================================
+
+# ---------- 1. Architecture & system-level ----------
+def d_hexagonal():
+    b=""
+    b+=txt(24,24,"DRIVING  ·  adapters that call us",9,ACC,"600")
+    b+=txt(466,24,"DRIVEN  ·  adapters we call",9,ACC,"600")
+    b+='<path d="M 200 148 L 262 58 L 378 58 L 440 148 L 378 238 L 262 238 Z" fill="%s" stroke="%s" stroke-width="1.8"/>'%(TINT[ACC],ACC)
+    b+=txt(320,110,"Domain",13,"#123F5C","700","middle")
+    b+=txt(320,127,"entities, value objects, invariants",8.6,MUTED,anchor="middle")
+    b+=txt(320,164,"Application",11.5,"#123F5C","600","middle")
+    b+=txt(320,181,"use cases, orchestration only",8.6,MUTED,anchor="middle")
+    for n,t,y in [("REST controller","HTTP",100),("Scheduled job","cron",148),("Test harness","in-memory",196)]:
+        b+=node(24,y-19,150,38,n,t,"soft",fs=10)
+    for n,t,y in [("Postgres adapter","SQL",100),("Kafka adapter","producer",148),("Stripe adapter","HTTP",196)]:
+        b+=node(466,y-19,150,38,n,t,"soft",fs=10)
+    # the port is a square ON the boundary — an interface the hexagon itself owns
+    for y in (100,148,196):
+        ex=200+(abs(148-y)/90.0)*62
+        b+='<rect x="%g" y="%g" width="13" height="13" fill="#FFFFFF" stroke="%s" stroke-width="1.4"/>'%(ex-6.5,y-6.5,ACC)
+        b+=arr(176,y,ex-9,y)
+        ex2=440-(abs(148-y)/90.0)*62
+        b+='<rect x="%g" y="%g" width="13" height="13" fill="#FFFFFF" stroke="%s" stroke-width="1.4"/>'%(ex2-6.5,y-6.5,ACC)
+        b+=arr(ex2+9,y,464,y)
+    b+=lbl(320,254,"the port is the square on the edge — an interface the hexagon owns",8.6,ACC,"600")
+    b+=note(24,272,286,["Driving adapters call in; the hexagon","calls driven adapters out. Either way","the adapter depends on the port — so","the dependency always points inward."],ACC)
+    b+=node(330,272,286,44,"Swap an adapter, keep the core","Postgres → DynamoDB touches exactly one box","grn",fs=9.6)
+    b+=txt(24,368,"The hexagon is a rule with a shape: nothing inside it may import a framework, a driver or an",10,MUTED)
+    b+=txt(24,383,"HTTP type. That is what makes the core testable without infrastructure and survivable across a",10,MUTED)
+    b+=txt(24,398,"re-platforming — and it holds only because it is checkable in a build test.",10,MUTED)
+    return svg(410,b)
+
+# ---------- 3. Interaction & runtime ----------
+def d_processview():
+    b=""
+    b+=frame(24,36,286,182,"process  ·  api-server  ×4 replicas",ACC,dash=False)
+    b+=inode(42,64,250,32,"Accept loop","1 thread, epoll","acc","sync",fs=9.8)
+    b+=inode(42,106,250,38,"Request pool","32 threads · bounded queue 100","acc","server",fs=9.8)
+    b+=inode(42,154,250,46,"Connection pool","10 to Postgres","amb","db",fs=9.8)
+    b+=frame(330,36,286,182,"process  ·  worker  ×2 replicas",MUTED,dash=False)
+    b+=inode(348,64,250,32,"Consumer","4 threads, prefetch 10","plain","queue",fs=9.8)
+    b+=inode(348,106,250,38,"Job pool","8 threads · CPU bound","plain","gear",fs=9.8)
+    b+=inode(348,154,250,46,"Connection pool","5 to Postgres","amb","db",fs=9.8)
+    b+=cyl(216,266,208,52,"Postgres","max_connections = 100","grn")
+    b+=poly([(167,200),(167,244),(260,244),(260,264)],color=AMB)
+    b+=poly([(473,200),(473,244),(380,244),(380,264)],color=AMB)
+    b+=lbl(320,240,"4 × 10  +  2 × 5  =  50 of 100 — the ceiling nobody sized",8.8,AMB,"600")
+    b+=node(24,336,286,44,"Threads are not the constraint","32 × 4 = 128 in flight, and that is fine","amb",fs=9.6)
+    b+=node(330,336,286,44,"The pool is","double the replicas and Postgres runs out, not CPU","flag",fs=9.6)
+    b+=txt(24,410,"The forgotten view of the 4+1 set, and the one that explains outages a structure diagram",10,MUTED)
+    b+=txt(24,425,"cannot: what runs as a process, what runs as a thread, what is shared between them, and which",10,MUTED)
+    b+=txt(24,440,"bound is reached first. Autoscaling multiplies every number on this page — including the ones",10,MUTED)
+    b+=txt(24,455,"that belong to something you do not own.",10,MUTED)
+    return svg(467,b)
+
+# ---------- 4. Data architecture ----------
+def d_sharding():
+    b=""
+    specs=[("Hash","hash(tenantId) % 8",
+            ["+ even spread by design","− no range scans","− adding a shard","   rehashes everything"],24,ACC),
+           ("Range","month(created_at)",
+            ["+ range scans stay cheap","+ old shards go cold","− this month is always","   the hot shard"],216,AMB),
+           ("Directory","tenant → shard map",
+            ["+ move one tenant at a time","+ residency per tenant","− the lookup becomes","   a tier-0 dependency"],408,GRN)]
+    for name,key,lines,x,c in specs:
+        b+=band(x,20,184,172,name,c,fs=10)
+        b+=node(x+12,50,160,30,key,None,"plain",fs=9.2)
+        for i,t in enumerate(lines):
+            b+=txt(x+12,102+i*16,t,8.8,GRN if t.startswith("+") else (FLAG if t.startswith("−") else MUTED))
+    b+=txt(24,216,"AND THE PART THAT ACTUALLY DECIDES IT  ·  what happens when you outgrow N",9,ACC,"600")
+    for i in range(4):
+        b+=inode(24+i*152,230,140,38,"shard %d"%i,"~2 TB","plain","db",fs=9.6,isize=13,pad=6)
+    b+=node(24,288,286,46,"Re-sharding live is a quarter","not a sprint, and not a maintenance window","flag",fs=9.6)
+    b+=node(330,288,286,46,"So write the rebalance plan down","split · backfill · dual-read · cut over · drop","grn",fs=9.6)
+    b+=txt(24,364,"The shard key is the hardest decision here to reverse and the one most often made by whoever",10,MUTED)
+    b+=txt(24,379,"wrote the first migration. Choose it for the query you run most, not the write you make most —",10,MUTED)
+    b+=txt(24,394,"and state what happens at the shard count you will actually reach, not the one you start with.",10,MUTED)
+    return svg(406,b)
+
+# ---------- 7. Business & domain ----------
+def d_teamtopo():
+    b=""
+    b+=txt(24,22,"FOUR TEAM TYPES, THREE INTERACTION MODES  ·  and nothing else",9,ACC,"600")
+    b+=node(24,34,276,54,"Stream-aligned  ·  Orders","owns Order Service end to end","acc",fs=11)
+    b+=node(340,34,276,54,"Stream-aligned  ·  Payments","owns Payment Service end to end","acc",fs=11)
+    b+=arr(300,54,338,54,None,ACC); b+=arr(338,70,300,70,None,ACC)
+    b+=lbl(319,46,"collaboration",8.4,ACC,"600")
+    b+=lbl(319,86,"time-boxed, then split",8.2,MUTED)
+    b+=node(24,126,240,50,"Enabling  ·  SRE guild","coaches a team, then leaves","amb",fs=10.5)
+    b+=node(376,126,240,50,"Complicated subsystem","pricing engine — specialists","vio",fs=10.5)
+    b+=poly([(144,126),(144,108),(162,108),(162,90)],color=AMB,dash=True,label="facilitating",lx=104,ly=112,fs=8.6)
+    b+=poly([(496,126),(496,108),(478,108),(478,90)],color=VIO,label="X-as-a-service",lx=556,ly=112,fs=8.6)
+    b+=node(24,214,592,50,"Platform  ·  the golden path as a product",
+            "paved road, self-serve, opt-in — measured by adoption, not by tickets closed","grn",fs=11)
+    b+=arr(162,212,162,180,None,GRN); b+=arr(478,212,478,180,None,GRN)
+    b+=lbl(320,204,"X-as-a-service to everyone above",8.6,GRN,"600")
+    b+=note(24,282,592,["This is a design, not a description. Team boundaries and service boundaries are the same",
+                        "boundaries — so if this does not match the bounded context map, one of the two is wrong,",
+                        "and it is almost always cheaper to move the team than to move the code."],ACC)
+    b+=txt(24,384,"Inverse Conway: choose the architecture you want, then shape the teams to match, because the",10,MUTED)
+    b+=txt(24,399,"system ends up looking like the org chart whether anyone planned it or not. Cognitive load is",10,MUTED)
+    b+=txt(24,414,"the sizing rule — a stream-aligned team that owns nine services owns none of them well.",10,MUTED)
+    return svg(426,b)
+
+def d_wardley():
+    b=""
+    X0,X1,Y0,Y1=96,608,38,232
+    b+='<rect x="%g" y="%g" width="%g" height="%g" rx="3" fill="#FCFCFD" stroke="%s" stroke-width="1.2"/>'%(
+        X0,Y0,X1-X0,Y1-Y0,LINE)
+    for i,s in enumerate(["Genesis","Custom-built","Product / rental","Commodity"]):
+        xx=X0+(X1-X0)*i/4.0
+        if i: b+='<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="1" stroke-dasharray="3 4"/>'%(xx,Y0,xx,Y1,LINE)
+        b+=txt(xx+(X1-X0)/8.0,Y1+16,s,8.8,MUTED,anchor="middle")
+    b+=txt(24,Y0+12,"visible to",9,MUTED); b+=txt(24,Y0+25,"the user",9,MUTED)
+    b+=txt(24,Y1-8,"invisible",9,MUTED)
+    b+=txt(352,Y1+38,"evolution  →  everything drifts right, and you cannot stop it",9,ACC,"600",anchor="middle")
+    pts={"Customer":(150,62),"Checkout":(214,98),"Fraud score":(198,150),
+         "Payment API":(392,124),"Identity":(486,170),"Compute":(566,208)}
+    for a,c in [("Customer","Checkout"),("Checkout","Fraud score"),("Checkout","Payment API"),
+                ("Payment API","Identity"),("Fraud score","Compute"),("Identity","Compute")]:
+        ax,ay=pts[a]; bx,by=pts[c]
+        b+='<line x1="%g" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="1.2"/>'%(ax,ay,bx,by,LINE)
+    style={"Customer":ACC,"Checkout":ACC,"Fraud score":FLAG,"Payment API":VIO,"Identity":VIO,"Compute":GRN}
+    for n,(px,py) in pts.items():
+        b+='<circle cx="%g" cy="%g" r="6" fill="#FFFFFF" stroke="%s" stroke-width="1.8"/>'%(px,py,style[n])
+        b+=lbl(px,py-13,n,9,style[n],"600")
+    b+=node(24,286,286,46,"Build only what is left of the line","genesis and custom — that is the differentiator","flag",fs=9.6)
+    b+=node(330,286,286,46,"Rent everything right of it","paying staff to run a commodity is paying to lose","grn",fs=9.6)
+    b+=txt(24,362,"Two axes and that is the entire notation: a value chain running down from a user need, and",10,MUTED)
+    b+=txt(24,377,"evolution running left to right. What makes it a map rather than a diagram is that the pieces",10,MUTED)
+    b+=txt(24,392,"move — so it tells you where to invest now, and what to stop building before the market",10,MUTED)
+    b+=txt(24,407,"commoditises it underneath you.",10,MUTED)
+    return svg(419,b)
+
+# ---------- 9. Integration & API ----------
+def d_ratelimit():
+    b=""
+    b+=inode(24,44,116,44,"Client","API key","soft","user",fs=10)
+    b+=inode(162,44,150,44,"Edge / CDN","coarse, per IP","plain","globe",fs=10)
+    b+=inode(334,44,150,44,"Gateway","per key, token bucket","acc","shield",fs=10)
+    b+=inode(506,44,110,44,"Service","per tenant","acc","server",fs=10)
+    b+=arr(140,66,160,66); b+=arr(312,66,332,66); b+=arr(484,66,504,66)
+    b+=cyl(334,116,150,46,"Redis","shared counters","amb")
+    b+=arr(409,88,409,114,"INCR + TTL",lp=0.5,dy=-2,fs=8.4)
+    b+=inode(24,116,286,46,"429 + Retry-After + RateLimit-*","a limit they cannot see is one they cannot respect","flag","warn",fs=9.4,isize=14,pad=8)
+    rows=[["Free","100 / min","20","reject"],
+          ["Pro","5 000 / min","500","reject"],
+          ["Partner","50 000 / min","5 000","shed to queue"],
+          ["Internal","no quota","—","alert only"]]
+    b+=grid(24,182,592,["Tier","Sustained","Burst","Over the limit"],rows,[0,0.26,0.52,0.72],rh=26,hh=28)
+    b+=note(24,308,592,["Limit per key, not per IP: one partner behind one NAT is a single caller, and ten thousand",
+                        "mobile clients on one carrier are not. And count in a shared store — a per-instance limiter",
+                        "running on eight instances is an eight-times-larger limit than the one in your contract."],AMB)
+    b+=txt(24,410,"A rate limit is a product decision written as infrastructure: it decides which customers are",10,MUTED)
+    b+=txt(24,425,"able to hurt each other, and it is the cheapest protection you will ever deploy. Publish the",10,MUTED)
+    b+=txt(24,440,"numbers, return them in headers on every response, and make the tier a field on the account.",10,MUTED)
+    return svg(452,b)
+
+# ---------- 13. Reliability & resilience ----------
+def d_backup():
+    b=""
+    b+=cyl(24,52,150,56,"Primary","Postgres","acc")
+    b+=inode(206,50,166,42,"Base backup","nightly full","plain","archive",fs=10)
+    b+=inode(206,102,166,42,"WAL shipping","every 60 s","plain","sync",fs=10)
+    b+=inode(404,50,212,42,"Object store","versioned · object lock","grn","lock",fs=10)
+    b+=inode(404,102,212,42,"Separate region + account","ransomware blast radius","grn","shield",fs=9.4)
+    b+=arr(174,71,204,71); b+=arr(174,89,204,123)
+    b+=arr(372,71,402,71); b+=arr(372,123,402,123)
+    b+=node(24,168,286,46,"RPO = 60 s","the shipping interval — not the nightly backup","amb",fs=9.6)
+    b+=node(330,168,286,46,"RTO = 40 min","restore 2 TB, replay WAL, repoint the app","amb",fs=9.6)
+    b+=inode(24,232,592,46,"Restored monthly into a scratch account, and timed",
+             "an untested backup is a filesystem you are paying to keep","grn","check",fs=10.5)
+    b+=note(24,296,592,["Backup is not DR and DR is not backup. Failover moves you onto a replica of the same data, so",
+                        "it carries the corruption and the DELETE across with it. Point-in-time restore is the only",
+                        "thing that answers “someone dropped the table at 14:05” — and nobody rehearses it."],FLAG)
+    b+=txt(24,398,"Three numbers make this real and all three are on the plate: how much data you lose, how long",10,MUTED)
+    b+=txt(24,413,"you are down, and when the restore was last actually executed. The third is the one auditors",10,MUTED)
+    b+=txt(24,428,"ask for, and the one teams cannot answer.",10,MUTED)
+    return svg(440,b)
+
+# ---------- 16. Quality & cross-cutting ----------
+def d_qascenario():
+    b=""
+    b+=node(24,116,108,44,"Utility",None,"acc",fs=12)
+    for n,pri,y,c in [("Performance","(H, H)",24,ACC),("Availability","(H, M)",76,GRN),
+                      ("Security","(H, H)",128,FLAG),("Modifiability","(M, M)",180,VIO)]:
+        b+=node(168,y,150,40,n,pri,"plain",fs=10.5)
+        b+=poly([(132,138),(150,138),(150,y+20),(166,y+20)],color=MUTED)
+    b+=txt(168,244,"( how much the business cares , how likely we are to miss it )",8.4,MUTED)
+    b+=frame(346,20,270,220,"one scenario, all six parts",ACC,dash=False)
+    for k,v,y in [("Source","a signed-in customer",54),("Stimulus","submits checkout",82),
+                  ("Artefact","the order API",110),("Environment","peak Black Friday load",138),
+                  ("Response","order accepted, 201",166),("Measure","p99 < 400 ms, 99.95 % of the hour",194)]:
+        b+=txt(360,y,k.upper(),8.2,ACC,"600")
+        b+=txt(438,y,v,9,MUTED)
+    b+=node(24,270,592,46,"A quality attribute with no measure is a wish",
+            "“fast”, “secure” and “scalable” cannot be tested, budgeted, or traded against anything","flag",fs=10.5)
+    b+=txt(24,346,"The one artefact here about requirements rather than structure — and the one most often",10,MUTED)
+    b+=txt(24,361,"missing, which is why so many reviews argue about boxes instead. Rank every leaf twice, and",10,MUTED)
+    b+=txt(24,376,"let only the (H, H) leaves shape the architecture: those are the ones that cost real money to",10,MUTED)
+    b+=txt(24,391,"satisfy and real credibility to miss.",10,MUTED)
+    return svg(403,b)
+
+def d_tenancy():
+    b=""
+    specs=[("Silo","stack per tenant",24,"grn",2,2),
+           ("Bridge","shared app, DB per tenant",216,"amb",1,2),
+           ("Pool","shared everything",408,"flag",1,1)]
+    for name,sub,x,st,na,nd in specs:
+        c={"grn":GRN,"amb":AMB,"flag":FLAG}[st]
+        b+=band(x,20,184,172,name,c,fs=10)
+        b+=txt(x+92,60,sub,8.6,MUTED,anchor="middle")
+        w=(160-8*(na-1))/float(na)
+        for i in range(na):
+            b+=node(x+12+i*(w+8),70,w,28,("App %s"%chr(65+i)) if na>1 else "App",None,st,fs=9.2)
+        w=(160-8*(nd-1))/float(nd)
+        for i in range(nd):
+            b+=cyl(x+12+i*(w+8),110,w,46,("DB %s"%chr(65+i)) if nd>1 else "One DB",
+                   None if nd>1 else "tenant_id column",st)
+    rows=[["Silo","Physical — a bug hits one","Highest","Impossible","Regulated, enterprise"],
+          ["Bridge","Data is separated","Medium","Compute only","Mid-market"],
+          ["Pool","As good as the WHERE clause","Lowest","All tenants at once","Self-serve, volume"]]
+    b+=grid(24,214,592,["Model","Blast radius of a bug","Cost / tenant","Noisy neighbour","Fits"],rows,
+            [0,0.14,0.46,0.62,0.81],rh=28,hh=28)
+    b+=note(24,338,592,["Most estates end up running all three at once, and that is fine so long as it was chosen: pool",
+                        "the free tier, bridge the mid-market, silo the two customers whose contract demands it. What",
+                        "is not fine is discovering which model you have by reading a WHERE clause."],AMB)
+    b+=txt(24,440,"The decision that shapes everything downstream — schema, backup, migration, incident blast",10,MUTED)
+    b+=txt(24,455,"radius and the price list. Decide it once, record it here, and make the tenant boundary a thing",10,MUTED)
+    b+=txt(24,470,"the code cannot forget: one filter, in one place, enforced by a test and never by discipline.",10,MUTED)
+    return svg(482,b)
+
+def d_caching():
+    b=""
+    b+=txt(24,24,"LAYERS  ·  each one a separate invalidation problem",9,ACC,"600")
+    for n,s2,x,st,ic in [("Browser","Cache-Control 60 s",24,"soft","globe"),
+                         ("CDN","stale-while-reval.",166,"plain","cloud"),
+                         ("Redis","cache-aside, 5 min",308,"acc","bolt"),
+                         ("Database","source of truth",450,"grn","db")]:
+        b+=inode(x,38,126,48,n,s2,st,ic,fs=10,isize=13,pad=6)
+        if x<450: b+=arr(x+126,62,x+140,62)
+    b+=node(24,104,286,44,"Invalidation is the hard half","a TTL is a guess; an event-driven purge is a design","amb",fs=9.4)
+    b+=node(330,104,286,44,"Stampede protection","single-flight lock + jittered TTL","flag",fs=9.4)
+    b+=txt(24,182,"THE READ PATH  ·  and what a miss actually costs",9,ACC,"600")
+    b+=node(24,196,104,38,"Read key",None,"plain",fs=10)
+    b+=dia(212,215,116,44,"in cache?","acc",fs=9.5)
+    b+=node(318,192,138,34,"Serve  ·  1 ms",None,"grn",fs=9.8)
+    b+=node(318,238,138,34,"Load  ·  40 ms",None,"amb",fs=9.8)
+    b+=node(478,238,138,34,"Store + jitter",None,"plain",fs=9.8)
+    b+=arr(128,215,152,215)
+    b+=arr(270,213,316,209,"hit 94 %",lp=0.5,dy=-6,fs=8.6)
+    b+=poly([(212,237),(212,255),(316,255)],color=AMB,label="miss 6 %",lx=252,ly=250,fs=8.6)
+    b+=arr(456,255,476,255)
+    b+=poly([(547,238),(547,215),(462,215)],color=MUTED,dash=True,label="then serve",lx=506,ly=210,fs=8.6)
+    b+=note(24,290,592,["94 % is not the number that matters. Six per cent of steady traffic reaching a database sized",
+                        "for six per cent is fine; the same six per cent arriving in one second when the cache",
+                        "restarts is an outage. Size the origin for the miss storm, not for the average."],FLAG)
+    b+=txt(24,392,"The cheapest performance win available, and the most reliable source of “it works on my",10,MUTED)
+    b+=txt(24,407,"machine, stale in production”. Three answers are the whole architecture: what the TTL is, who",10,MUTED)
+    b+=txt(24,422,"invalidates, and what a cold cache does to the tier behind it.",10,MUTED)
+    return svg(434,b)
+
+def d_finops():
+    b=""
+    b+=txt(24,22,"TAGGING  ·  applied by the platform, never by hand — untagged spend is unattributable spend",9,ACC,"600")
+    for n,v,x,w in [("service","order-api",24,142),("team","payments",176,132),
+                    ("env","prod",318,104),("cost-centre","CC-4471",432,184)]:
+        b+=node(x,32,w,38,n,v,"acc",fs=9.6)
+    rows=[["Compute  ·  ECS + Lambda","£18 400","direct","£0.0021 / order"],
+          ["Managed data  ·  Aurora","£9 200","direct","£0.0011 / order"],
+          ["Egress  ·  NAT + CDN","£6 900","direct","£0.0008 / order"],
+          ["Observability  ·  logs","£4 800","shared, by log volume","£0.0006 / order"],
+          ["Platform  ·  cluster, mesh","£5 700","shared, by CPU-hour","£0.0007 / order"]]
+    b+=grid(24,92,592,["Line","Monthly","Attribution","Unit cost"],rows,[0,0.42,0.58,0.82],rh=26,hh=28)
+    b+=node(24,266,286,46,"£45 000 a month","across 8.7 m orders","acc",fs=10.5)
+    b+=node(330,266,286,46,"£0.0053 per order","the number to track per release","grn",fs=10.5)
+    b+=note(24,330,592,["Shared cost has to be allocated by something, and whatever you pick becomes an incentive:",
+                        "charge the cluster by CPU-hour and teams right-size their requests; split it evenly and",
+                        "nobody ever does. Unallocated shared cost is the line that quietly grows."],AMB)
+    b+=txt(24,432,"The only plate here with money on it, and it belongs here because cost is a quality attribute",10,MUTED)
+    b+=txt(24,447,"like latency: settled by the same design choices, and the one the business will actually ask",10,MUTED)
+    b+=txt(24,462,"you about. Track cost per unit of work, not total spend — total going up while cost per order",10,MUTED)
+    b+=txt(24,477,"goes down is a company that is growing.",10,MUTED)
+    return svg(489,b)
+
+# ---------- 17. Evolution & migration ----------
+def d_migration():
+    b=""
+    for t,x,c in [("AS-IS  ·  today",24,MUTED),("TRANSITION  ·  6–18 months",216,AMB),
+                  ("TO-BE  ·  target",408,GRN)]:
+        b+=band(x,20,184,192,t,c,fs=9.6)
+    b+=node(36,56,160,44,"Monolith","everything","soft",fs=10.5)
+    b+=cyl(36,112,160,50,"One database",None,"soft")
+    b+=arr(116,100,116,110)
+    b+=node(228,56,160,32,"Routing facade","by URL prefix","acc",fs=9.4)
+    b+=node(228,98,76,34,"Monolith",None,"soft",fs=9)
+    b+=node(312,98,76,34,"Orders",None,"grn",fs=9)
+    b+=cyl(228,144,160,46,"One database","still shared — split it last","amb")
+    b+=arr(266,88,266,96); b+=arr(350,88,350,96)
+    b+=node(420,56,160,32,"API gateway",None,"acc",fs=9.4)
+    b+=node(420,98,76,34,"Orders",None,"grn",fs=9)
+    b+=node(504,98,76,34,"Billing",None,"grn",fs=9)
+    b+=cyl(420,144,76,46,"DB",None,"grn"); b+=cyl(504,144,76,46,"DB",None,"grn")
+    b+=arr(458,88,458,96); b+=arr(542,88,542,96)
+    b+=arr(458,132,458,142); b+=arr(542,132,542,142)
+    b+=arr(204,116,214,116); b+=arr(396,116,406,116)
+    b+=node(24,232,286,46,"The transition state is an architecture","it runs in production for a year — design it, don’t tolerate it","flag",fs=9.4)
+    b+=node(330,232,286,46,"Every step reversible on its own","route back at the facade, in one config change","grn",fs=9.4)
+    b+=inode(24,294,592,46,"Strangler fig: the facade is what makes it incremental",
+             "new capability in front of the old, old capability retired behind it, caller unaware","acc","branch",fs=10.5)
+    b+=txt(24,370,"Almost every real architecture job is a migration, and almost no dictionary has a diagram for",10,MUTED)
+    b+=txt(24,385,"one. Draw three states, not two: the middle column is where you will actually live, it is the",10,MUTED)
+    b+=txt(24,400,"one nobody designs, and it is the one on call at 3 a.m. Put a date on when it ends, or it",10,MUTED)
+    b+=txt(24,415,"quietly becomes the target state.",10,MUTED)
+    return svg(427,b)
+
+def d_apiversion():
+    b=""
+    for n,s2,x,w,stl in [("Preview","no SLA",24,126,"soft"),("Current","supported",166,126,"grn"),
+                         ("Deprecated","announced, still works",308,150,"amb"),("Sunset","410 Gone",474,142,"flag")]:
+        b+=node(x,44,w,46,n,s2,stl,fs=10.5)
+    b+=arr(150,67,164,67); b+=arr(292,67,306,67); b+=arr(458,67,472,67)
+    b+=lbl(157,34,"GA",8.4); b+=lbl(299,34,"12 months notice",8.4); b+=lbl(465,34,"window closes",8.4)
+    b+=txt(24,122,"TWO VERSIONS IN FLIGHT  ·  and how a caller finds out",9,ACC,"600")
+    b+=inode(24,138,140,44,"Client A","pinned to v1","soft","user",fs=9.6)
+    b+=inode(24,194,140,44,"Client B","on v2","soft","user",fs=9.6)
+    b+=inode(200,138,180,44,"/v1/orders","Deprecation + Sunset hdrs","amb","network",fs=9.6)
+    b+=inode(200,194,180,44,"/v2/orders","current","grn","network",fs=9.6)
+    b+=inode(416,166,200,44,"Order Service","one codebase, two shapes","acc","server",fs=9.6)
+    b+=arr(164,160,198,160); b+=arr(164,216,198,216)
+    b+=arr(380,160,414,178); b+=arr(380,216,414,198)
+    b+=note(24,256,592,["Three headers turn a deprecation into a contract instead of an email: Deprecation: true,",
+                        "Sunset: <http-date>, and a Link header pointing at the migration guide. The caller can then",
+                        "alert on their own clock rather than finding out the morning you switch it off."],AMB)
+    b+=node(24,358,286,46,"Version the contract, not the code","one codebase serving two shapes beats two deployments","flag",fs=9.4)
+    b+=node(330,358,286,46,"Count who is still on v1","you cannot sunset what you cannot measure","grn",fs=9.4)
+    b+=txt(24,434,"A version you cannot retire is one you will support forever, so the retirement path is the part",10,MUTED)
+    b+=txt(24,449,"of the design that matters. Publish the window when you publish the version, and instrument",10,MUTED)
+    b+=txt(24,464,"per-caller usage from day one — the sunset conversation is entirely about that number.",10,MUTED)
+    return svg(476,b)
+
+def d_schemaevo():
+    b=""
+    b+=txt(24,22,"COMPATIBILITY MODE  ·  the registry setting decides who you may upgrade first",9,ACC,"600")
+    rows=[["Backward","new code reads old data","add optional, remove a field","consumers first"],
+          ["Forward","old code reads new data","add a field, remove optional","producers first"],
+          ["Full","both directions hold","add optional, with a default","either, any order"],
+          ["None","nothing is checked","anything at all","a coordinated outage"]]
+    def cc(r,i,v):
+        if r==3: return FLAG
+        return INK if i==0 else MUTED
+    b+=grid(24,34,592,["Mode","What still reads","The change it allows","Upgrade order"],rows,
+            [0,0.15,0.40,0.72],rh=27,hh=28,cellcolor=cc)
+    b+=txt(24,196,"SAFE",9,GRN,"600")
+    b+=classbox(24,208,258,["orderId  : string","total    : int","currency : string = “GBP”"],"OrderPlaced v4","grn")
+    b+=txt(24,304,"a new field with a default — old consumers ignore it",8.8,GRN)
+    b+=txt(334,196,"NOT SAFE",9,FLAG,"600")
+    b+=classbox(334,208,258,["orderId  : string","total    : decimal","currency : string"],"OrderPlaced v4","flag")
+    b+=txt(334,304,"int → decimal is a different type, not a wider one",8.8,FLAG)
+    b+=note(24,322,592,["Old events live forever. Anything published today has to stay readable by code written five",
+                        "years from now, which is why the only reliably safe change is adding an optional field with",
+                        "a default — and why renaming one is a new event type, never an edit."],AMB)
+    b+=txt(24,424,"Every event-driven estate reaches this question, usually on the day a consumer breaks in",10,MUTED)
+    b+=txt(24,439,"production. Set the mode in the registry before the first event is published, and make the",10,MUTED)
+    b+=txt(24,454,"build fail on an incompatible change rather than the consumer fail at 2 a.m.",10,MUTED)
+    return svg(466,b)

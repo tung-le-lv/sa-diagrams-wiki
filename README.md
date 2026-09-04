@@ -1,21 +1,21 @@
 # SA Diagrams Wiki
 
-A single-page diagram dictionary for software architects: **95 diagram types across 15
+A single-page diagram dictionary for software architects: **109 diagram types across 18
 categories**, each with a sample plate, the question it answers, when to reach for it,
 what it must show, and the mistake that shows up in review.
 
 Every named diagram type in `docs/` is covered — either as its own entry or as a listed
 alias on the entry that subsumes it, so alternative vocabulary stays searchable.
 
-The page also carries a **learning path**: 34 of the types arranged into three levels
+The page also carries a **learning path**: 38 of the types arranged into three levels
 that build on one another — Foundation (describe any system), Core practice (design and
 operate a distributed one), Specialist (depth where the domain requires it) — plus a
-question → diagram lookup table. It is a nav filter of its own, alongside the levels and
-the 15 categories.
+question → diagram lookup page. It is a nav filter of its own, alongside the levels and
+the 18 categories.
 
 ## Site structure
 
-The build emits **27 static pages** — one per category and per level, so no page carries
+The build emits **31 static pages** and three shared assets — one per category and per level, so no page carries
 the whole dictionary:
 
 | Page | Contains |
@@ -24,15 +24,15 @@ the whole dictionary:
 | `pages/learning-path.html` | The three levels sequenced, plus the 34 path entries in order |
 | `pages/level-<slug>.html` | Every entry at one level (3 pages) |
 | `pages/audience-<key>.html` | Every entry drawn primarily for one audience, plus the ones they also read (7 pages) |
-| `pages/<category-slug>.html` | Every entry in one category (15 pages) — an entry's canonical home |
+| `pages/<category-slug>.html` | Every entry in one category (18 pages) — an entry's canonical home |
 
 `index.html` stays at the repo root because GitHub Pages needs it there; every other page
 lives in `pages/`. Links are generated through `P(target, root)`, which knows whether the
 page being written sits at the root or inside `pages/` — never hard-code a page link.
 
 Each entry appears on three axes: its category page (the canonical URL and anchor), its
-level page, and its audience page. Search is global — every page embeds a small index of
-all 94 types and links results to their canonical page and anchor, so searching from any
+level page, and its audience page. Search is global — every page loads one shared index of
+all 109 types and links results to their canonical page and anchor, so searching from any
 page finds everything.
 
 ## Ordering within a category
@@ -78,9 +78,22 @@ what a page actually contains, so they sum to more than the entry count.
 `UML_14` lists UML 2.5's fourteen types in their two groups of seven; the UML page renders
 that panel and, thanks to `ALSO_IN`, all fourteen entries are on the page.
 
+`C4_SET` does the same job for the C4 model: four levels of zoom plus the supplementary
+views, mapped so the C4 page can show all seven and say where each one is filed. Both
+panels are rendered by `canon_cols()` and located by slug (`CAT_C4`, `CAT_UML`) rather
+than by a hard-coded number, so inserting a category ahead of them cannot silently point
+a panel at the wrong page.
+
 Note that a UML component diagram and a C4 component diagram are different things that
 share a word: the UML one shows provided and required interfaces, the C4 one shows what
 is inside a container. They are separate entries; do not alias one onto the other.
+
+For the same reason, hexagonal architecture is **not** cross-listed onto the UML page.
+It shares the ports-and-interfaces vocabulary with the composite structure and UML
+component diagrams, but it is an architectural pattern rather than a notation, and
+category 3 asserts that it holds UML 2.5's canonical fourteen. That kinship belongs in
+`RELATED`, not in `ALSO_IN` — which is the general rule: cross-list by *category*, link
+by *relationship*.
 
 ## Audience tags
 
@@ -97,13 +110,24 @@ Tags are searchable by the words people really type, not only the label: `AUDSYN
 "exec" and "product" all find the right entries. Add a synonym there rather than
 inventing a new audience.
 
+## See also
+
+`RELATED` in `entries.py` maps an entry name to the entries worth opening next. Aliases
+say what a diagram is *called*; this says what to read after it, which is what a
+dictionary otherwise cannot express — a saga makes no sense without the outbox, and a
+bounded context map is half an answer without the team topology beside it.
+
+Links are one-directional on purpose. "Read the ERD next" and "read the domain model
+next" are different pieces of advice, so most pairs are listed both ways but not all.
+Keep it to three or four per entry; a see-also list of nine is a list nobody follows.
+
 No build step at serve time, no backend, no runtime dependencies. Only Google Fonts is
-loaded externally; everything else, including all 95 sample diagrams, is inline SVG.
+loaded externally; everything else, including all 109 sample diagrams, is inline SVG.
 
 ## Build
 
 ```bash
-python build.py       # writes all 27 pages
+python build.py       # writes all 31 pages
 ```
 
 No third-party packages. Python 3.8+.
@@ -114,9 +138,11 @@ No third-party packages. Python 3.8+.
 |---|---|
 | `svg_kit.py` | Palette, SVG primitives (`node`, `arr`, `poly`, `frame`, `cyl`, `pill`, `classbox`, `lifelines`, `msg`, `dia`, `stick`, `oval`, `note`, `grid`), the `ICONS` glyph set and its box variants (`icon`, `inode`, `ihead`, `ilifelines`), arrowhead defs |
 | `diagrams.py` | One `d_*()` function per diagram type, returning a complete `<svg>` string |
-| `entries.py` | The 15 categories, the `STAGES` level definitions, the ordered `PATH`, the `QUESTIONS` table, and the 94 entries — all prose lives here |
+| `entries.py` | The 18 categories, the `STAGES` level definitions, the ordered `PATH`, the `QUESTIONS` table, the `RELATED` see-also graph, and the 109 entries — all prose lives here |
 | `build.py` | CSS, page assembly, nav, the learning-path panel, client-side filter/search, plate validation |
-| `index.html`, `pages/*.html` | Generated output — 27 pages. Do not edit by hand; every build overwrites them |
+| `index.html`, `pages/*.html` | Generated output — 31 pages. Do not edit by hand; every build overwrites them |
+| `assets/` | Generated output — `site.css`, `search-index.js`, `site.js`. Written once, cached by the browser |
+| `sitemap.xml`, `robots.txt` | Generated output — needs an absolute base URL (see **Publishing**) |
 
 ## Adding a diagram type
 
@@ -130,7 +156,7 @@ add(cat, name, level, defn, answers, when, must, fail, d_yourthing, caption,
     ["Other name it travels under", "…"])
 ```
 
-   `cat` is 1–15 (see `CATS`), `level` is 1 (foundation), 2 (core practice) or
+   `cat` is 1–18 (see `CATS`), `level` is 1 (foundation), 2 (core practice) or
    3 (specialist) — see `STAGES`. The trailing alias list is optional but is what
    makes a synonym findable.
 3. Tag it in `AUDIENCE` — `(primary, [also useful to])`. The build fails loudly if an
@@ -201,6 +227,13 @@ silently, so the shape simply disappears with no error.
 like it runs past its box. The estimate is rough — ~0.5em per character — so treat it
 as a prompt to look, not a verdict.
 
+`check_related()` fails the build on a `RELATED` entry pointing at a name that does not
+exist, or at itself. A see-also is rendered on every page an entry appears on, so one
+typo is a dead link in thirty places.
+
+`check_audiences()` fails the build if an entry is untagged or names an audience that
+does not exist.
+
 Worth checking by eye after adding a plate: nothing drawn outside the `viewBox`
 (it is clipped without warning), and no two boxes overlapping.
 
@@ -215,10 +248,56 @@ of those blocks.
 Body copy is IBM Plex Sans; headings, nav and the plate labels are IBM Plex Sans
 Condensed; metadata is IBM Plex Mono.
 
+## Page weight
+
+CSS, the search index and the search script are written once to `assets/` rather than
+inlined into every page. That matters more than it sounds: the boilerplate is ~117 KB,
+and inlining it into thirty-one pages cost about 3.4 MB of duplicated bytes and re-downloaded
+it on every navigation. The pages themselves carry only their own plates.
+
 ## Publishing
 
-All pages are flat files at the repo root with relative links, so GitHub Pages from the
-root works with no configuration, and the site also browses correctly over `file://`.
+All pages are flat files with relative links, so GitHub Pages from the repo root works
+with no configuration and the site also browses correctly over `file://`.
+
+Canonical links, Open Graph tags and `sitemap.xml` need an absolute base URL. `build.py`
+derives one from the `origin` git remote (`https://<user>.github.io/<repo>`); override it
+when the site is served from somewhere else:
+
+```bash
+SITE_URL=https://diagrams.example.com python build.py
+```
+
+With no remote and no `SITE_URL`, the build still succeeds — it just skips `sitemap.xml`,
+`robots.txt` and the absolute-URL tags, and says so.
 
 Renaming a category or level changes its filename; the old page is not deleted
 automatically, so remove stale `.html` files by hand after a rename.
+
+## The right-hand column
+
+Every page that lists entries gets a third column: what is on this page, in page order,
+with the entry currently under the header highlighted as you scroll. `toc()` in
+`build.py` builds it from the same list the page renders, so it cannot drift, and the
+scroll-spy is a plain scroll handler rather than an `IntersectionObserver` — the rule is
+"the last entry whose top has passed under the sticky header", which is what a reader
+means by *where am I*.
+
+Pages carrying a TOC get `.shell.has-toc`, which widens the grid to 1400px rather than
+squeezing the middle column: the plates have a `min-width` of 560px and would otherwise
+start scrolling sideways. Below 1300px the column is dropped and the shell reverts to
+two columns. It is also hidden while search results are showing, since the results have
+replaced the page the contents list describes.
+
+`index.html`, the learning path and the question page have no entries, so they have no
+TOC and stay at the narrower two-column width.
+
+## Accessibility and print
+
+Every plate is `role="img"` with `aria-labelledby` pointing at its own `<figcaption>`, so
+a screen reader announces the caption instead of skipping an unlabelled graphic. The page
+declares `<html lang="en">`.
+
+There is a print stylesheet: it drops the nav, header and search, and prevents entries,
+plates and fact tables from breaking across pages. This is a reference — people save it
+as a PDF.

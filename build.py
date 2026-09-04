@@ -10,10 +10,30 @@ One page per category and per level, plus a learning-path page and an overview:
 """
 from entries import *
 
-import os, re, json
+import os, re, json, subprocess
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SUB  = "pages"          # every page except index.html lives here
+AST  = "assets"         # shared CSS and JS, written once and cached across pages
+
+
+def site_url():
+    """Absolute base URL, needed for canonical links, Open Graph and the sitemap.
+    Derived from the git remote so it stays right after a fork; override with SITE_URL."""
+    env = os.environ.get("SITE_URL")
+    if env:
+        return env.rstrip("/")
+    try:
+        r = subprocess.check_output(["git", "-C", ROOT, "remote", "get-url", "origin"],
+                                    stderr=subprocess.DEVNULL).decode().strip()
+        m = re.search(r"[:/]([^/:]+)/([^/]+?)(?:\.git)?$", r)
+        if m:
+            return "https://%s.github.io/%s" % (m.group(1), m.group(2))
+    except Exception:
+        pass
+    return ""
+
+SITE = site_url()
 
 LEVELS   = {1:("Foundation","level-foundation","t1"),
             2:("Core practice","level-core-practice","t2"),
@@ -25,6 +45,10 @@ PATH_BY_NAME = {name:(lvl,step) for lvl,step,label,name in PATH}
 PATH_ORDER   = {name:i+1 for i,(lvl,step,label,name)
                 in enumerate(sorted(PATH,key=lambda r:(r[0],r[1])))}
 BY_NAME  = {en["name"]: en for en in E}
+# The two categories that carry a canonical-set panel. Looked up by slug so inserting a
+# category ahead of them does not silently point the panel at the wrong page.
+CAT_C4   = next(i for i, _n, s, _b in CATS if s == "c4-model")
+CAT_UML  = next(i for i, _n, s, _b in CATS if s == "uml")
 
 def cat_listing(i):
     """Entries shown on category i: the ones filed there, plus any that also belong,
@@ -60,6 +84,16 @@ def P(target, root):
         return "index.html" if root else "../index.html"
     return ("%s/%s.html" % (SUB, target)) if root else ("%s.html" % target)
 
+def A(fname, root):
+    """Link to a shared asset from index.html (root=True) or from inside SUB."""
+    return ("%s/%s" % (AST, fname)) if root else ("../%s/%s" % (AST, fname))
+
+def abs_url(fname, root):
+    """Absolute URL of a built page, for canonical / og:url / the sitemap."""
+    if not SITE:
+        return ""
+    return "%s/%s" % (SITE, fname if root else "%s/%s" % (SUB, fname))
+
 def url(en, root=False):
     """An entry's canonical home is its category page."""
     return P(CATSLUG[en["cat"]], root) + "#" + anchor(en["name"])
@@ -77,6 +111,16 @@ def check_plates():
                 bad.append("%s: %s=%r" % (en["name"], attr, val))
     if bad:
         raise SystemExit("Invalid SVG paint values:\n  " + "\n  ".join(sorted(set(bad))))
+
+def check_related():
+    """A see-also pointing at a name that no longer exists is a dead link on 30 pages."""
+    names = {en["name"] for en in E}
+    bad = ["RELATED key is not an entry: " + k for k in RELATED if k not in names]
+    bad += ["%s -> %s does not exist" % (k, n)
+            for k, v in RELATED.items() for n in v if n not in names]
+    bad += ["%s links to itself" % k for k, v in RELATED.items() if k in v]
+    if bad:
+        raise SystemExit("See-also links:\n  " + "\n  ".join(sorted(bad)))
 
 def check_audiences():
     """Every entry must declare an audience, and only ones that exist."""
@@ -103,11 +147,15 @@ def check_text_fit():
     return sorted(set(warn), reverse=True)
 
 # ------------------------------------------------------------------------ CSS
+# The font links stay in the head of every page; the stylesheet itself is written
+# once to assets/site.css so the browser downloads and caches it a single time.
+FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+         '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+         '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
+         'family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700'
+         '&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">\n')
+
 CSS = """
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
-<style>
 :root{
   --paper:#EDEFF1; --surface:#F9FAFB; --ink:#14181B; --ink2:#3D464E; --muted:#66707A;
   --line:#D4D9DE; --hair:#E4E8EB; --accent:#1F5F8B;
@@ -151,6 +199,29 @@ header.top{position:sticky;top:0;z-index:20;background:var(--surface);
 
 .shell{max-width:1180px;margin:0 auto;padding:0 26px 80px;display:grid;
   grid-template-columns:224px minmax(0,1fr);gap:44px;align-items:start}
+/* pages that list entries get a third column: what is on this page, and where you are
+   in it. The shell widens rather than squeezing the plates, which have a min-width. */
+.shell.has-toc{max-width:1400px;grid-template-columns:224px minmax(0,1fr) 208px;gap:40px}
+
+aside.toc{position:sticky;top:78px;max-height:calc(100vh - 96px);overflow-y:auto;
+  padding:30px 0 20px;scrollbar-width:thin}
+.toclabel{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 10px 10px}
+aside.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+aside.toc a{display:flex;gap:8px;align-items:baseline;text-decoration:none;color:var(--ink2);
+  font-size:12.4px;line-height:1.35;padding:4px 10px;border-left:2px solid transparent;
+  border-radius:0 3px 3px 0}
+aside.toc a:hover{color:var(--ink);background:var(--hair)}
+aside.toc a.on{color:var(--accent-ink);border-left-color:var(--accent);
+  background:var(--accent-soft);font-weight:600}
+aside.toc .tn{font-family:var(--mono);font-size:9.5px;color:var(--muted);flex:0 0 auto}
+aside.toc a.on .tn{color:var(--accent-ink)}
+aside.toc a.sec{font-family:var(--disp);font-weight:600;margin-top:9px;padding-top:10px;
+  border-top:1px solid var(--hair)}
+@media (max-width:1300px){
+  .shell.has-toc{max-width:1180px;grid-template-columns:224px minmax(0,1fr);gap:44px}
+  aside.toc{display:none}
+}
 
 nav.cats{position:sticky;top:78px;max-height:calc(100vh - 96px);overflow-y:auto;
   padding:30px 0 20px;display:flex;flex-direction:column;gap:2px;scrollbar-width:thin}
@@ -344,7 +415,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 26px 60px;font-family:var(--mono
 footer a{color:var(--muted)}
 
 @media (max-width:900px){
-  .shell{grid-template-columns:1fr;gap:0;padding:0 18px 60px}
+  .shell,.shell.has-toc{grid-template-columns:1fr;gap:0;padding:0 18px 60px}
   nav.cats{position:static;max-height:none;flex-direction:row;overflow-x:auto;padding:18px 0 4px;
     gap:6px;border-bottom:1px solid var(--line);align-items:center}
   .navlabel{display:none}
@@ -366,7 +437,31 @@ footer a{color:var(--muted)}
   .badges{margin-left:0;width:100%}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
+
+ul.rel{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;padding:0;
+  align-items:baseline}
+ul.rel li.lab{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted)}
+ul.rel a{font-family:var(--disp);font-size:11.5px;font-weight:600;text-decoration:none;
+  color:var(--ink2);border:1px solid var(--line);border-radius:2px;padding:2px 8px;display:block}
+ul.rel a:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-soft)}
+
+/* This is a reference. People print it and save it as PDF, so make that page work. */
+@media print{
+  :root{--paper:#fff;--surface:#fff;--ink:#000;--ink2:#222;--muted:#555;--line:#bbb;--hair:#ddd;
+        --accent-soft:#fff;--shadow:none}
+  header.top,nav.cats,aside.toc,.search,#results,.pager,footer{display:none!important}
+  .shell{display:block;max-width:none;padding:0}
+  main{padding:0}
+  article.entry{break-inside:avoid;page-break-inside:avoid;border:1px solid #bbb;
+    box-shadow:none;margin-bottom:14px}
+  figure.fig,.sheet{break-inside:avoid;page-break-inside:avoid;overflow:visible}
+  svg.plate{min-width:0}
+  dl.facts{break-inside:avoid;page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  h1.ptitle{font-size:22px}
+  @page{margin:14mm}
+}
 """
 
 # ------------------------------------------------------------------ fragments
@@ -385,24 +480,36 @@ def render_entry(en, idx, root=False, home=None):
     if en["alias"]:
         alias = ('<ul class="alias"><li class="lab">also called</li>'
                  + "".join('<li>%s</li>' % e(a) for a in en["alias"]) + '</ul>')
+    # See also — the relationship between two entries is the thing a dictionary
+    # cannot express with aliases alone, and it is how people actually navigate.
+    rel = ""
+    kin = [n for n in RELATED.get(en["name"], []) if n in BY_NAME]
+    if kin:
+        rel = ('<ul class="rel"><li class="lab">see also</li>'
+               + "".join('<li><a href="%s">%s</a></li>' % (url(BY_NAME[n], root), e(n))
+                         for n in kin) + '</ul>')
+    # give every plate an accessible name by pointing it at its own caption
+    capid = "cap-" + anchor(en["name"])
+    plate = en["svg"].replace('<svg class="plate"',
+                              '<svg class="plate" aria-labelledby="%s"' % capid, 1)
     return (
     '<article class="entry" id="%s">'
     '<div class="ehead"><span class="plateno">%02d.%d</span><h2 class="name">%s</h2>'
     '<span class="badges">%s<a class="tier %s" href="%s">%s</a></span></div>'
     '<p class="catline"><a href="%s">%s</a>%s</p>'
     '<p class="defn">%s</p>%s%s'
-    '<figure class="fig"><div class="sheet">%s</div><figcaption>%s</figcaption></figure>'
+    '<figure class="fig"><div class="sheet">%s</div><figcaption id="%s">%s</figcaption></figure>'
     '<dl class="facts">'
     '<div><dt>Answers</dt><dd>%s</dd></div>'
     '<div><dt>Reach for it when</dt><dd>%s</dd></div>'
     '<div><dt>It must show</dt><dd>%s</dd></div>'
     '<div class="fail"><dt>Common failure</dt><dd>%s</dd></div>'
-    '</dl></article>'
+    '</dl>%s</article>'
     % (anchor(en["name"]), en["cat"], idx, e(en["name"]), badge, lcls, P(lslug, root), e(lname),
        P(CATSLUG[en["cat"]], root), e(CATNAME[en["cat"]]),
        ("" if home is None or home == en["cat"] else ' <span class="shown">also shown here</span>'),
        e(en["defn"]), aud, alias,
-       en["svg"], e(en["cap"]), e(en["answers"]), e(en["when"]), e(en["must"]), e(en["fail"])))
+       plate, capid, e(en["cap"]), e(en["answers"]), e(en["when"]), e(en["must"]), e(en["fail"]), rel))
 
 # Plate number NN.n — position within the entry's own category, in declaration order.
 CAT_INDEX, _seen = {}, {}
@@ -413,6 +520,10 @@ for _en in E:
 def nav(active, root):
     n = ('<a class="cat" href="%s"%s><span class="n">⌂</span><span>Overview</span></a>'
          % (P("index", root), ' aria-current="page"' if active == "index" else ""))
+    n += ('<a class="cat" href="%s"%s><span class="n">?</span>'
+          '<span>Question → diagram</span><span class="k">%d</span></a>'
+          % (P("questions", root),
+             ' aria-current="page"' if active == "questions" else "", len(QUESTIONS)))
     n += '<p class="navlabel second">By level</p>'
     n += ('<a class="cat star" href="%s"%s><span class="n">★</span>'
           '<span>Learning path</span><span class="k">%d</span></a>'
@@ -439,6 +550,19 @@ def nav(active, root):
               % (P(cslug, root), ' aria-current="page"' if active == cslug else "", i, e(name), cnt))
     return n
 
+def toc(ents, extra=None):
+    """What is on this page, in page order — the right-hand column. `extra` is for the
+    sections that are not entries (the UML canon panel, the audience 'also read' list)."""
+    if not ents and not extra:
+        return ""
+    rows = "".join(
+        '<li><a href="#%s"><span class="tn">%02d.%d</span><span>%s</span></a></li>'
+        % (anchor(en["name"]), en["cat"], CAT_INDEX[en["name"]], e(en["name"])) for en in ents)
+    rows += "".join('<li><a class="sec" href="#%s">%s</a></li>' % (i, e(t))
+                    for i, t in (extra or []))
+    return ('<aside class="toc" aria-label="On this page"><p class="toclabel">On this page</p>'
+            '<ol>%s</ol></aside>' % rows)
+
 def pager(prev, nxt, root=False):
     if not prev and not nxt: return ""
     out = '<div class="pager">'
@@ -448,58 +572,140 @@ def pager(prev, nxt, root=False):
             if nxt else '<span class="sp"></span>')
     return out + '</div>'
 
-def search_index(root):
+def search_index():
+  """One index for the whole site, written once to assets/. URLs are stored in their
+  root-relative form and prefixed at runtime with window.BASE, so the same file serves
+  index.html and everything under pages/.
+
+  The searchable blob carries the prose too — `defn`, `must` and `fail` are where the
+  words people actually type live (“idempotency”, “grain”, “compensating action”)."""
   return json.dumps(
-    [[en["name"], url(en, root), CATNAME[en["cat"]], LEVELS[en["tier"]][0], en["answers"],
+    [[en["name"], url(en, True), CATNAME[en["cat"]], LEVELS[en["tier"]][0], en["answers"],
       AUDNAME[AUDIENCE[en["name"]][0]],
-      " ".join([en["name"], CATNAME[en["cat"]], en["answers"], en["when"]] + en["alias"]
+      " ".join([en["name"], CATNAME[en["cat"]], en["answers"], en["when"],
+                en["defn"], en["must"], en["fail"], en["cap"]] + en["alias"]
                + [AUDSYN[a] for a in [AUDIENCE[en["name"]][0]] + AUDIENCE[en["name"]][1]]).lower()]
      for en in E], ensure_ascii=False, separators=(",", ":"))
 
-JS_TPL = """
-<script>window.IDX=%s;</script>
-<script>
+SITE_JS = """
+/* --- table of contents: highlight where you are on the page ------------- */
+(function(){
+  var toc=document.querySelector('aside.toc');
+  if(!toc) return;
+  var arts=[].slice.call(document.querySelectorAll('article.entry'));
+  if(!arts.length) return;
+  var links={};
+  [].forEach.call(toc.querySelectorAll('a[href^="#"]'),function(a){
+    links[decodeURIComponent(a.getAttribute('href').slice(1))]=a;
+  });
+  var cur=null;
+  function mark(id){
+    if(id===cur) return;
+    if(cur&&links[cur]) links[cur].classList.remove('on');
+    cur=id;
+    var a=links[id];
+    if(!a) return;
+    a.classList.add('on');
+    /* keep the active row visible inside the TOC's own scroll box */
+    var t=toc.getBoundingClientRect(), r=a.getBoundingClientRect();
+    if(r.top<t.top||r.bottom>t.bottom) a.scrollIntoView({block:'nearest'});
+  }
+  /* the last entry whose top has passed under the sticky header wins */
+  function pick(){
+    var best=arts[0].id, y=-1e9;
+    for(var i=0;i<arts.length;i++){
+      var t=arts[i].getBoundingClientRect().top-96;
+      if(t<=0 && t>y){ y=t; best=arts[i].id; }
+    }
+    mark(best);
+  }
+  var queued=false;
+  window.addEventListener('scroll',function(){
+    if(queued) return;
+    queued=true;
+    requestAnimationFrame(function(){ queued=false; pick(); });
+  },{passive:true});
+  window.addEventListener('resize',pick,{passive:true});
+  pick();
+})();
+
+/* --- search ------------------------------------------------------------- */
 (function(){
   var box=document.getElementById('q'), count=document.getElementById('count'),
-      res=document.getElementById('results'), body=document.getElementById('pagebody');
+      res=document.getElementById('results'), body=document.getElementById('pagebody'),
+      toc=document.querySelector('aside.toc'), base=window.BASE||'';
   function esc(s){return s.replace(/[&<>"]/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function run(){
     var t=(box.value||'').trim().toLowerCase();
-    if(!t){ res.style.display='none'; body.style.display=''; count.textContent=''; return; }
-    var hits=window.IDX.filter(function(r){return r[6].indexOf(t)>-1;});
+    if(!t){ res.style.display='none'; body.style.display=''; count.textContent='';
+            if(toc) toc.style.display=''; return; }
+    /* results replace the page, so the page's contents list would be lying */
+    if(toc) toc.style.display='none';
+    /* every word must match, so "kafka ordering" narrows instead of finding nothing */
+    var terms=t.split(/\\s+/).filter(Boolean);
+    var hits=window.IDX.filter(function(r){
+      return terms.every(function(w){return r[6].indexOf(w)>-1;});
+    });
     res.innerHTML = hits.length
       ? hits.map(function(r){
-          return '<a href="'+r[1]+'"><span class="rn">'+esc(r[0])+'</span>'
+          return '<a href="'+base+r[1]+'"><span class="rn">'+esc(r[0])+'</span>'
                + '<span class="rm">'+esc(r[2])+' \\u00b7 '+esc(r[3])
                + ' \\u00b7 for '+esc(r[5])+'</span>'
                + '<span class="ra">'+esc(r[4])+'</span></a>';}).join('')
-      : '<p class="none">No diagram type matches that. Try \\u201cevent\\u201d, '
-        + '\\u201cfailover\\u201d or \\u201clineage\\u201d.</p>';
+      : '<p class="none">No diagram type matches every word of that. Try \\u201cevent\\u201d, '
+        + '\\u201cfailover\\u201d, \\u201ctenancy\\u201d or \\u201clineage\\u201d.</p>';
     res.style.display='flex'; body.style.display='none';
     count.textContent = hits.length + (hits.length===1?' match':' matches');
   }
-  box.addEventListener('input', run);
-  if(box.value) run();
+  if(box){ box.addEventListener('input', run); if(box.value) run(); }
   var t;
   function flash(){
     if(location.hash.length<2) return;
-    var el=document.getElementById(location.hash.slice(1));
+    var el=document.getElementById(decodeURIComponent(location.hash.slice(1)));
     if(!el || el.className.indexOf('entry')<0) return;
     clearTimeout(t); el.classList.add('flash');
     t=setTimeout(function(){el.classList.remove('flash');},1600);
   }
   window.addEventListener('hashchange', flash); flash();
 })();
-</script>
 """
 
-def page(fname, title, desc, active, body, root=False):
-    html = ('<meta charset="utf-8">\n'
+def write_assets():
+    """CSS, the search index and the search script, written once instead of inlined
+    into all 30 pages. Roughly halves the built site and lets the browser cache them."""
+    d = os.path.join(ROOT, AST)
+    os.makedirs(d, exist_ok=True)
+    out = {}
+    for fname, text in (("site.css", CSS),
+                        ("search-index.js", "window.IDX=%s;\n" % search_index()),
+                        ("site.js", SITE_JS)):
+        with open(os.path.join(d, fname), "w", encoding="utf-8") as f:
+            f.write(text)
+        out[fname] = len(text.encode("utf-8"))
+    return out
+
+BUILT = []      # (fname, root) of every page written, for the sitemap
+
+def page(fname, title, desc, active, body, root=False, aside=""):
+    canon = abs_url(fname, root)
+    social = ('<meta property="og:type" content="website">\n'
+              '<meta property="og:site_name" content="Architecture Diagram Dictionary">\n'
+              '<meta property="og:title" content="%s">\n'
+              '<meta property="og:description" content="%s">\n'
+              '<meta name="twitter:card" content="summary">\n' % (e(title), e(desc)))
+    if canon:
+        social += ('<link rel="canonical" href="%s">\n'
+                   '<meta property="og:url" content="%s">\n' % (e(canon), e(canon)))
+    html = ('<!doctype html>\n<html lang="en">\n<head>\n'
+            '<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
             '<meta name="description" content="%s">\n'
             '<title>%s</title>\n' % (e(desc), e(title))
-        + CSS
+        + social
+        + FONTS
+        + '<link rel="stylesheet" href="%s">\n' % A("site.css", root)
+        + '</head>\n<body>\n'
         + ('<header class="top"><div class="topin">'
            '<h1 class="brand"><a href="%s">Architecture <em>Diagram Dictionary</em></a></h1>'
            '<p class="tagline">%d types · %d categories · 3 levels</p>'
@@ -507,19 +713,39 @@ def page(fname, title, desc, active, body, root=False):
            'aria-label="Search diagram types" autocomplete="off"><span id="count"></span></div>'
            '</div></header>' % (P("index", root), len(E), len(CATS), len(E)))
         + DEFS
-        + '<div class="shell"><nav class="cats" aria-label="Sections">' + nav(active, root) + '</nav>'
-          '<main><div id="results"></div><div id="pagebody">' + body + '</div></main></div>'
+        + ('<div class="shell%s"><nav class="cats" aria-label="Sections">' % (" has-toc" if aside else ""))
+        + nav(active, root) + '</nav>'
+          '<main><div id="results"></div><div id="pagebody">' + body + '</div></main>'
+        + aside + '</div>'
         + ('<footer>Levels &nbsp;—&nbsp; L1 foundation: describe any system. L2 core practice: '
            'design and operate a distributed one. L3 specialist: depth where the domain requires it. '
            '<a href="%s">The learning path</a> sequences %d of the %d types across '
            'those levels. Sample plates are drawn to one house style; they show the notation, not a '
            'real system.</footer>' % (P("learning-path", root), len(PATH), len(E)))
-        + (JS_TPL % search_index(root)))
+        + '<script>window.BASE=%s;</script>\n' % json.dumps("" if root else "../")
+        + '<script src="%s" defer></script>\n' % A("search-index.js", root)
+        + '<script src="%s" defer></script>\n' % A("site.js", root)
+        + '</body>\n</html>\n')
     path = os.path.join(ROOT, fname) if root else os.path.join(ROOT, SUB, fname)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         f.write(html)
+    BUILT.append((fname, root))
     return len(html)
+
+
+def write_sitemap():
+    """Search engines need absolute URLs, so this only makes sense once SITE is known."""
+    if not SITE:
+        return None
+    urls = "".join("  <url><loc>%s</loc></url>\n" % e(abs_url(f, r)) for f, r in BUILT)
+    xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s</urlset>\n' % urls)
+    with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
+        f.write(xml)
+    with open(os.path.join(ROOT, "robots.txt"), "w", encoding="utf-8") as f:
+        f.write("User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % SITE)
+    return len(BUILT)
 
 # ---------------------------------------------------------------------- pages
 def build():
@@ -564,6 +790,34 @@ def build():
         "%d software architecture diagram types across %d categories — each with a sample plate, "
         "the question it answers, and the mistake that shows up in review." % (len(E), len(CATS)),
         "index", body, root=True)))
+
+    # question -> diagram, as its own page ---------------------------------
+    # It is the best entry point in the whole site and it used to exist only
+    # halfway down index.html.
+    qrows2 = "".join('<a href="%s"><span class="q">%s</span><span class="d">%s</span></a>'
+                     % (url(BY_NAME[n]), e(q), e(n)) for q, n in QUESTIONS)
+    byq = {}
+    for en in E:
+        byq.setdefault(CATNAME[en["cat"]], []).append(en)
+    alist = "".join(
+        '<li><a href="%s"><span class="st">%02d</span><span class="nm">%s</span>'
+        '<span class="an">%s</span></a></li>'
+        % (url(en), en["cat"], e(en["name"]), e(en["answers"]))
+        for en in sorted(E, key=lambda x: x["answers"].lower()))
+    body = ('<div class="phead"><p class="crumb"><a href="../index.html">Overview</a> · '
+            'Question → diagram</p><h1 class="ptitle">Start from the question</h1>'
+            '<p class="pblurb">Choosing by the name of a diagram is how you end up drawing the '
+            'wrong one. <b>Choose by the question you are trying to settle</b>, then draw only '
+            'what that question needs — and stop.</p></div>'
+            '<div class="qwrap"><p>The %d questions that come up most</p>'
+            '<div class="qgrid">%s</div></div>'
+            '<p class="sect">Every type, by the question it answers</p>'
+            '<ol class="listing">%s</ol>' % (len(QUESTIONS), qrows2, alist))
+    written.append(("questions.html", page(
+        "questions.html", "Question → diagram · Architecture Diagram Dictionary",
+        "Pick a software architecture diagram by the question you need to settle, not by its "
+        "name. %d types, each with the question it answers." % len(E),
+        "questions", body)))
 
     # learning path --------------------------------------------------------
     stages = ""
@@ -615,7 +869,8 @@ def build():
         written.append((lslug + ".html", page(
             lslug + ".html", "%s · Architecture Diagram Dictionary" % name,
             "Level %d of the learning path — %s. %d diagram types."
-            % (l, outcome[0].lower() + outcome[1:], len(ents)), lslug, body)))
+            % (l, outcome[0].lower() + outcome[1:], len(ents)), lslug, body,
+            aside=toc(ents))))
 
     # one page per audience ------------------------------------------------
     for pos, (k, label, plural, who, want) in enumerate(AUDIENCES):
@@ -627,7 +882,7 @@ def build():
                if pos < len(AUDIENCES)-1 else None)
         secondary = ""
         if also:
-            secondary = ('<p class="sect">Also useful to %s</p><ol class="listing">%s</ol>'
+            secondary = ('<p class="sect" id="also">Also useful to %s</p><ol class="listing">%s</ol>'
                          % (e(plural), "".join(
                 '<li><a href="%s"><span class="st">%s</span><span class="nm">%s</span>'
                 '<span class="an">%s</span></a></li>'
@@ -644,7 +899,8 @@ def build():
         written.append((AUDSLUG[k] + ".html", page(
             AUDSLUG[k] + ".html", "For %s · Architecture Diagram Dictionary" % plural,
             "Architecture diagram types drawn primarily for %s. %s" % (plural, who),
-            AUDSLUG[k], body)))
+            AUDSLUG[k], body,
+            aside=toc(ents, [("also", "Also useful to %s" % plural)] if also else None))))
 
     # one page per category ------------------------------------------------
     for pos, (i, name, cslug, blurb) in enumerate(CATS):
@@ -664,32 +920,47 @@ def build():
                 'Category %02d</p><h1 class="ptitle">%s</h1><p class="pblurb">%s</p>'
                 '<p class="pmeta">%d types · %s</p></div>'
                 % (i, e(name), e(blurb), len(ents), e(mix)))
-        if i == 2:
-            cols = ""
-            for group, members in UML_14:
+        def canon_cols(groups, home):
+            out = ""
+            for group, members in groups:
                 items = ""
                 for n in members:
                     en = BY_NAME[n]
-                    away = ("" if en["cat"] == 2
+                    away = ("" if en["cat"] == home
                             else '<span class="away">filed in %s</span>' % e(CATNAME[en["cat"]]))
                     items += '<li><a href="%s">%s%s</a></li>' % (url(en), e(n), away)
-                cols += '<div><h3>%s · 7</h3><ol>%s</ol></div>' % (e(group), items)
-            body += ('<div class="canon"><h2>The 14 UML diagram types</h2>'
+                out += '<div><h3>%s · %d</h3><ol>%s</ol></div>' % (e(group), len(members), items)
+            return out
+
+        if i == CAT_C4:
+            body += ('<div class="canon" id="c4set"><h2>The C4 model</h2>'
+                     '<p>Four levels of zoom over one system, plus a supplementary set. All seven '
+                     'are on this page. Three are <em>filed</em> elsewhere — you reach for a '
+                     'sequence or deployment diagram by the job it does rather than because C4 '
+                     'names it — so their entries live in those categories and are shown here too. '
+                     'C4 is a notation, not a methodology: use the levels you need and stop, which '
+                     'for most systems is the first two.</p>'
+                     '<div class="canoncols">%s</div></div>' % canon_cols(C4_SET, CAT_C4))
+        if i == CAT_UML:
+            body += ('<div class="canon" id="uml14"><h2>The 14 UML diagram types</h2>'
                      '<p>UML 2.5 defines fourteen, in two groups of seven, and all fourteen are '
                      'on this page. Two of them are <em>filed</em> elsewhere — an architect reaches '
                      'for a sequence or deployment diagram by the job it does rather than by its '
                      'notation — so their entries live in those categories and are shown here too.'
-                     '</p><div class="canoncols">%s</div></div>' % cols)
+                     '</p><div class="canoncols">%s</div></div>' % canon_cols(UML_14, CAT_UML))
         body += "".join(render_entry(en, CAT_INDEX[en["name"]], root=False, home=i) for en in ents)
         body += pager(prev, nxt)
         written.append((cslug + ".html", page(
             cslug + ".html", "%s · Architecture Diagram Dictionary" % name,
-            "%s %d diagram types." % (blurb, len(ents)), cslug, body)))
+            "%s %d diagram types." % (blurb, len(ents)), cslug, body,
+            aside=toc(ents, ([("c4set", "The C4 model")] if i == CAT_C4 else
+                             [("uml14", "The 14 UML types")] if i == CAT_UML else None)))))
     return written
 
 
 check_plates()
 check_audiences()
+check_related()
 _fit = check_text_fit()
 if _fit:
     print("text may overflow its box in %d place(s):" % len(_fit))
@@ -706,10 +977,22 @@ def order_report():
         rows.append("   %02d %-30s %s%s" % (i, name, "".join(seq), flag))
     return rows
 
+_assets = write_assets()
 pages = build()
-print("wrote %d pages, %.0f KB total, %d entries"
-      % (len(pages), sum(n for _, n in pages) / 1024.0, len(E)))
+_n = write_sitemap()
+
+html_kb = sum(n for _, n in pages) / 1024.0
+ast_kb  = sum(_assets.values()) / 1024.0
+print("wrote %d pages (%.0f KB) + %d shared assets (%.0f KB), %d entries"
+      % (len(pages), html_kb, len(_assets), ast_kb, len(E)))
 for fname, n in pages:
     print("   %-32s %6.0f KB" % (fname, n / 1024.0))
+print("   %-32s %6s" % ("assets/", ""))
+for fname, n in sorted(_assets.items()):
+    print("     %-30s %6.0f KB   (once, not %dx)" % (fname, n / 1024.0, len(pages)))
+if _n:
+    print("   %-32s %6d urls   %s" % ("sitemap.xml + robots.txt", _n, SITE))
+else:
+    print("   sitemap.xml skipped — set SITE_URL or add a git remote to generate it")
 print("\ncategory ordering (level sequence, most-used first):")
 for r in order_report(): print(r)

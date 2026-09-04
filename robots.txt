@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tung-le-lv.github.io/sa-diagrams-wiki/sitemap.xml
